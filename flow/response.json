@@ -1,0 +1,142 @@
+{
+    "DEFAULT":{
+        "replyMessage":[
+            "*Esta respuesta es un respuesta default* cuando no se consigue una palabra clave \n",
+            "la puedes desactivar en tu archivo .env DEFAULT_MESSAGE=false \n",
+            "tambien te quiero recordar que si presentas algun error pasarte por el repositorio \n",
+            "https://github.com/leifermendez/bot-whatsapp#chatbot-whatsapp-opensource \n",
+            "y recuerda tener la ultima versión del proyecto \n\n",
+            "Prueba escribiendo *hola* \n"
+        ],
+        "media":null,
+        "trigger":null
+    },
+    "menu":{
+        "replyMessage":[
+            "%saludo%, este es el menú, selecciona tus opciones: \n",
+            "Pon *1* para esta opción\n",
+            "Pon *2* para esta opción\n", 
+            "Pon *3* para esta opción\n"
+        ],
+        "media":null,
+        "trigger":null
+    },
+    "opcion1":{
+        "replyMessage":[
+            "Seleccionaste la opción 1 \n",
+            "Dame por favor tu nombre.\n",
+            "*Ultimo:*\n%msjant_0% \n*Penultimo:*\n%msjant_1% \n*Antepenultimo:*\n%msjant_2% "
+        ],
+        "media":null,
+        "pasoRequerido":"menu"
+    },
+    "opcion2":{
+        "replyMessage":[
+            "Seleccionaste la opción 2\n",
+            "👍🏽"
+        ],
+        "media":null,
+        "pasoRequerido":"menu"
+    },
+    "opcion3":{
+        "replyMessage":[
+            "Seleccionaste la opción 3\n"
+        ],
+        "media":null,
+        "pasoRequerido":"menu",
+        "goto":"pideCorreo"
+    },
+    "recibenombre":{
+        "replyMessage":[
+            "Gracias, ahora dame tu correo."
+        ],
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"opcion1"
+    },
+    "recibecorreo":{
+        "replyMessage":[
+            "Gracias por tu correo."
+        ],
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"recibenombre"
+    },
+    "gallina":{
+        "replyMessage":[
+            "%saludo%, por favor dame tu *número de cliente*, este lo puedes encontrar en tu ticket de compra."
+        ],
+        "media":null,
+        "trigger":null
+    },
+    "gRevisaCliente":{
+        "replyMessage":[
+            "/URL=http://localhost:8888/dbrquery?j={\"query\":\"select_revisacliente_GUNA\",\"exec\":\"ExecuteQuery\",\"params\":{\"par1\":\"XXPARAM1XX\"}}"
+        ],
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gallina"
+    },
+    "gGuardainfo":{
+        "replyMessage":[
+            "/URL=http://localhost:8888/dbrquery?j={\"query\":\"insert_registroGallina_GUNA\",\"exec\":\"ExecuteCommand\",\"params\":{\"par1\":\"XXPARAM1XX\", \"par2\":\"XXPARAM2XX\", \"par3\":\"XXPARAM3XX\", \"par4\":\"XXPARAM4XX\"}}"
+        ],
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gRevisaCliente"
+    },
+    "rnd":{
+        "replyMessage":[
+            "%saludo%\nHoy es %dia_semana%.\nSon las %hora24%:%minutos% hrs.\nSon las %hora12%:%minutos% %ampm%\n*Palabra random:* %rnd_arbol,burro,cabra,dinosaurio,elefante,fuego,gorila%\n*Emoji random:* %rnd_👍🏽,😁,🤣,🤔,🤦🏽‍♂️,🙄,😎%\n*Número random:* %rnd_1,2,3,4,5,6,7%\n"
+        ],
+        "media":null,
+        "trigger":null
+    },
+    "venta":{
+        "replyMessage":[
+            "%saludo%,\nPor favor escribe la *ruta* y el *almacén* de la venta que deseas borrar, separados por una diagonal.\nEjemplo: *101/6*\n"
+        ],
+        "media":null,
+        "trigger":null
+    },
+    "borramosventa":{
+        "replyMessage":[
+            "/URL=http://localhost:8888/dbrquery?j={\"query\":\"select_revisaBorrarVenta\",\"exec\":\"ExecuteQuery\",\"params\":{\"par01\":\"XXPARAM01XX\", \"par02\":\"XXPARAM02XX\", \"par03\":\"XXPARAM03XX\", \"par04\":\"XXPARAM04XX\", \"par05\":\"XXPARAM05XX\", \"par06\":\"XXPARAM06XX\", \"par07\":\"XXPARAM07XX\", \"par08\":\"XXPARAM08XX\", \"par09\":\"XXPARAM09XX\", \"par10\":\"XXPARAM10XX\"}}"
+        ],
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"venta"
+    },
+    "rnd2":{
+        "replyMessage":[
+            ""
+        ],
+        "media":null,
+        "trigger":null,
+        "actions":{
+            "title":"¿Que te interesa ver?",
+            "message":"%saludo%\nHoy es %dia_semana%.\nSon las %hora24%:%minutos% hrs.\nSon las %hora12%:%minutos% %ampm%\n*Palabra random:* %rnd_arbol,burro,cabra,dinosaurio,elefante,fuego,gorila%\n*Emoji random:* %rnd_👍🏽,😁,🤣,🤔,🤦🏽‍♂️,🙄,😎%\n*Número random:* %rnd_1,2,3,4,5,6,7%\n",
+            "footer":"Gracias",
+            "buttons":[
+                {"body":"Cursos"},
+                {"body":"Youtube"},
+                {"body":"Telegram"}
+            ]
+        }
+    },
+    "clientes":{
+        "replyMessage":[
+            "%saludo%,\nPor favor escribe la *ruta* y el *almacén* de la ruta de la que quieres recuperar los clientes, separados por una diagonal.\nEjemplo: *101/6*\n"
+        ],
+        "media":null,
+        "trigger":null
+    },
+    "recuperamosClientes":{
+        "replyMessage":[
+            "/URL=http://localhost:8888/dbrquery?j={\"query\":\"proc_recuperaClientesNuevos\",\"exec\":\"ExecuteCommand\",\"params\":{\"par01\":\"XXPARAM01XX\", \"par02\":\"XXPARAM02XX\", \"par03\":\"XXPARAM03XX\"}}"
+        ],
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"clientes"
+    }
+}

@@ -1,0 +1,66 @@
+[
+    {
+        "keywords":  [
+            "xmuchas gracias",
+            "xgracias",
+            "xvale gracias"
+        ],
+        "key": "Gracias"
+    },
+    {
+        "keywords": ["/menu"],
+        "key": "menu"
+    },
+    {
+        "keywords": ["1"],
+        "key": "opcion1"
+    },
+    {
+        "keywords": ["2"],
+        "key": "opcion2"
+    },
+    {
+        "keywords":  ["3"],
+        "key": "opcion3"
+    },
+    {
+        "keywords": "*",
+        "key": "recibenombre"
+    },
+    {
+        "keywords": "*",
+        "key": "recibecorreo"
+    },
+    {
+        "keywords": "*",
+        "key": "gRevisaCliente"
+    },
+    {
+        "keywords": "*",
+        "key": "gGuardainfo"
+    },
+    {
+        "keywords": ["rnd"],
+        "key": "rnd"
+    },
+    {
+        "keywords": ["rnd2"],
+        "key": "rnd2"
+    },
+    {
+        "keywords": ["/venta","/borrarventa"],
+        "key": "venta"
+    },
+    {
+        "keywords": "*",
+        "key": "borramosventa"
+    },
+    {
+        "keywords": ["/rc","/recuperaclientes","/recuperarclientes"],
+        "key": "clientes"
+    },
+    {
+        "keywords": "*",
+        "key": "recuperamosClientes"
+    }
+]
