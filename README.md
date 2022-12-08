@@ -1,5 +1,12 @@
 ## Chatbot Whatsapp (OpenSource)
-#### Actualizado Septiembre 2022
+#### Actualizado Diciembre 2022
+
+Este proyecto es un fork del de Leifer Mendez, agrega las siguientes modificaciones:
+
+ - Permite menus y submenus
+ - Permite expresiones regulares en las palabras predefinidas en el initial.json
+ - Permite remplazos en el texto de los mensajes or ejemplo %saludo% para que aparezca "Buenos días, tardes o noches" dependiendo de la hora.
+ - Las modificaciones están enfocadas al uso de los archivos initial.json y response.json, yo no uso MySQL o DalogFlow, asi que no se si funcionen en es aparte de la programación.
 
 El siguiente proyecto se realizó con fines educativos para el canal de [Youtube (Leifer Mendez)](https://www.youtube.com/channel/UCgrIGp5QAnC0J8LfNJxDRDw?sub_confirmation=1) donde aprendemos a crear y implementar un chatbot increíble usando [node.js](https://codigoencasa.com/tag/nodejs/) además le agregamos inteligencia artificial gracias al servicio de __dialogflow__.
 
