@@ -13,10 +13,10 @@
     },
     "menu":{
         "replyMessage":[
-            "%saludo%, este es el menú, selecciona tus opciones: \n",
-            "Pon *1* para esta opción\n",
-            "Pon *2* para esta opción\n", 
-            "Pon *3* para esta opción\n"
+            "%saludo%, este es el menú, selecciona una opción: \n",
+            "Pon *1* para mensajes anteriores.\n",
+            "Pon *2* para ver remplazos.\n", 
+            "Pon *3* para esta opción.\n"
         ],
         "media":null,
         "trigger":null
@@ -24,27 +24,34 @@
     "opcion1":{
         "replyMessage":[
             "Seleccionaste la opción 1 \n",
-            "Dame por favor tu nombre.\n",
-            "*Ultimo:*\n%msjant_0% \n*Penultimo:*\n%msjant_1% \n*Antepenultimo:*\n%msjant_2% "
+            "*Ultimo:*\n%msjant_0% \n*Penultimo:*\n%msjant_1% \n*Antepenultimo:*\n%msjant_2% \n\n",
+            "Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 3 sin necesidad de volver a iniciar con */menu*."
         ],
         "media":null,
-        "pasoRequerido":"menu"
+        "pasoRequerido":"menu",
+        "goto":"menu"
     },
     "opcion2":{
         "replyMessage":[
             "Seleccionaste la opción 2\n",
-            "👍🏽"
-        ],
-        "media":null,
-        "pasoRequerido":"menu"
-    },
-    "opcion3":{
-        "replyMessage":[
-            "Seleccionaste la opción 3\n"
+            "Remplazamos %saludo.% con *\"%saludo%\"*\n",
+            "Remplazamos %dia_semana.% con *\"%dia_semana%\"*\n",
+            "Remplazamos %hora24.%:%minutos.% con *\"%hora24%:%minutos%\"*\n",
+            "Remplazamos %.rnd_👍🏽,🤞🏼,🤪,🤔% con '%rnd_👍🏽,🤞🏼,🤪,🤔%'\n\n",
+            "Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 3 sin necesidad de volver a iniciar con */menu*."
         ],
         "media":null,
         "pasoRequerido":"menu",
-        "goto":"pideCorreo"
+        "goto":"menu"
+    },
+    "opcion3":{
+        "replyMessage":[
+            "Seleccionaste la opción 3\n\n",
+            "Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 3 sin necesidad de volver a iniciar con */menu*."
+        ],
+        "media":null,
+        "pasoRequerido":"menu",
+        "goto":"menu"
     },
     "recibenombre":{
         "replyMessage":[

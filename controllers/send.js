@@ -117,7 +117,7 @@ const lastTrigger = (number) => new Promise((resolve, reject) => {
  */
 const readChat = async (number, message, trigger = null, regla) => { //MOD by CHV - Agregamos el parametro "regla" para guardarlo en "chats/numero.json"
     number = cleanNumber(number)
-    await saveMessage( message, trigger, number, regla ) //MOD by CHV - Agegamos "regla"
+    await saveMessage( message, trigger, number, regla ) //MOD by CHV - Agregamos "regla"
     // console.log('Saved')
 }
 
