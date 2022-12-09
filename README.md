@@ -5,7 +5,11 @@ Este proyecto es un fork del de [Leifer Mendez](https://github.com/leifermendez/
 
  - Permite menus y submenus
  - Permite expresiones regulares en las palabras predefinidas en el initial.json.
- - Permite remplazos en el texto de los mensajes por ejemplo %saludo% para que aparezca "Buenos días, tardes o noches" dependiendo de la hora.
+ - Permite remplazos en el texto de los mensajes por ejemplo:
+    - %saludo% para que aparezca "Buenos días, tardes o noches" dependiendo de la hora.
+    - %dia_semana% para que aparezca "lunes, martes, miercoles, etc" dependiendo del día de la semana.
+    - %msjant_XX% para que aparezca el mensaje xx anterior, es decir, si quieres mostrar el texto de 2 mensajes anteriores se pone %%msjant_2%.
+    - etc, etc, se pueden agregar mas remplazos en la funcion "remplazos" en el archivo "adapter\index.js".
  - Las modificaciones están enfocadas al uso de los archivos initial.json y response.json, yo no uso MySQL o DialogFlow, así que no se si las modificaciones funcionen con esos modulos.
  - Tiene agregado el parche de botones.
 
