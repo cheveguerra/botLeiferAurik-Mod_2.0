@@ -29,10 +29,6 @@
     },
     {
         "keywords": "*",
-        "key": "recibecorreo"
-    },
-    {
-        "keywords": "*",
         "key": "gRevisaCliente"
     },
     {
@@ -46,21 +42,5 @@
     {
         "keywords": ["rnd2"],
         "key": "rnd2"
-    },
-    {
-        "keywords": ["/venta","/borrarventa"],
-        "key": "venta"
-    },
-    {
-        "keywords": "*",
-        "key": "borramosventa"
-    },
-    {
-        "keywords": ["/rc","/recuperaclientes","/recuperarclientes"],
-        "key": "clientes"
-    },
-    {
-        "keywords": "*",
-        "key": "recuperamosClientes"
     }
 ]

@@ -16,15 +16,20 @@
             "%saludo%, este es el menú, selecciona una opción: \n",
             "Pon *1* para mensajes anteriores.\n",
             "Pon *2* para ver remplazos.\n", 
-            "Pon *3* para esta opción.\n"
+            "Pon *3* para pedir nombre.\n"
         ],
         "media":null,
         "trigger":null
     },
     "opcion1":{
         "replyMessage":[
-            "Seleccionaste la opción 1 \n",
-            "*Ultimo:*\n%msjant_0% \n*Penultimo:*\n%msjant_1% \n*Antepenultimo:*\n%msjant_2% \n\n",
+            "Seleccionaste la opción 1\n",
+            "*Ultimo mensaje:*\n",
+            "%msjant_0%\n",
+            "*Penultimo mensaje:*\n",
+            "%msjant_1%\n",
+            "*Antepenultimo mensaje:*\n",
+            "%msjant_2% \n\n",
             "Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 3 sin necesidad de volver a iniciar con */menu*."
         ],
         "media":null,
@@ -47,34 +52,20 @@
     "opcion3":{
         "replyMessage":[
             "Seleccionaste la opción 3\n\n",
-            "Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 3 sin necesidad de volver a iniciar con */menu*."
+            "Por favor dame tu nombre."
         ],
         "media":null,
-        "pasoRequerido":"menu",
-        "goto":"menu"
+        "pasoRequerido":"menu"
     },
     "recibenombre":{
         "replyMessage":[
-            "Gracias, ahora dame tu correo."
+            "Gracias por tu nombre *%msjant_0%*.\n\n",
+            "Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 3 sin necesidad de volver a iniciar con */menu*."
         ],
         "media":null,
         "trigger":null,
-        "pasoRequerido":"opcion1"
-    },
-    "recibecorreo":{
-        "replyMessage":[
-            "Gracias por tu correo."
-        ],
-        "media":null,
-        "trigger":null,
-        "pasoRequerido":"recibenombre"
-    },
-    "gallina":{
-        "replyMessage":[
-            "%saludo%, por favor dame tu *número de cliente*, este lo puedes encontrar en tu ticket de compra."
-        ],
-        "media":null,
-        "trigger":null
+        "pasoRequerido":"opcion3",
+        "goto":"menu"
     },
     "gRevisaCliente":{
         "replyMessage":[
@@ -99,21 +90,6 @@
         "media":null,
         "trigger":null
     },
-    "venta":{
-        "replyMessage":[
-            "%saludo%,\nPor favor escribe la *ruta* y el *almacén* de la venta que deseas borrar, separados por una diagonal.\nEjemplo: *101/6*\n"
-        ],
-        "media":null,
-        "trigger":null
-    },
-    "borramosventa":{
-        "replyMessage":[
-            "/URL=http://localhost:8888/dbrquery?j={\"query\":\"select_revisaBorrarVenta\",\"exec\":\"ExecuteQuery\",\"params\":{\"par01\":\"XXPARAM01XX\", \"par02\":\"XXPARAM02XX\", \"par03\":\"XXPARAM03XX\", \"par04\":\"XXPARAM04XX\", \"par05\":\"XXPARAM05XX\", \"par06\":\"XXPARAM06XX\", \"par07\":\"XXPARAM07XX\", \"par08\":\"XXPARAM08XX\", \"par09\":\"XXPARAM09XX\", \"par10\":\"XXPARAM10XX\"}}"
-        ],
-        "media":null,
-        "trigger":null,
-        "pasoRequerido":"venta"
-    },
     "rnd2":{
         "replyMessage":[
             ""
@@ -130,20 +106,5 @@
                 {"body":"Telegram"}
             ]
         }
-    },
-    "clientes":{
-        "replyMessage":[
-            "%saludo%,\nPor favor escribe la *ruta* y el *almacén* de la ruta de la que quieres recuperar los clientes, separados por una diagonal.\nEjemplo: *101/6*\n"
-        ],
-        "media":null,
-        "trigger":null
-    },
-    "recuperamosClientes":{
-        "replyMessage":[
-            "/URL=http://localhost:8888/dbrquery?j={\"query\":\"proc_recuperaClientesNuevos\",\"exec\":\"ExecuteCommand\",\"params\":{\"par01\":\"XXPARAM01XX\", \"par02\":\"XXPARAM02XX\", \"par03\":\"XXPARAM03XX\"}}"
-        ],
-        "media":null,
-        "trigger":null,
-        "pasoRequerido":"clientes"
     }
 }
