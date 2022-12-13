@@ -15,6 +15,8 @@ Este proyecto es un fork del de [Leifer Mendez](https://github.com/leifermendez/
 
  ##  INICIA DOCUMENTACION DEL PROYECTO ORIGINAL
 
+ Inicia documentacion del proyecto original.
+
 El siguiente proyecto se realizó con fines educativos para el canal de [Youtube (Leifer Mendez)](https://www.youtube.com/channel/UCgrIGp5QAnC0J8LfNJxDRDw?sub_confirmation=1) donde aprendemos a crear y implementar un chatbot increíble usando [node.js](https://codigoencasa.com/tag/nodejs/) además le agregamos inteligencia artificial gracias al servicio de __dialogflow__.
 
 [![Video](https://i.giphy.com/media/OBDi3CXC83WkNeLEZP/giphy.webp)](https://youtu.be/5lEMCeWEJ8o) 
