@@ -52,7 +52,9 @@
     "opcion3":{
         "replyMessage":[
             "Seleccionaste la opción 3\n\n",
-            "Por favor dame tu nombre."
+            "Por favor dame tu nombre.\n\n",
+            "Aquí vamos a aceptar *cualquier* texto, porque en el *initial.json* tenemos keywords : \"***\" (un asterisco en expresiones regulares quiere decir *\"cualquier cosa\"*)\n",
+            "Y en *response.json* en la opción correspondiente tenemos \"pasoRequerido\" : \"menu\", que quiere decir que SOLO se va a disparar cuando el paso anterior sea \"menu\"."
         ],
         "media":null,
         "pasoRequerido":"menu"
