@@ -3,7 +3,7 @@
 
 Este proyecto es un fork del de [Leifer Mendez](https://github.com/leifermendez/bot-whatsapp), y tiene las siguientes modificaciones:
 
- - Permite menus y submenus
+ - Permite menus y submenus.
  - Permite expresiones regulares en las palabras predefinidas en el initial.json.
  - Permite remplazos en el texto de los mensajes por ejemplo:
     - __%saludo%__ para que aparezca "Buenos días, tardes o noches" dependiendo de la hora.
