@@ -187,7 +187,7 @@ const saveMessage = ( message, trigger, number, regla ) => new Promise( async (r
 module.exports = { get, reply, getIA, saveMessage, remplazos, stepsInitial } //MOD by CHV - Agregamos "remplazos" y "stepsInitial" para usarlos en "apps.js"
 
 /**
- * Reemplaza texto en la respuesta con variables predefinidas.
+ * Reemplaza texto en la respuesta con variables predefinidas.  
  */
 function remplazos(elTexto){
     laLista = elTexto.toString().split(' ');
