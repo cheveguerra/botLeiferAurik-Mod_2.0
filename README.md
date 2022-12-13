@@ -8,7 +8,7 @@ Este proyecto es un fork del de [Leifer Mendez](https://github.com/leifermendez/
  - Permite remplazos en el texto de los mensajes por ejemplo:
     - __%saludo%__ para que aparezca "Buenos días, tardes o noches" dependiendo de la hora.
     - __%dia_semana%__ para que aparezca "lunes, martes, miercoles, etc" dependiendo del día de la semana.
-    - __%msjant_XX%__ para que aparezca el mensaje xx anterior, es decir, si quieres mostrar el texto de 2 mensajes anteriores se pone %%msjant_2%.
+    - __%msjant_XX%__ para que aparezca el mensaje xx anterior, es decir, si quieres mostrar el texto de 2 mensajes anteriores se pone %msjant_2%.
     - etc, etc, se pueden agregar mas remplazos en la funcion "remplazos" en el archivo "adapter\index.js".
  - Las modificaciones están enfocadas al uso de los archivos __initial.json__ y __response.json__, yo no uso MySQL o DialogFlow, así que no sé si las modificaciones funcionen con esos modulos, en particular el __remplazo %msjant_x%__ depende de los archivos __JSON__ que se crean en el directorio "chats".
  - Tiene agregado el parche de botones.
