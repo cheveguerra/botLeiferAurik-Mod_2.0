@@ -193,7 +193,7 @@ const listenMessage = () => client.on('message', async msg => {
                 else if(rnd==4){caritas = "👧🏽🧔🏽";}
                 else if(rnd==5){caritas = "👩🏻‍🦰🧔🏽";}
                 else if(rnd==6){caritas = "🧔🏽👩🏻‍🦰";}
-                if(i % 20 === 0){console.log("********  VAN 20, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
+                if(i % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
                 console.log(`=============   Mandamos el mensaje ${i}   ==============`);
                 var elTextoDelMensaje = caritas + " *" + saludo + "amigo tendero*  ❗❗👋🏻\n🕊️ *GUNA* trae para ti dinámicas digitales, con las que podrás participar para ganar increíbles premios. 🏆💸💰\nSigue los siguientes pasos: 😃\n*1.* 📲Sigue la página de Yo Soy Guna en Facebook en la siguiente liga  ➡️  https://www.facebook.com/yosoyguna\n*2.* 👉🏻Es importante des click en el botón Me Gusta 👍\n*3.* 🧐Sigue la dinámica que publicaremos , subiendo tu foto 📸 con los siguientes #yosoyguna #gunatenderos #gunachampions\n*4.* 🥳🎉En esta misma página , podrás ver publicados los ganadores🏅 y el tiempo en que serán elegidos. 💲 Además de tener acceso a increíbles promociones 🤑";
                 sendMedia(client, masivo[i].numero+"@c.us", "envioMasivoGuna.jpg");
