@@ -39,6 +39,7 @@ app.use('/', require('./routes/web'))
   */
 const listenMessage = () => client.on('message', async msg => {
     const { from, body, hasMedia } = msg;
+    // console.log(msg)
     // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     console.log("+++++++++++++++++++++++++++++++++++++  INICIO  +++++++++++++++++++++++++++++++++++++++");
     // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
@@ -122,7 +123,8 @@ const listenMessage = () => client.on('message', async msg => {
         // console.log("HAY URL?? : "+nuevaRespuesta.search("/URL"));
         
         var resps = require('./flow/response.json');
-        nuevaRespuesta = remplazos(resps[step].replyMessage.join(''));
+        console.log('################################# hhh ###########################')
+        nuevaRespuesta = remplazos(resps[step].replyMessage.join(''), msg);
         var pasoRequerido = resps[step].pasoRequerido;
         // var hayRequest = false;
         // if(hayRequest==false && nuevaRespuesta.search("/URL")>-1){console.log("Paramos flujo para que no mande el mensaje '/URL'."); return;}//Si el trigger es desbloqueo ya no hace nada mas.

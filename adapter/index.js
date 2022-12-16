@@ -189,7 +189,7 @@ module.exports = { get, reply, getIA, saveMessage, remplazos, stepsInitial } //M
 /**
  * Reemplaza texto en la respuesta con variables predefinidas.  
  */
-function remplazos(elTexto){
+function remplazos(elTexto, extraInfo){
     laLista = elTexto.toString().split(' ');
     // console.log(laLista);
     // console.log('=============  remplazos  ============');
@@ -287,7 +287,28 @@ function remplazos(elTexto){
                     // console.log("Anterior:"+JSON.stringify(mensajeAnterior));
                 }
                 // return histlMsjs;
-
+            }
+            if (laLista[i].search('%nombre%')>-1){//Remplaza con el nombre del remitente.
+                console.log(extraInfo);
+                
+                if(typeof extraInfo !== undefined){
+                    console.log(1)
+                    if(extraInfo['_data']['notifyName'] !== undefined){
+                        console.log(2)
+                        elTexto = elTexto.toString().replace('%nombre%', extraInfo['_data']['notifyName']);
+                        console.log("notifyName");
+                    }
+                }
+            }
+            if (laLista[i].search('%primer_nombre%')>-1){//Remplaza con el nombre del remitente.
+                // console.log(extraInfo);
+                if(typeof extraInfo !== undefined){
+                    if(extraInfo['_data']['notifyName'] !== undefined){
+                        var elNombre = extraInfo['_data']['notifyName']
+                        elTexto = elTexto.toString().replace('%primer_nombre%', elNombre.split(' ')[0]);
+                        // console.log("notifyName");
+                    }
+                }
             }
       }
     //   console.log("EL TEXTO="+elTexto);

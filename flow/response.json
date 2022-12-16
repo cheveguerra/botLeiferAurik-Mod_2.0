@@ -13,7 +13,7 @@
     },
     "menu":{
         "replyMessage":[
-            "%saludo%, este es el menú, selecciona una opción: \n",
+            "%saludo% %primer_nombre%, este es el menú, selecciona una opción: \n",
             "Pon *1* para mensajes anteriores.\n",
             "Pon *2* para ver remplazos.\n", 
             "Pon *3* para pedir nombre (RegExp).\n"
