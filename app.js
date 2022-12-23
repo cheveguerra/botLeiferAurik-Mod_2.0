@@ -39,7 +39,6 @@ app.use('/', require('./routes/web'))
   */
 const listenMessage = () => client.on('message', async msg => {
     const { from, body, hasMedia } = msg;
-    // console.log(msg)
     // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     console.log("+++++++++++++++++++++++++++++++++++++  INICIO  +++++++++++++++++++++++++++++++++++++++");
     // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
@@ -123,7 +122,6 @@ const listenMessage = () => client.on('message', async msg => {
         // console.log("HAY URL?? : "+nuevaRespuesta.search("/URL"));
         
         var resps = require('./flow/response.json');
-        console.log('################################# hhh ###########################')
         nuevaRespuesta = remplazos(resps[step].replyMessage.join(''), msg);
         var pasoRequerido = resps[step].pasoRequerido;
         // var hayRequest = false;
