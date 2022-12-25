@@ -3,7 +3,7 @@
 
 Este proyecto es un fork del de [Leifer Mendez](https://github.com/leifermendez/bot-whatsapp), y tiene las siguientes modificaciones:
 
- - Permite menus y submenus.
+ - Permite menus y submenus
  - Permite expresiones regulares en las palabras predefinidas en el initial.json.
  - Permite remplazos en el texto de los mensajes por ejemplo:
     - __%saludo%__ para que aparezca "Buenos días, tardes o noches" dependiendo de la hora.
@@ -11,10 +11,9 @@ Este proyecto es un fork del de [Leifer Mendez](https://github.com/leifermendez/
     - __%msjant_XX%__ para que aparezca el mensaje xx anterior, es decir, si quieres mostrar el texto de 2 mensajes anteriores se pone %msjant_2%.
     - etc, etc, se pueden agregar mas remplazos en la funcion "remplazos" en el archivo "adapter\index.js".
  - Las modificaciones están enfocadas al uso de los archivos __initial.json__ y __response.json__, yo no uso MySQL o DialogFlow, así que no sé si las modificaciones funcionen con esos modulos, en particular el __remplazo %msjant_x%__ depende de los archivos __JSON__ que se crean en el directorio "chats".
- - Tiene agregado el parche de botones.
+ - Tiene agregado el parche de botones y listas, así que funcionan sin problema.
 
-
- ##  INICIA DOCUMENTACION DEL PROYECTO ORIGINAL
+ ## INICIA DOCUMENTACION DEL PROYECTO ORIGINAL
 
 El siguiente proyecto se realizó con fines educativos para el canal de [Youtube (Leifer Mendez)](https://www.youtube.com/channel/UCgrIGp5QAnC0J8LfNJxDRDw?sub_confirmation=1) donde aprendemos a crear y implementar un chatbot increíble usando [node.js](https://codigoencasa.com/tag/nodejs/) además le agregamos inteligencia artificial gracias al servicio de __dialogflow__.
 
