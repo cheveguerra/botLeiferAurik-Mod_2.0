@@ -2,7 +2,7 @@
 const ExcelJS = require('exceljs');
 const moment = require('moment');
 const fs = require('fs');
-const { MessageMedia, Buttons } = require('whatsapp-web.js');
+const { MessageMedia, Buttons, List } = require('whatsapp-web.js');
 const { cleanNumber } = require('./handle')
 const { remplazos } = require('../adapter/index'); //MOD by CHV - Agregamos remplazos
 const DELAY_TIME = 170; //ms
@@ -58,12 +58,10 @@ const sendMedia = (client, number = null, fileName = null, trigger = null) => {
  * Enviamos un mensaje simple (texto) a nuestro cliente
  * @param {*} number 
  */
-const sendMessage = async (client, number = null, text = null, trigger = null, regla) => { //MOD by CHV - Agregamos el parametro "regla" para guardarlo en "chats/nuero.json"
-    // console.log("SENDMESSAGE (send.js) & regla = " + regla)
+const sendMessage = async (client, number = null, text = null, trigger = null, regla) => { //MOD by CHV - Agregamos el parametro "regla" para guardarlo en "chats/numero.json"
     setTimeout(async () => {
     number = cleanNumber(number)
     const message = text
-    // console.log("number="+number);
     client.sendMessage(number, message);
     await readChat(number, message, trigger, regla) //MOD by CHV - Agregamos el parametro "regla"
     console.log(`⚡⚡⚡ Enviando mensajes....`);
@@ -76,18 +74,33 @@ const sendMessage = async (client, number = null, text = null, trigger = null, r
  * @param {*} number 
  */
 const sendMessageButton = async (client, number = null, text = null, actionButtons) => {
-    number = cleanNumber(number)
-    const { title = null, message = null, footer = null, buttons = [] } = actionButtons;
-    let button = new Buttons(remplazos(message),[...buttons], title, footer);
-    // console.log("number="+number);
-    client.sendMessage(number, button);
-
-    console.log(`⚡⚡⚡ Enviando mensajes....`);
-    console.log("sendMessageButton.");
-    // console.log("Trigger="+trigger);
+    setTimeout(async () => {
+        number = cleanNumber(number)
+        const { title = null, message = null, footer = null, buttons = [] } = actionButtons;
+        let button = new Buttons(remplazos(message, client),[...buttons], remplazos(title, client), remplazos(footer, client));
+        client.sendMessage(number, button);
+        console.log(`⚡⚡⚡ Enviando mensajes (botones)....`);
+        // console.log("sendMessageButton.");
+    }, DELAY_TIME)
     // console.log("************************  SEND MESSAGE BUTTON ***********************************");
 }
 
+/**
+ * Enviamos listas (con el formato de response.json)
+ * @param {*} number
+ */
+const sendMessageList = async (client, number = null, text = null, actionList) => {
+    setTimeout(async () => {
+        // console.log("**********************   client   **************************")
+        // console.log(client)
+        number = cleanNumber(number)
+        const { body = null, buttonText = null, sections = [], title = null, footer = null } = actionList;
+        let aList = new List( remplazos(body, client),remplazos(buttonText, client),[...sections],remplazos(title, client),remplazos(footer, client));
+        client.sendMessage(number, aList);
+        await readChat(number, message, actionList)
+        console.log('⚡⚡⚡ Enviando lista a '+number+' ....');
+    }, DELAY_TIME)
+}
 
 /**
  * Opte
@@ -121,4 +134,4 @@ const readChat = async (number, message, trigger = null, regla) => { //MOD by CH
     // console.log('Saved')
 }
 
-module.exports = { sendMessage, sendMedia, lastTrigger, sendMessageButton, readChat, sendMediaVoiceNote }
+module.exports = { sendMessage, sendMedia, lastTrigger, sendMessageButton, sendMessageList, readChat, sendMediaVoiceNote }

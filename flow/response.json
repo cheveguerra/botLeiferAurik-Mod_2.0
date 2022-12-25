@@ -16,7 +16,9 @@
             "%saludo% %primer_nombre%, este es el menú, selecciona una opción: \n",
             "Pon *1* para mensajes anteriores.\n",
             "Pon *2* para ver remplazos.\n", 
-            "Pon *3* para pedir nombre (RegExp).\n"
+            "Pon *3* para pedir nombre (RegExp).\n",
+            "Pon *4* para un ejemplo de listas.\n",
+            "Pon *5* para un ejemplo de botones.\n"
         ],
         "media":null,
         "trigger":null
@@ -108,5 +110,83 @@
                 {"body":"Telegram"}
             ]
         }
+    },
+    "lista":{
+        "replyMessage":[
+            "*%saludo%*, este es un ejemplo de listas"
+        ],
+        "media":null,
+        "trigger":null,
+        "actions":{
+            "body":"Hola *%primer_nombre%*, aqui está nuestra lista de productos al 50% de descuento,\n\nAutomáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*.",
+            "buttonText":"Ver todos los productos",
+            "sections": [
+                {"title":"Lista de productos",
+                "rows":[
+                        {"id": "manzana", "title": "manzana"},
+                        {"id": "mango", "title": "mango"},
+                        {"id": "platano", "title": "platano"}
+                    ]
+                }
+            ],
+            "title":"Por favor selecciona un producto"
+        },
+        "pasoRequerido":"menu",
+        "goto":"menu"
+    },
+    "botones":{
+        "replyMessage":[
+            "*%saludo%*, este es un ejemplo de botones"
+        ],
+        "media":"https://media2.giphy.com/media/VQJu0IeULuAmCwf5SL/giphy.gif",
+        "trigger":null,
+        "actions":{
+            "title":"¿Que te interesa ver %primer_nombre%?",
+            "message":"Recuerda todo este contenido es gratis y estaria genial que me sigas!",
+            "footer":"Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*.",
+            "buttons":[
+                {"body":"Cursos"},
+                {"body":"Youtube"},
+                {"body":"Telegram"}
+            ]
+        },
+        "pasoRequerido":"menu",
+        "goto":"menu"
+    },
+    "cursos":{
+        "replyMessage":["*%saludo% %primer_nombre%*, seleccionaste *Cursos*\n\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*."],
+        "trigger":null,
+        "pasoRequerido":"menu",
+        "goto":"menu"
+    },
+    "youtube":{
+        "replyMessage":["*%saludo% %primer_nombre%*, seleccionaste *YouTube*\n\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*."],
+        "trigger":null,
+        "pasoRequerido":"menu",
+        "goto":"menu"
+    },
+    "telegram":{
+        "replyMessage":["*%saludo% %primer_nombre%*, seleccionaste *Telegram*\n\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*."],
+        "trigger":null,
+        "pasoRequerido":"menu",
+        "goto":"menu"
+    },
+    "manzana":{
+        "replyMessage":["*%saludo% %primer_nombre%*, seleccionaste *manzana*\n\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*."],
+        "trigger":null,
+        "pasoRequerido":"menu",
+        "goto":"menu"
+    },
+    "mango":{
+        "replyMessage":["*%saludo% %primer_nombre%*, seleccionaste *mango*\n\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*."],
+        "trigger":null,
+        "pasoRequerido":"menu",
+        "goto":"menu"
+    },
+    "platano":{
+        "replyMessage":["*%saludo% %primer_nombre%*, seleccionaste *platano*\n\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*."],
+        "trigger":null,
+        "pasoRequerido":"menu",
+        "goto":"menu"
     }
 }

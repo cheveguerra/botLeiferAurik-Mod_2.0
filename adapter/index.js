@@ -190,6 +190,7 @@ module.exports = { get, reply, getIA, saveMessage, remplazos, stepsInitial } //M
  * Reemplaza texto en la respuesta con variables predefinidas.  
  */
 function remplazos(elTexto, extraInfo){
+    if(elTexto == null){elTexto = '';}
     laLista = elTexto.toString().split(' ');
     // console.log(laLista);
     // console.log('=============  remplazos  ============');
@@ -289,24 +290,18 @@ function remplazos(elTexto, extraInfo){
                 // return histlMsjs;
             }
             if (laLista[i].search('%nombre%')>-1){//Remplaza con el nombre del remitente.
-                console.log(extraInfo);
-                
                 if(typeof extraInfo !== undefined){
-                    console.log(1)
-                    if(extraInfo['_data']['notifyName'] !== undefined){
-                        console.log(2)
-                        elTexto = elTexto.toString().replace('%nombre%', extraInfo['_data']['notifyName']);
-                        console.log("notifyName");
+                    const {theMsg} = extraInfo;
+                    if(theMsg['_data']['notifyName'] !== undefined){
+                        elTexto = elTexto.toString().replace('%nombre%', theMsg['_data']['notifyName']);
                     }
                 }
             }
             if (laLista[i].search('%primer_nombre%')>-1){//Remplaza con el nombre del remitente.
-                // console.log(extraInfo);
                 if(typeof extraInfo !== undefined){
-                    if(extraInfo['_data']['notifyName'] !== undefined){
-                        var elNombre = extraInfo['_data']['notifyName']
-                        elTexto = elTexto.toString().replace('%primer_nombre%', elNombre.split(' ')[0]);
-                        // console.log("notifyName");
+                    const {theMsg} = extraInfo;
+                    if(theMsg['_data']['notifyName'] !== undefined){
+                        elTexto = elTexto.toString().replace('%primer_nombre%', theMsg['_data']['notifyName'].split(' ')[0]);
                     }
                 }
             }

@@ -42,5 +42,37 @@
     {
         "keywords": ["rnd2"],
         "key": "rnd2"
+    },
+    {
+        "keywords": ["4"],
+        "key": "lista"
+    },
+    {
+        "keywords": ["5"],
+        "key": "botones"
+    },
+    {
+        "keywords": ["cursos"],
+        "key": "cursos"
+    },
+    {
+        "keywords": ["youtube"],
+        "key": "youtube"
+    },
+    {
+        "keywords": ["telegram"],
+        "key": "telegram"
+    },
+    {
+        "keywords": ["manzana"],
+        "key": "manzana"
+    },
+    {
+        "keywords": ["mango"],
+        "key": "mango"
+    },
+    {
+        "keywords": ["platano"],
+        "key": "platano"
     }
 ]
