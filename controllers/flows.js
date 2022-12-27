@@ -1,5 +1,5 @@
-const {get, reply, getIA} = require('../adapter')
-const {saveExternalFile, checkIsUrl} = require('./handle')
+const { get, reply, getIA } = require('../adapter')
+const { saveExternalFile, checkIsUrl } = require('./handle')
 
 const getMessages = async (message, num) => { //MOD by CHV - Agregamos el parametro "num" para recibir el numero desde "app.js"
     // console.log("GETMESSAGES (flow.js)")
@@ -9,9 +9,9 @@ const getMessages = async (message, num) => { //MOD by CHV - Agregamos el parame
 
 const responseMessages = async (step) => {
     const data = await reply(step)
-    if(data && data.media){
+    if( data && data.media ){
         const file = checkIsUrl(data.media) ? await saveExternalFile(data.media) : data.media;
-        return {...data,...{media:file}}
+        return { ...data, ...{media:file}}
     }
     return data
 }
@@ -25,5 +25,13 @@ const bothResponse = async (message) => {
     return data
 }
 
+const waitFor = (conditionFunction, WAIT_TIME) => {
+    const poll = resolve => {
+        if (conditionFunction())
+            resolve();
+        else setTimeout(_ => poll(resolve), WAIT_TIME);
+    }
+    return new Promise(poll);
+}
 
-module.exports = { getMessages, responseMessages, bothResponse }
+module.exports = { getMessages, responseMessages, bothResponse, waitFor }

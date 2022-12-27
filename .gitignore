@@ -10,4 +10,5 @@ mediaSend/*
 !mediaSend/nota-de-voz.mp3
 .env
 .wwebjs_auth
-spam_*
+backup
+backup/*

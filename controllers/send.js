@@ -78,6 +78,7 @@ const sendMessageButton = async (client, number = null, text = null, actionButto
         number = cleanNumber(number)
         const { title = null, message = null, footer = null, buttons = [] } = actionButtons;
         let button = new Buttons(remplazos(message, client),[...buttons], remplazos(title, client), remplazos(footer, client));
+        await readChat(number, message, actionButtons)
         client.sendMessage(number, button);
         console.log(`⚡⚡⚡ Enviando mensajes (botones)....`);
         // console.log("sendMessageButton.");

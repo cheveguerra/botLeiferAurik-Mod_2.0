@@ -13,8 +13,8 @@ const mysqlConnection = require('./config/mysql')
 const { middlewareClient } = require('./middleware/client')
 const { generateImage, cleanNumber, checkEnvFile, createClient, isValidNumber } = require('./controllers/handle')
 const { connectionReady, connectionLost } = require('./controllers/connection')
-const { saveMedia } = require('./controllers/save')
-const { getMessages, responseMessages, bothResponse } = require('./controllers/flows')
+const { saveMedia, saveMediaToGoogleDrive } = require('./controllers/save')
+const { getMessages, responseMessages, bothResponse, waitFor } = require('./controllers/flows')
 const { sendMedia, sendMessage, lastTrigger, sendMessageButton, sendMessageList, readChat } = require('./controllers/send');
 const { remplazos, stepsInitial} = require('./adapter/index');//MOD by CHV - Agregamos para utilizar remplazos y stepsInitial
 const { isUndefined } = require('util');
@@ -29,6 +29,7 @@ const server = require('http').Server(app)
 const port = process.env.PORT || 3000
 
 var client;
+var dialogflowFilter = false;
 var totalMsjs; //MOD by CHV - 
 var vamosA = ""; //MOD by CHV - 
 var newBody; //MOD by CHV - 
@@ -68,7 +69,7 @@ const listenMessage = () => client.on('message', async msg => {
     /**
      * Guardamos el archivo multimedia que envia
      */
-    if (process.env.SAVE_MEDIA && hasMedia) {
+    if (process.env.SAVE_MEDIA === 'true' && hasMedia) {
         const media = await msg.downloadMedia();
         saveMedia(media);
     }
@@ -78,11 +79,28 @@ const listenMessage = () => client.on('message', async msg => {
      */
     
     if (process.env.DATABASE === 'dialogflow') {
-        if(!message.length) return;
-        const response = await bothResponse(message);
+        if (process.env.DIALOGFLOW_MEDIA_FOR_SLOT_FILLING === 'true' && dialogflowFilter) {
+            waitFor(_ => hasMedia, 30000)
+                .then(async _ => {
+                    if (hasMedia) {
+                        const media = await msg.downloadMedia();
+                        message = await saveMediaToGoogleDrive(media);
+                        const response = await bothResponse(message.substring(256, -1), number);
+                        await sendMessage(client, from, response.replyMessage);
+                    }
+                    return
+                });
+            dialogflowFilter = false;
+        }
+        if (!message.length) return;
+        const response = await bothResponse(message.substring(256, -1), number);
         await sendMessage(client, from, response.replyMessage);
+        if (response.actions) {
+            await sendMessageButton(client, from, null, response.actions);
+            return
+        }
         if (response.media) {
-            sendMedia(client, from, response.media, response.trigger);
+            sendMedia(client, from, response.media);
         }
         return
     }
@@ -277,6 +295,28 @@ const listenMessage = () => client.on('message', async msg => {
     }
  });
 
+ 
+/**
+ * Este evento es necesario para el filtro de Dialogflow
+ */
+
+const listenMessageFromBot = () => client.on('message_create', async botMsg => {
+    const { body } = botMsg;
+    const dialogflowFilterConfig = fs.readFileSync('./flow/dialogflow.json', 'utf8');
+    const keywords = JSON.parse(dialogflowFilterConfig);
+
+    for (i = 0; i < keywords.length; i++) {
+        key = keywords[i];
+        for (var j = 0; j < key.phrases.length; j++) {
+            let filters = key.phrases[j];
+            if (body.includes(filters)) {
+                dialogflowFilter = true;
+                //console.log(`El filtro de Dialogflow coincidió con el mensaje: ${filters}`);
+            }
+        }
+    }
+});
+
  client = new Client({
          authStrategy: new LocalAuth(),
          puppeteer: { headless: true, args: ['--no-sandbox','--disable-setuid-sandbox'] }
@@ -291,6 +331,7 @@ const listenMessage = () => client.on('message', async msg => {
  client.on('ready', (a) => {
          connectionReady()
          listenMessage()
+         listenMessageFromBot()
          // socketEvents.sendStatus(client)
  });
 
