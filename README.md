@@ -12,7 +12,7 @@ Este proyecto es un clon del de [Leifer Mendez](https://github.com/leifermendez/
     - etc, etc, se pueden agregar mas remplazos en la funcion "remplazos" en el archivo "adapter\index.js".
  - Las modificaciones están enfocadas al uso de los archivos __initial.json__ y __response.json__, yo no uso MySQL o DialogFlow, así que no sé si las modificaciones funcionen con esos modulos, en particular el __remplazo %msjant_x%__ depende de los archivos __JSON__ que se crean en el directorio "chats".
  - Tiene agregado el parche de botones y listas, así que funcionan sin problema.
- - Tiene los ultimos parches de DialogFlow (27-dic-2022) (When Dialogflow asks for an Image, then Upload it to Google Drive a then generate Shared Link)
+ - Tiene los ultimos parches de DialogFlow (27-dic-2022) (When Dialogflow asks for an Image, then Upload it to Google Drive and then generate Shared Link)
 
  ## INICIA DOCUMENTACION DEL PROYECTO ORIGINAL
 
