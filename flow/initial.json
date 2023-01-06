@@ -74,5 +74,9 @@
     {
         "keywords": ["platano"],
         "key": "platano"
+    },
+    {
+        "keywords": "*pak*3*|*pak*angular*|*paquete*3*|*paquete*angular*",
+        "key": "paq3"
     }
 ]
