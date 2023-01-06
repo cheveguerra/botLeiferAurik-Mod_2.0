@@ -18,7 +18,8 @@
             "Pon *2* para ver remplazos.\n", 
             "Pon *3* para pedir nombre (RegExp).\n",
             "Pon *4* para un ejemplo de listas y expresiones regulares.\n",
-            "Pon *5* para un ejemplo de botones.\n"
+            "Pon *5* para un ejemplo de botones.\n",
+            "Pon *6* para un ejemplo de botones y regExp.\n"
         ],
         "media":null,
         "trigger":null
@@ -193,6 +194,25 @@
     "paq3":{
         "replyMessage":["*%saludo% %primer_nombre%*, seleccionaste el *paquete 3 de Angular*\n\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*."],
         "trigger":null,
+        "pasoRequerido":"menu",
+        "goto":"menu"
+    },
+    "botonespaq3":{
+        "replyMessage":[
+            "*%saludo%*, este es un ejemplo de botones y regExp"
+        ],
+        "media":null,
+        "trigger":null,
+        "actions":{
+            "title":"Hola %primer_nombre%, escoge un mensaje:",
+            "message":"estos son ejemplos del uso de expresiones regulares, todas las opciones de la lista disparan la misma regla:\n\n'*pak*3*|*pak*angular*|*paquete*3*|*paquete*angular*'",
+            "footer":"Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*.",
+            "buttons":[
+                {"body":"Me gusta el paquete 3"},
+                {"body":"Me gusta el paquete angular"},
+                {"body":"Quiero mas información del pak 3"}
+            ]
+        },
         "pasoRequerido":"menu",
         "goto":"menu"
     }
