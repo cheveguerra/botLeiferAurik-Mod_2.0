@@ -209,7 +209,7 @@
             "footer":"Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*.",
             "buttons":[
                 {"body":"Me gusta el paquete 3"},
-                {"body":"Me gusta el paquete angular"},
+                {"body":"Por favor mas info del paquete de Angular"},
                 {"body":"Quiero mas información del pak 3"}
             ]
         },
