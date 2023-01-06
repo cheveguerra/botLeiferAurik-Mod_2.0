@@ -32,6 +32,12 @@ Este proyecto es un clon del de [Leifer Mendez](https://github.com/leifermendez/
       ponemos ```*info*``` y la regla se va a disparar porque los dos contienen "info", o si queremos que se dispare con:
           "Quiero info del paquete numero 3" o "Me gusto el paquete de Angular"
       ponemos ```*paquete*3*|*paquete*angular*``` y la regla se dispara porque contiene "paquete" Y "3" -O- "paquete" Y "angular".
+    ```json
+    {
+        "keywords": "*pak*3*|*pak*angular*|*paquete*3*|*paquete*angular*",
+        "key": "paq3"
+    }
+    ```
  - Permite remplazos en el texto de los mensajes por ejemplo:
     - __%saludo%__ para que aparezca "Buenos días, tardes o noches" dependiendo de la hora.
     - __%dia_semana%__ para que aparezca "lunes, martes, miercoles, etc" dependiendo del día de la semana.
