@@ -205,11 +205,11 @@
         "trigger":null,
         "actions":{
             "title":"Hola %primer_nombre%, escoge un mensaje:",
-            "message":"estos son ejemplos del uso de expresiones regulares, todas las opciones de la lista disparan la misma regla:\n\n'*pak*3*|*pak*angular*|*paquete*3*|*paquete*angular*'",
+            "message":"Estos son ejemplos del uso de expresiones regulares, todas las opciones de la lista disparan la misma regla:\n\n'*pak*3*|*pak*angular*|*paquete*3*|*paquete*angular*'\n\n",
             "footer":"Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*.",
             "buttons":[
                 {"body":"Me gusta el paquete 3"},
-                {"body":"Por favor mas info del paquete de Angular"},
+                {"body":"Mas info del paquete de Angular"},
                 {"body":"Quiero mas información del pak 3"}
             ]
         },
