@@ -23,7 +23,7 @@ Este proyecto es un clon del de [Leifer Mendez](https://github.com/leifermendez/
     }
     ```
  - Permite expresiones regulares en las palabras predefinidas en el initial.json.
-    - Si queremos usar RegExp, en los "keywords" de **inital.json**, en lugar de un arreglo, debemos usar un string (quitamos los [])
+    - Si queremos usar RegExp, en los "keywords" de **inital.json**, en lugar de un arreglo, debemos usar un string ( quitamos los [] )
       y en él usamos "*" para significar cualquier texto y "|" para significar "OR", esto nos permite ser mas flexibles
       con los "keywords", por ejemplo, si queremos que el mensaje pueda decir:
 
@@ -31,7 +31,7 @@ Este proyecto es un clon del de [Leifer Mendez](https://github.com/leifermendez/
 
       ponemos ```*info*``` y la regla se va a disparar porque los dos contienen "info", o si queremos que se dispare con:
           "Quiero info del paquete numero 3" o "Me gusto el paquete de Angular"
-      ponemos ```*paquete*3*|*paquete*angular*``` y la regla se dispara porque contiene "paquete" Y "3" -O- "paquete" Y "angular".
+      ponemos ```*paquete*3*|*paquete*angular*``` y la regla se dispara porque contiene "paquete" y "3" -O- "paquete" y "angular".
     ```json
     {
         "keywords": "*pak*3*|*pak*angular*|*paquete*3*|*paquete*angular*",
