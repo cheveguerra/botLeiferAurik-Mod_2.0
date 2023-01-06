@@ -41,7 +41,7 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
 
                 "Hola quiero info del paquete" o "Requiero mas informacion"
 
-            ponemos "info" y la regla se va a disparar porque los dos contienen "info", o si queremos que se dispare con:
+            ponemos "*info*" y la regla se va a disparar porque los dos contienen "info", o si queremos que se dispare con:
 
                 "Quiero info del paquete numero 3" o "Me gusto el paquete de Angular"
 

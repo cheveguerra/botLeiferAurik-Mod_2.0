@@ -4,7 +4,36 @@
 Este proyecto es un clon del de [Leifer Mendez](https://github.com/leifermendez/bot-whatsapp) y tiene las siguientes modificaciones:
 
  - Permite menus y submenus
+    - Los submenus se logran agregando el parametro "pasoRequerido" en el **response.json**.
+    ```json
+    "menu":{
+        "replyMessage":[
+            "%saludo%\nHoy es %dia_semana%.\n"
+        ],
+        "media":null,
+        "trigger":null
+    },
+    "submenu":{
+        "replyMessage":[
+            "Este submenu solo se dispara si **ANTES** se disparó la regla 'menu'"
+        ],
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"menu"
+    }
+    ```
  - Permite expresiones regulares en las palabras predefinidas en el initial.json.
+    - Si queremos usar RegExp, en los "keywords" de **inital.json**, en lugar de un arreglo usamos un string (quitamos los [])
+      y en él usamos "*" para significar cualquier texto y "|" para significar "OR", esto nos permite ser mas flexibles
+      con los "keywords", por ejemplo, si queremos que el mensaje pueda decir:
+
+         "Hola quiero info del paquete" o "Requiero mas informacion"
+
+      ponemos ```*info*``` y la regla se va a disparar porque los dos contienen "info", o si queremos que se dispare con:
+
+          "Quiero info del paquete numero 3" o "Me gusto el paquete de Angular"
+
+      ponemos ```*paquete*3*|*paquete*angular*``` y la regla se dispara porque contiene "paquete" Y "3" -O- "paquete" Y "angular".
  - Permite remplazos en el texto de los mensajes por ejemplo:
     - __%saludo%__ para que aparezca "Buenos días, tardes o noches" dependiendo de la hora.
     - __%dia_semana%__ para que aparezca "lunes, martes, miercoles, etc" dependiendo del día de la semana.
