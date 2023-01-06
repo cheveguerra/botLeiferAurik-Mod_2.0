@@ -3,8 +3,9 @@
 
 Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https://github.com/leifermendez/bot-whatsapp) y tiene las siguientes modificaciones:
 
- - Permite menus y **submenus**.
-    - Los submenus se logran agregando el parametro "```pasoRequerido```" en el **response.json**, este parametro hace que la regla en cuestión **solo se dispare** cuando la regla anterior haya sido la indicada en "```pasoRequerido```".
+ - Permite **submenus**.
+    - Un submenú es una regla que **sólo se dispara** cuando la regla anterior es la especificada, los submenus se definen agregando el parametro "```pasoRequerido```" en el **response.json**.
+    
     ```json
     "menu":{
         "replyMessage":[
