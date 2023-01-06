@@ -30,9 +30,7 @@ Este proyecto es un clon del de [Leifer Mendez](https://github.com/leifermendez/
          "Hola quiero info del paquete" o "Requiero mas informacion"
 
       ponemos ```*info*``` y la regla se va a disparar porque los dos contienen "info", o si queremos que se dispare con:
-
           "Quiero info del paquete numero 3" o "Me gusto el paquete de Angular"
-
       ponemos ```*paquete*3*|*paquete*angular*``` y la regla se dispara porque contiene "paquete" Y "3" -O- "paquete" Y "angular".
  - Permite remplazos en el texto de los mensajes por ejemplo:
     - __%saludo%__ para que aparezca "Buenos días, tardes o noches" dependiendo de la hora.
@@ -40,7 +38,7 @@ Este proyecto es un clon del de [Leifer Mendez](https://github.com/leifermendez/
     - __%msjant_XX%__ para que aparezca el mensaje xx anterior, es decir, si quieres mostrar el texto de 2 mensajes anteriores se pone %msjant_2%.
     - etc, etc, se pueden agregar mas remplazos en la funcion "remplazos" en el archivo "adapter\index.js".
  - Las modificaciones están enfocadas al uso de los archivos __initial.json__ y __response.json__, yo no uso MySQL o DialogFlow, así que no sé si las modificaciones funcionen con esos modulos, en particular el __remplazo %msjant_x%__ depende de los archivos __JSON__ que se crean en el directorio "chats".
- - Tiene agregado el parche de botones y listas, así que funcionan sin problema.
+ - Tiene agregado el parche de botones y listas, así que funcionan sin problema (las listas no funcionan si el bot esta ligado a un número que use Whatsapp Business).
  - Tiene los ultimos parches de DialogFlow (27-dic-2022) (When Dialogflow asks for an Image, then Upload it to Google Drive and then generate Shared Link)
 
  ## INICIA DOCUMENTACION DEL PROYECTO ORIGINAL
