@@ -157,7 +157,12 @@ const listenMessage = () => client.on('message', async msg => {
     if (lastStep) {
         const response = await responseMessages(lastStep)
         console.log("CLIENT="+client+", FROM:"+from+", REPLYMESSAGE:"+response.replyMessage);
-        await sendMessage(client, from, response.replyMessage, lastStep);
+        // await sendMessage(client, from, response.replyMessage, lastStep); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
+        response.replyMessage.forEach( async messages => {
+            var thisMsg = messages.mensaje
+            if(Array.isArray(messages.mensaje)){thisMsg = messages.mensaje.join('\n')}
+            await sendMessage(client, from, remplazos(thisMsg, client), response.trigger);
+        })
     }
     
     /**
@@ -193,14 +198,20 @@ const listenMessage = () => client.on('message', async msg => {
             }, response.delay)
         }
         if (response.delay){
-            //  console.log("+++++++++++++++++++  SENDING MSG WITH DELAY ("+response.delay+") +++++++++++++++++");
-            setTimeout(() => {
-                sendMessage(client, from, nuevaRespuesta, response.trigger, step);
-                // console.log(" *************   Msg with delay SENT ****************")
+            // await sendMessage(client, from, nuevaRespuesta, response.trigger, step); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
+            response.replyMessage.forEach( async messages => {
+                var thisMsg = messages.mensaje
+                if(Array.isArray(messages.mensaje)){thisMsg = messages.mensaje.join('\n')}
+                await sendMessage(client, from, remplazos(thisMsg, client), response.trigger);
             }, response.delay)
             }
         else{
-            await sendMessage(client, from, nuevaRespuesta, response.trigger, step);
+            // await sendMessage(client, from, nuevaRespuesta, response.trigger, step); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
+            response.replyMessage.forEach( async messages => {
+                var thisMsg = messages.mensaje
+                if(Array.isArray(messages.mensaje)){thisMsg = messages.mensaje.join('\n')}
+                await sendMessage(client, from, remplazos(thisMsg, client), response.trigger);
+            })
             }
         if(response.hasOwnProperty('actions')){
             const { actions } = response;
@@ -276,7 +287,13 @@ const listenMessage = () => client.on('message', async msg => {
     //Si quieres tener un mensaje por defecto
     if (process.env.DEFAULT_MESSAGE === 'true') {
         const response = await responseMessages('DEFAULT')
-        await sendMessage(client, from, response.replyMessage, response.trigger);
+        // await sendMessage(client, from, response.replyMessage, response.trigger); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
+        response.replyMessage.forEach( async messages => {
+            var thisMsg = messages.mensaje
+            if(Array.isArray(messages.mensaje)){thisMsg = messages.mensaje.join('\n')}
+            await sendMessage(client, from, remplazos(thisMsg, client), response.trigger);
+        })
+
         /**
          * Si quieres enviar botones
          */

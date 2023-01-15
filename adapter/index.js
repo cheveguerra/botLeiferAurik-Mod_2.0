@@ -83,7 +83,7 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
                         else{x = null;}
                     } else 
                     { console.log("NO CUMPLE PASO REQ");
-                    // console.log("pasoReq=" + resps[stepsInitial[i].key.toString()].pasoRequerido + " - PasoAnt=" + ultimoStep)
+                    console.log("pasoReq=" + resps[stepsInitial[i].key.toString()].pasoRequerido + " - PasoAnt=" + ultimoStep)
                     }
                 }
             }
@@ -100,7 +100,7 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
         // console.log(elNum)
         
         if(vamosA != "" && vamosA != undefined && cumplePasoPrevio == true){
-            console.log("ASIGNAMOS VAMOSA = " + vamosA);
+            // console.log("ASIGNAMOS VAMOSA = " + vamosA);
             pasoAnterior[elNum] = vamosA;
         }
         // console.log("ULTIMOSTEP="+ultimoStep)
@@ -131,8 +131,9 @@ const reply = (step) => new Promise((resolve, reject) => {
         const responseFind = stepsReponse[step] || {};
         resData = {
             ...resData, 
-            ...responseFind,
-            replyMessage:responseFind.replyMessage.join('')}
+            ...responseFind
+            // replyMessage:responseFind.replyMessage.join('')
+        }
         resolve(resData);
         return 
     }

@@ -56,6 +56,10 @@
         "key": "botonespaq3"
     },
     {
+        "keywords": "7|*doble*mensaje*",
+        "key": "doblemensaje"
+    },
+    {
         "keywords": ["cursos"],
         "key": "cursos"
     },
