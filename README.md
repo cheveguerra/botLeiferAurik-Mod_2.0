@@ -74,7 +74,7 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
         }
     }
     ```
-    Ahora **replyMessage** debe de contener un arreglo con los mensajes que se va a enviar:
+    Ahora **replyMessage** debe de contener un arreglo con los mensajes que se van a enviar:
      ```json
     {
         "ejemploNuevo":{
