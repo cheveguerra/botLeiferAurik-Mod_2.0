@@ -62,7 +62,7 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
     - Ponemos __%dia_semana%__ para que aparezca "lunes, martes, miercoles, etc" dependiendo del día de la semana.
     - Ponemos __%msjant_XX%__ para que aparezca el mensaje xx anterior, es decir, si quieres mostrar el texto de 2 mensajes anteriores se pone %msjant_2%.
     - etc, etc, se pueden agregar mas remplazos en la funcion "remplazos" en el archivo "adapter\index.js".
- - Permite el envío de varios mensajes definidos en la misma respuesta del **response.json**. (Esta modificación se la robe por completo a [KJoaquin](https://github.com/KJoaquin), el lo solucionó [aquí](https://github.com/codigoencasa/bot-whatsapp/issues/111#issuecomment-1353504575) 🙌🏽 y yo solo lo adapté a mi repo!)
+ - Permite el envío de **multiples mensajes** definidos en la **misma respuesta** del **response.json**. (Esta modificación se la robe por completo a [KJoaquin](https://github.com/KJoaquin), el lo solucionó [aquí](https://github.com/codigoencasa/bot-whatsapp/issues/111#issuecomment-1353504575) 🙌🏽 y yo solo lo adapté a mi repo!)
 
     Antes:
      ```json
