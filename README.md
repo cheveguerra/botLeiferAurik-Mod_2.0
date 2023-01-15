@@ -4,19 +4,29 @@
 Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https://github.com/leifermendez/bot-whatsapp) y tiene las siguientes modificaciones:
 
  - Permite **submenus**.
-    - Un submenú es una regla que **sólo se dispara** cuando la regla anterior es la especificada, los submenus se definen agregando el parametro "```pasoRequerido```" en el **response.json**.
+    - Un submenú es un paso que **sólo se dispara** cuando el paso anterior es el especificado, los submenus se definen agregando el parametro "```pasoRequerido```" en el **response.json**, entonces si queremos que el paso **zapatos** solo se muestre cuando antes pasamos por el **menú inicial**, agregamos el parámetro "pasoRequerido" a la regla "zapatos", de esta forma si alguien pone el número **1** sin estar en el menú principal, **no** los va a mandar a **zapatos**.
     
     ```json
     "menu":{
         "replyMessage":[
-            "%saludo%\nHoy es %dia_semana%.\n"
+            "%saludo%",
+            "Escribe 1 para zapatos.",
+            "Escribe 2 para bolsos."
         ],
         "media":null,
         "trigger":null
     },
-    "submenu":{
+    "zapatos":{
         "replyMessage":[
-            "Este submenu solo se dispara si **ANTES** se disparó la regla 'menu'"
+            "Esta es la lista de nuestros zapatos."
+        ],
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"menu"
+    },
+    "bolsos":{
+        "replyMessage":[
+            "Esta es la lista de nuestros bolsos."
         ],
         "media":null,
         "trigger":null,
@@ -47,11 +57,38 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
     }
     ```
  - Permite **remplazos** en el texto de los mensajes por ejemplo:
-    - __%saludo%__ para que aparezca "Buenos días, tardes o noches" dependiendo de la hora.
-    - __%primer_nombre%__ para que aparezca el nombre (hasta el primer espacio) del remitente.
-    - __%dia_semana%__ para que aparezca "lunes, martes, miercoles, etc" dependiendo del día de la semana.
-    - __%msjant_XX%__ para que aparezca el mensaje xx anterior, es decir, si quieres mostrar el texto de 2 mensajes anteriores se pone %msjant_2%.
+    - Ponemos __%saludo%__ para que aparezca "Buenos días, tardes o noches" dependiendo de la hora.
+    - Ponemos __%primer_nombre%__ para que aparezca el nombre (hasta el primer espacio) del remitente.
+    - Ponemos __%dia_semana%__ para que aparezca "lunes, martes, miercoles, etc" dependiendo del día de la semana.
+    - Ponemos __%msjant_XX%__ para que aparezca el mensaje xx anterior, es decir, si quieres mostrar el texto de 2 mensajes anteriores se pone %msjant_2%.
     - etc, etc, se pueden agregar mas remplazos en la funcion "remplazos" en el archivo "adapter\index.js".
+ - Permite el envío de varios mensajes definidos en la misma respuesta del **response.json**. (Esta modificación se la robe por completo a [KJoaquin](https://github.com/KJoaquin), el lo solucionó [aquí](https://github.com/codigoencasa/bot-whatsapp/issues/111#issuecomment-1353504575) 🙌🏽 y yo solo lo adapté a mi repo!)
+
+    Antes:
+     ```json
+    {
+        "ejemploViejo":{
+            "replyMessage":["¿Hola como estas?"],
+            "media":null,
+            "trigger":null
+        }
+    }
+    ```
+    Ahora **replyMessage** debe de contener un arreglo con los mensajes que se va a enviar:
+     ```json
+    {
+        "ejemploNuevo":{
+            "replyMessage":[
+                {   "mensaje":["¿Hola como estas?"]},
+                {   "mensaje":["Este es el *segundo* mensaje.","Contiene dos lineas 🤪"]},
+                {   "mensaje":["Este es el *tercer* mensaje"]}
+             ],
+            "media":null,
+            "trigger":null
+        }
+    }
+    ```
+
  - Las modificaciones están enfocadas al uso de los archivos __initial.json__ y __response.json__, yo no uso MySQL o DialogFlow, así que no sé si las modificaciones funcionen con esos modulos, en particular el __remplazo %msjant_XX%__ depende de los archivos __JSON__ que se crean en el directorio "chats".
  - Tiene agregado el parche de **botones y listas**, así que funcionan sin problema (las listas no funcionan si el bot esta ligado a un número que use **Whatsapp Business**).
  - Tiene los ultimos parches de **DialogFlow** (27-dic-2022) (When Dialogflow asks for an Image, then **Upload it to Google Drive** and then generate Shared Link)
