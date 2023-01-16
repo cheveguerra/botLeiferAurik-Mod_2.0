@@ -1,6 +1,5 @@
 FROM node:18-alpine as node
 
-WORKDIR /app
 # Installs latest Chromium (92) package.
 RUN apk add --no-cache \
       chromium \
