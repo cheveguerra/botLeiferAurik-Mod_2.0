@@ -7,7 +7,7 @@
     "start": "node ./app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["github:cheveguerra/whatsapp-web.js#WaWJS"],
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
