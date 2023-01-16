@@ -1,6 +1,6 @@
 {
-  "name": "test-ws-bot",
-  "version": "1.0.0",
+  "name": "chv-wweb-bot",
+  "version": "1.0.1",
   "description": "",
   "main": "app.js",
   "scripts": {
