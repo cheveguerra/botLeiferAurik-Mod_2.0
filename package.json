@@ -1,6 +1,6 @@
 {
-  "name": "test-ws-bot",
-  "version": "1.0.0",
+  "name": "chv-wweb-bot",
+  "version": "1.0.1",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -27,7 +27,7 @@
     "qrcode-terminal": "^0.12.0",
     "socket.io": "^4.5.1",
     "stormdb": "^0.6.0",
-    "whatsapp-web.js": "github:cheveguerra/whatsapp-web.js#WaWJS",
+    "whatsapp-web.js": "github:cheveguerra/whatsapp-web.js#WaWJS2",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
