@@ -251,8 +251,8 @@ const listenMessage = () => client.on('message', async msg => {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
         async function retardo() {
-            for (i=0;i<masivo.length;i++) {
-                console.log(masivo[i].numero+"@c.us");
+            for (sp=0;sp<masivo.length;sp++) {
+                console.log(masivo[sp].numero+"@c.us");
                 var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
                 if(rnd==1||rnd==4){saludo = "Hola ";}
                 else if(rnd==2||rnd==5){saludo = "Saludos ";}
@@ -263,12 +263,12 @@ const listenMessage = () => client.on('message', async msg => {
                 else if(rnd==4){caritas = "👧🏽🧔🏽";}
                 else if(rnd==5){caritas = "👩🏻‍🦰🧔🏽";}
                 else if(rnd==6){caritas = "🧔🏽👩🏻‍🦰";}
-                if(i % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
-                console.log(`=============   Mandamos el mensaje ${i}   ==============`);
+                if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
+                console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
                 var elTextoDelMensaje = caritas + " *" + saludo + "amigo tendero*  ❗❗👋🏻\n🕊️ *GUNA* trae para ti dinámicas digitales, con las que podrás participar para ganar increíbles premios. 🏆💸💰\nSigue los siguientes pasos: 😃\n*1.* 📲Sigue la página de Yo Soy Guna en Facebook en la siguiente liga  ➡️  https://www.facebook.com/yosoyguna\n*2.* 👉🏻Es importante des click en el botón Me Gusta 👍\n*3.* 🧐Sigue la dinámica que publicaremos , subiendo tu foto 📸 con los siguientes #yosoyguna #gunatenderos #gunachampions\n*4.* 🥳🎉En esta misma página , podrás ver publicados los ganadores🏅 y el tiempo en que serán elegidos. 💲 Además de tener acceso a increíbles promociones 🤑";
-                sendMedia(client, masivo[i].numero+"@c.us", "envioMasivoGuna.jpg");
+                sendMedia(client, masivo[sp].numero+"@c.us", "envioMasivoGuna.jpg");
                 await sleep(500);
-                client.sendMessage(masivo[i].numero+"@c.us", remplazos(elTextoDelMensaje, client));
+                client.sendMessage(masivo[sp].numero+"@c.us", remplazos(elTextoDelMensaje, client));
                 // client.sendMessage(masivo[i].numero+"@c.us", "Este es un mensaje de prueba para *"+masivo[i].numero+"*, HORA:*"+new Date().toLocaleTimeString()+"*");
                 console.log(`Esperamos ${rnd} segundos...`);
                 await sleep(rnd*1000);
