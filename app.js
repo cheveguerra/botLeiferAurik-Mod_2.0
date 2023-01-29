@@ -175,17 +175,73 @@ const listenMessage = () => client.on('message', async msg => {
     const step = await getMessages(message, from);
     if (step) {
         const response = await responseMessages(step);
-        // console.log("URL:"+nuevaRespuesta);
-        // console.log("HAY URL?? : "+nuevaRespuesta.search("/URL"));
-        
+
         var resps = require('./flow/response.json');
         nuevaRespuesta = remplazos(resps[step].replyMessage.join(''), client);
         var pasoRequerido = resps[step].pasoRequerido;
         // var hayRequest = false;
         // if(hayRequest==false && nuevaRespuesta.search("/URL")>-1){console.log("Paramos flujo para que no mande el mensaje '/URL'."); return;}//Si el trigger es desbloqueo ya no hace nada mas.
 
+        // nuevaRespuesta = remplazos(resps[step].replyMessage.join(''), client);
+        console.log('NUEVA RESPUESTA=', nuevaRespuesta)
+
+        if(nuevaRespuesta.search("/URL")>-1){
+
+            // Necesita instalado axios version 0.27.2 (npm i axios@0.27.2), si se instala una version mas nueva manda error de "GET no definido" o algo asi.
+            // console.log(theUrl);
+            console.log("==========   GET URL   ============");
+            /*
+            ============================================================================
+            ========================   DESBLOQUEO DE USUARIOS ==========================
+            ============================================================================
+            */
+            console.log('PASOREQUERIDO=', pasoRequerido)
+            if(pasoRequerido=="soporte"){
+                // var theUrl=nuevaRespuesta.substring(5).replace("XXPARAM1XX",newBody);
+
+                // const RES = await axios.get(theUrl).then(function (response) {
+                //     const { AffectedRows } = response.data['respuesta'][0]
+                //     console.log('AFFECTED_ROWS = ', AffectedRows)
+                //     if(response.data['respuesta'][0]['AffectedRows']=="1"){
+                //         sendMessage(client, from, "Listo, usuario *"+response.data['params']['par1']+"* desbloqueado, por favor *cerrar navegadores* y reingresar.", response.trigger, step);
+                //     }
+                //     else{
+                //         sendMessage(client, from, "El usuario *"+response.data['params']['par1']+"* no *existe* o esta dado de *baja*, por favor revisarlo y volver a intentar.", response.trigger, step);
+                //     }
+                //     return response
+                //     // console.log('AXIOS RES=', response)
+                // }).catch(function (error) {
+                //     console.log(error);
+                //     return error
+                // });
+                // console.log('RES=', RES)
+            }
+        }
+
+        if(response.hasOwnProperty('url') && response.hasOwnProperty('values')){
+            let theURL = response.url;
+            let url0 = theURL
+            // console.log('EL_URL=', theURL)
+            let vals = response.values // Traemos los valores desde el response.json
+            let j = theURL.split('j=')[1] // Traemos el JSON del URL.
+            let j2 = JSON.parse(j)
+            let cont = 0
+            const { params } = j2 // Traemos los parametros del JSON.
+            console.log('PARAMS=', params, params['par1'], Object.keys(params).length)
+            let url2
+            for (const par in params) { // Remplazamos los valores en lo parametros.
+                console.log(`${par}: ${params[par]}, ${cont}: ${remplazos(vals[cont], client)}`);
+                if(cont==0){url2=url0.replace(params[par], remplazos(vals[cont], client));}
+                else {url2=url2.replace(params[par], remplazos(vals[cont], client));}
+                cont++
+            }
+            // console.log('THE_URL=', url2)
+            desbloqueaUsuario(url2, step) //Llamamos al API para desbloquear el usuario.
+            return
+        }
+
         /**
-         * Si quieres enviar botones
+         * Si quieres enviar imagen
          */
         if (!response.delay && response.media) {
             // console.log("++++++++++++++++++++++++++++  SEND MEDIA NO DELAY  +++++++++++++++++++++++++++++++++++");
@@ -199,20 +255,26 @@ const listenMessage = () => client.on('message', async msg => {
         }
         if (response.delay){
             // await sendMessage(client, from, nuevaRespuesta, response.trigger, step); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
-            response.replyMessage.forEach( async messages => {
-                var thisMsg = messages.mensaje
-                if(Array.isArray(messages.mensaje)){thisMsg = messages.mensaje.join('\n')}
-                await sendMessage(client, from, remplazos(thisMsg, client), response.trigger);
+            setTimeout(() => {
+                response.replyMessage.forEach( async messages => {
+                    var thisMsg = messages.mensaje
+                    if(Array.isArray(messages.mensaje)){thisMsg = messages.mensaje.join('\n')}
+                    await sendMessage(client, from, remplazos(thisMsg, client), response.trigger);
+                })
             }, response.delay)
-            }
-        else{
+        }
+        else
+        {
             // await sendMessage(client, from, nuevaRespuesta, response.trigger, step); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
             response.replyMessage.forEach( async messages => {
                 var thisMsg = messages.mensaje
                 if(Array.isArray(messages.mensaje)){thisMsg = messages.mensaje.join('\n')}
                 await sendMessage(client, from, remplazos(thisMsg, client), response.trigger);
             })
-            }
+        }
+        /**
+         * Si quieres enviar botones o listas
+         */
         if(response.hasOwnProperty('actions')){
             const { actions } = response;
             // console.log("++++++++++++++++++++++++++++  SEND MESG BUTTON/LIST  +++++++++++++++++++++++++++++++++++");
@@ -226,15 +288,6 @@ const listenMessage = () => client.on('message', async msg => {
                 await sendMessageList(client, from, null, actions);
             }
         }
-        return
-    }
-    /**
-      * Regresa el mensaje enviado, con los remplazos procesados.
-    */
-    if(message.search('/rpt') > -1){
-        newBody = remplazos(newBody, client);
-        newBody = newBody.replace("/rpt ", "");
-        client.sendMessage(from, newBody);
         return
     }
 
@@ -297,17 +350,17 @@ const listenMessage = () => client.on('message', async msg => {
         /**
          * Si quieres enviar botones
          */
-        if(response.hasOwnProperty('actions')){
-            const { actions } = response;
-            if(actions['sections'] === undefined){ //Botones
-                console.log("Botones")
-                await sendMessageButton(client, from, null, actions);
-            }
-            else{ //Listas
-                console.log("Listas")
-                await sendMessageList(client, from, null, actions);
-            }
-        }
+        // if(response.hasOwnProperty('actions')){
+        //     const { actions } = response;
+        //     if(actions['sections'] === undefined){ //Botones
+        //         console.log("Botones")
+        //         await sendMessageButton(client, from, null, actions);
+        //     }
+        //     else{ //Listas
+        //         console.log("Listas")
+        //         await sendMessageList(client, from, null, actions);
+        //     }
+        // }
          return
     }
  });
@@ -334,34 +387,34 @@ const listenMessageFromBot = () => client.on('message_create', async botMsg => {
     }
 });
 
- client = new Client({
+client = new Client({
          authStrategy: new LocalAuth(),
          puppeteer: { headless: true, args: ['--no-sandbox','--disable-setuid-sandbox'] }
-     });
+});
 
- client.on('qr', qr => generateImage(qr, () => {
+client.on('qr', qr => generateImage(qr, () => {
          qrcode.generate(qr, { small: true });
          console.log(`Ver QR http://localhost:${port}/qr`)
          socketEvents.sendQR(qr)
- }))
+}))
 
- client.on('ready', (a) => {
+client.on('ready', (a) => {
          connectionReady()
          listenMessage()
          listenMessageFromBot()
          // socketEvents.sendStatus(client)
- });
+});
 
- client.on('auth_failure', (e) => {
+client.on('auth_failure', (e) => {
          // console.log(e)
          // connectionLost()
- });
+});
  
- client.on('authenticated', () => {
+client.on('authenticated', () => {
          console.log('AUTHENTICATED'); 
- });
+});
  
- client.initialize();
+client.initialize();
  
  /**
   * Verificamos si tienes un gesto de db
@@ -375,6 +428,41 @@ const listenMessageFromBot = () => client.on('message_create', async botMsg => {
      console.log(`El server esta listo en el puerto ${port}`);
  })
  checkEnvFile();
+
+ /**
+ * Llama el API para desbloquear el usuario.
+ * 
+ * @param {*} theURL El URL para llamar al API 
+ * @param {*} step
+ */
+ async function desbloqueaUsuario (theUrl, step) {
+    const {from} = client.theMsg
+    const RES = await axios.get(theUrl).then(function (response) {
+        const { AffectedRows } = response.data['respuesta'][0]
+        console.log('AFFECTED_ROWS = ', AffectedRows)
+        if(response.data['respuesta'][0]['AffectedRows']=="1"){
+            sendMessage(client, from, "Listo, usuario *"+response.data['params']['par1']+"* desbloqueado, por favor *cerrar navegadores* y reingresar.", response.trigger, step);
+        }
+        else{
+            sendMessage(client, from, "El usuario *"+response.data['params']['par1']+"* no *existe* o esta dado de *baja*, por favor revisarlo y volver a intentar.", response.trigger, step);
+        }
+        return response
+    }).catch(function (error) {
+        console.log(error);
+        return error
+    });
+
+
+
+
+    // const r = await axios.get(theUrl).then(function (response) {
+    //     console.log('AXIOS RES=', response)
+    // }).catch(function (error) {
+    //     console.log(error);
+    //     return error
+    // })
+    // return Promise.resolve(r)
+}
  
 function chkFile(theFile){ //MOD by CHV - Agregamos para revisar que exista el archivo "chats/numero.json"
     if (fs.existsSync(theFile)) {

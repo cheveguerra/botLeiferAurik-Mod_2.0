@@ -1,7 +1,7 @@
 const { getData, getReply, saveMessageMysql } = require('./mysql')
 const { saveMessageJson } = require('./jsonDb')
 const { getDataIa } = require('./diaglogflow')
-const  stepsInitial = require('../flow/initial.json')
+// const  stepsInitial = require('../flow/initial.json')
 const  stepsReponse = require('../flow/response.json')
 const { isUndefined } = require('util');
 var msjsRecibidos = [];
@@ -14,6 +14,23 @@ var elNum; //MOD by CHV -
 var cumplePasoPrevio; //MOD by CHV - 
 const resps = require('../flow/response.json'); //MOD by CHV - Agregamos para traer las respuestas.
 const { appendFile } = require('fs')
+/**
+ * Regresa un arreglo de objetos como el stepsInitial original, que se generaba desde "initial.json".
+ * Contiene el nombre del paso (key) y las palabras clave correspondientes (keywords).
+ */
+const getStepsInitial = () => {
+    let contSI = 0
+    let stepsInitial0 = []
+    for (const resp in stepsReponse) {
+        // console.log(`${resp}: ${stepsReponse[resp]['keywords']}`);
+        if(stepsReponse[resp]['keywords'] !== undefined){
+            stepsInitial0[contSI]= {"keywords":stepsReponse[resp]['keywords'], "key":resp}
+            contSI++
+        }
+    }
+    return stepsInitial0
+}
+const stepsInitial = getStepsInitial()
 
 const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - Agregamos parametro "num" para recibir el número de "app.js" 
     // console.log(num)
@@ -32,6 +49,7 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
      */
 
     if (process.env.DATABASE === 'none') {
+
         var { key } = stepsInitial.find(k => k.keywords.includes(message)) || { key: null }
 
         /* ###############################################  *   REGEXP   *   ####################################################
@@ -289,6 +307,21 @@ function remplazos(elTexto, extraInfo){
                     // console.log("Anterior:"+JSON.stringify(mensajeAnterior));
                 }
                 // return histlMsjs;
+            }
+            if (laLista[i].search('%body%')>-1){//Remplaza con el body del ctx.
+                const {theMsg} = extraInfo;
+                const { body } = theMsg
+                elTexto = elTexto.toString().replace('%body%', body);
+            }
+            if (laLista[i].search('%from%')>-1){//Remplaza con el from del ctx.
+                const {theMsg} = extraInfo;
+                const { from } = theMsg
+                elTexto = elTexto.toString().replace('%from%', from);
+            }
+            if (laLista[i].search('%solonumero%')>-1){//Remplaza con el from del ctx.
+                const {theMsg} = extraInfo;
+                const { from } = theMsg
+                elTexto = elTexto.toString().replace('%solonumero%', from.replace('@c.us', ''));
             }
             if (laLista[i].search('%nombre%')>-1){//Remplaza con el nombre del remitente.
                 if(typeof extraInfo !== undefined){
