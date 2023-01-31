@@ -342,23 +342,20 @@
     "Desbloqueo":{
         "keywords": "*",
         "replyMessage":[
-            "/URL=http://localhost:8888/dbrquery?j={\"query\":\"update_usuario_guna_nobajas\",\"exec\":\"ExecuteCommand\",\"params\":{\"par1\":\"XXPARAM1XX\"}}"
+            "Mensaje de desbloqueo de usuarios."
         ],
-        "url":"http://localhost:8888/dbrquery?j={\"query\":\"update_usuario_guna_nobajas\",\"exec\":\"ExecuteCommand\",\"params\":{\"par1\":\"XXPARAM1XX\", \"par2\":\"XXPARAM2XX\", \"par3\":\"XXPARAM3XX\"}}",
-        "values":["%body%","CDIAZ","%solonumero%"],
+        "funcion":"desbloqueaUsuario",
         "media":null,
         "trigger":null,
         "pasoRequerido":"soporte"
     },
     "gunaCats":{
-        "keywords": "*",
+        "keywords": "/guna",
         "replyMessage":[
-            "/URL=http://localhost:8888/dbrquery?j={\"query\":\"update_usuario_guna_nobajas\",\"exec\":\"ExecuteCommand\",\"params\":{\"par1\":\"XXPARAM1XX\"}}"
+            "Mensaje de getGunaCats"
         ],
-        "url":"http://localhost:8888/dbrquery?j={\"query\":\"update_usuario_guna_nobajas\",\"exec\":\"ExecuteCommand\",\"params\":{\"par1\":\"XXPARAM1XX\", \"par2\":\"XXPARAM2XX\", \"par3\":\"XXPARAM3XX\"}}",
-        "values":["%body%","CDIAZ","%solonumero%"],
+        "funcion":"getGunaCats",
         "media":null,
-        "trigger":null,
-        "pasoRequerido":"soporte"
+        "trigger":null
     }
 }

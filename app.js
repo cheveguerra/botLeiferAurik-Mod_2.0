@@ -45,11 +45,7 @@ const listenMessage = () => client.on('message', async msg => {
     // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     console.log("+++++++++++++++++++++++++++++++++++++  INICIO  +++++++++++++++++++++++++++++++++++++++");
     // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-
     client.theMsg = msg;
-
-
-
     console.log("HORA:"+new Date().toLocaleTimeString()+" FROM:"+from+", BODY:"+body+", HASMEDIA:"+hasMedia);
     newBody = removeDiacritics(body) //MOD by CHV - Agregamos para quitar acentos
     // newBody = remplazos(newBody);
@@ -146,15 +142,13 @@ const listenMessage = () => client.on('message', async msg => {
            //     const buttons_reply = new Buttons("Por favor vuelve a intentar, mandando *SOLO* la palabra *gallina* con una diagonal al principio 👇🏽 \n\n           */gallina*\n ", [{body: "/gallina", id: 'errorGallina'}], 'Error', 'O haz clic en el siguiente botón') // Reply button
     //     for (const component of [buttons_reply]) await client.sendMessage(from, component);
     // }
-    
-    
-    
+
     /**
      * Ver si viene de un paso anterior
      * Aqui podemos ir agregando más pasos
      * a tu gusto!
     */
-   
+
    const lastStep = await lastTrigger(from) || null;
    //  console.log("LAST STEP="+lastStep+", FROM:"+from);
    if (lastStep) {
@@ -167,7 +161,7 @@ const listenMessage = () => client.on('message', async msg => {
            await sendMessage(client, from, remplazos(thisMsg, client), response.trigger);
         })
     }
-    
+
     /**
      * Respondemos al primero paso si encuentra palabras clave
     */
@@ -189,7 +183,6 @@ const listenMessage = () => client.on('message', async msg => {
        console.log('NUEVA RESPUESTA=', nuevaRespuesta)
        
        if(nuevaRespuesta.search("/URL")>-1){
-           
            // Necesita instalado axios version 0.27.2 (npm i axios@0.27.2), si se instala una version mas nueva manda error de "GET no definido" o algo asi.
            // console.log(theUrl);
            console.log("==========   GET URL   ============");
@@ -201,7 +194,6 @@ const listenMessage = () => client.on('message', async msg => {
            console.log('PASOREQUERIDO=', pasoRequerido)
            if(pasoRequerido=="soporte"){
                // var theUrl=nuevaRespuesta.substring(5).replace("XXPARAM1XX",newBody);
-               
                // const RES = await axios.get(theUrl).then(function (response) {
                    //     const { AffectedRows } = response.data['respuesta'][0]
                    //     console.log('AFFECTED_ROWS = ', AffectedRows)
@@ -218,13 +210,101 @@ const listenMessage = () => client.on('message', async msg => {
                                //     return error
                                // });
                                // console.log('RES=', RES)
-                            }
-                        }
-                        
-                        if(response.hasOwnProperty('url') && response.hasOwnProperty('values')){
-                            let theURL = response.url;
-                            let url0 = theURL
-            // console.log('EL_URL=', theURL)
+            }
+        }
+        /**
+         * Llama el API para tre categoria de Guna.
+         * @param {*} ctx El objeto del mensaje.
+         */
+        async function getGunaCats(ctx) {
+            // let par1 = ctx.theMsg.body
+            // let theUrl = `http://localhost:8888/dbrquery?j={"query":"selectTipoFerreroMty","exec":"ExecuteQuery","params":{"par1":"${par1}"}}`
+            // const RES = await axios.get(theUrl).then(function (response) {
+            //     console.log('getGunaCats = ', response.data.respuesta.length, response.data.respuesta)
+            //     let elMensaje = "%saludo%,\nEscoge una de nuestras categorías:\n\n"
+            //     let lasOpciones = "["
+            //     for(reg=0;reg<response.data.respuesta.length;reg++) {
+            //         // console.log("*** ", response.data.respuesta[reg])
+            //         lasOpciones = lasOpciones + `{id:'${response.data.respuesta[reg].CAT_PT_DESC}', title:'${response.data.respuesta[reg].CAT_PT_DESC}'}`
+            //         if(reg<response.data.respuesta.length-1) {lasOpciones=lasOpciones + ','}
+            //         elMensaje = elMensaje + (reg+1) + " .- " + response.data.respuesta[reg].CAT_PT_DESC + "\n"
+            //     }
+            //     lasOpciones = lasOpciones + "]"
+            //     console.log("lasOpciones="+lasOpciones)
+            //     const productList = new List(
+            //         "Aqui está la lista de nuestras categorias",
+            //         "Ver las categorías",
+            //         [
+            //             {
+            //                 title: "Lista de categprías",
+            //                 rows: lasOpciones,
+            //             }
+            //         ],
+            //         "Selecciona una categoría"
+            //     )
+
+            //     client.sendMessage(from, productList)
+            //     // sendMessagList(client, from, null, productList);
+            //     return "1"
+            // }).catch(function (error) {
+            // console.log(error);
+            // return error
+            // });
+
+            const productList = {
+                "body":"Hola *%primer_nombre%*, estos son ejemplos del uso de expresiones regulares, *todas* las opciones de la *lista* disparan la misma regla:\n\n'*pak*3*|*pak*angular*|*paquete*3*|*paquete*angular*'\n\nAutomáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*.",
+                "buttonText":"Ver los ejemplos de RegEx",
+                "sections": [
+                    {"title":"Selecciona un mensaje:",
+                    "rows":[
+                            {"id": "paq3", "title": "Me gusta el paquete 3"},
+                            {"id": "paqA", "title": "Por favor mas info del paquete de Angular"},
+                            {"id": "pakA", "title": "Me gustó el pak de Angular"},
+                            {"id": "pak3", "title": "Estoy interesado en el pak 3"}
+                        ]
+                    }
+                ],
+                "title":"Por favor selecciona un producto"
+            }
+            sendMessageList(client, from, null, productList)
+                // client.sendMessage(from, productList)
+
+        }
+        /**
+         * Llama el API para desbloquear un usuario.
+         * @param {*} ctx El objeto del mensaje.
+         */
+        async function desbloqueaUsuario(ctx) {
+            let par1 = ctx.theMsg.body
+            let theUrl = `http://localhost:8888/dbrquery?j={"query":"update_usuario_guna_nobajas","exec":"ExecuteCommand","params":{"par1":"${par1}", "par2":"XXPARAM2XX", "par3":"XXPARAM3XX"}}`
+            const RES = await axios.get(theUrl).then(function (response) {
+                const { AffectedRows } = response.data['respuesta'][0]
+                console.log('AFFECTED_ROWS = ', AffectedRows)
+                if(response.data['respuesta'][0]['AffectedRows']=="1"){
+                sendMessage(client, from, "Listo, usuario *"+response.data['params']['par1']+"* desbloqueado, por favor *cerrar navegadores* y reingresar.", response.trigger, step);
+                }
+                else{
+                sendMessage(client, from, "El usuario *"+response.data['params']['par1']+"* no *existe* o esta dado de *baja*, por favor revisarlo y volver a intentar.", response.trigger, step);
+                }
+                return response
+            }).catch(function (error) {
+            console.log(error);
+            return error
+            });
+        }
+        /*
+         *   Si quieres ejecutar una función.
+        */
+        if(response.hasOwnProperty('funcion')){
+            console.log("#############    Encontramos Funcion, ejecutamos funcion " + response.funcion)
+            laFuncion = response.funcion + "(client)"
+            eval(laFuncion)
+            return
+        }
+      
+        if(response.hasOwnProperty('urlXXXXXXX') && response.hasOwnProperty('values')){
+            let theURL = response.url;
+            let url0 = theURL
             let vals = response.values // Traemos los valores desde el response.json
             let j = theURL.split('j=')[1] // Traemos el JSON del URL.
             let j2 = JSON.parse(j)
@@ -239,23 +319,29 @@ const listenMessage = () => client.on('message', async msg => {
                 cont++
             }
             // console.log('THE_URL=', url2)
-            desbloqueaUsuario(url2, step) //Llamamos al API para desbloquear el usuario.
+            desbloqueaUsuario2(url2, step) //Llamamos al API para desbloquear el usuario.
             return
         }
-        
+
         /**
-         * Si quieres enviar imagen
+         * Si quieres enviar imagen.
         */
-       if (!response.delay && response.media) {
-           // console.log("++++++++++++++++++++++++++++  SEND MEDIA NO DELAY  +++++++++++++++++++++++++++++++++++");
-           sendMedia(client, from, response.media, response.trigger);
+        if (!response.delay && response.media) {
+            // console.log("++++++++++++++++++++++++++++  SEND MEDIA NO DELAY  +++++++++++++++++++++++++++++++++++");
+            sendMedia(client, from, response.media, response.trigger);
         }
+        /**
+         * Si quieres enviar imagen con retraso.
+        */
         if (response.delay && response.media) {
             setTimeout(() => {
                 // console.log("++++++++++++++++++++++++++++  SEND MEDIA AND DELAY  +++++++++++++++++++++++++++++++++++");
                 sendMedia(client, from, response.media, response.trigger);
             }, response.delay)
         }
+        /**
+         * Si quieres enviar mensaje con retraso.
+        */
         if (response.delay){
             // await sendMessage(client, from, nuevaRespuesta, response.trigger, step); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
             setTimeout(() => {
@@ -267,6 +353,9 @@ const listenMessage = () => client.on('message', async msg => {
             }, response.delay)
         }
         else
+        /**
+         * Si quieres enviar un mensaje.
+        */
         {
             // await sendMessage(client, from, nuevaRespuesta, response.trigger, step); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
             response.replyMessage.forEach( async messages => {
@@ -402,7 +491,6 @@ if(message=='/spam'){
 /**
  * Este evento es necesario para el filtro de Dialogflow
  */
-
 const listenMessageFromBot = () => client.on('message_create', async botMsg => {
     const { body } = botMsg;
     const dialogflowFilterConfig = fs.readFileSync('./flow/dialogflow.json', 'utf8');
@@ -468,7 +556,7 @@ client.initialize();
  * @param {*} theURL El URL para llamar al API 
  * @param {*} step
  */
- async function desbloqueaUsuario (theUrl, step) {
+ async function desbloqueaUsuario2(theUrl, step) {
     const {from} = client.theMsg
     const RES = await axios.get(theUrl).then(function (response) {
         const { AffectedRows } = response.data['respuesta'][0]
@@ -484,10 +572,6 @@ client.initialize();
         console.log(error);
         return error
     });
-
-
-
-
     // const r = await axios.get(theUrl).then(function (response) {
     //     console.log('AXIOS RES=', response)
     // }).catch(function (error) {
