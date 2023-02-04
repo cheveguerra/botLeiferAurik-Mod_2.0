@@ -5,6 +5,7 @@ require('dotenv').config()
 const fs = require('fs');
 const express = require('express');
 global.siguientePaso = [{"numero":"1", "va":"XXX"}]; //MOD by CHV - Agregamos para pasar el VAMOSA a "index.js"
+global.pasoAnterior = [];
 const cors = require('cors')
 const axios = require('axios').default;//MOD by CHV - Agregamos para el get del "/URL"
 const qrcode = require('qrcode-terminal');
@@ -16,12 +17,14 @@ const { connectionReady, connectionLost } = require('./controllers/connection')
 const { saveMedia, saveMediaToGoogleDrive } = require('./controllers/save')
 const { getMessages, responseMessages, bothResponse, waitFor } = require('./controllers/flows')
 const { sendMedia, sendMessage, lastTrigger, sendMessageButton, sendMessageList, readChat } = require('./controllers/send');
-const { remplazos, stepsInitial} = require('./adapter/index');//MOD by CHV - Agregamos para utilizar remplazos y stepsInitial
+const { remplazos, stepsInitial, vamosA } = require('./adapter/index');//MOD by CHV - Agregamos para utilizar remplazos y stepsInitial
 const { isUndefined } = require('util');
 const { isSet } = require('util/types');
 const { Console } = require('console');
 const { ClientRequest } = require('http');
 const { guardaXLSDatos, leeXLSDatos} = require('./Excel');
+const { ContextsClient } = require('@google-cloud/dialogflow');
+const { ingresarDatos, leerDatos } = require('./implementaciones/sheets')
 const app = express();
 app.use(cors())
 app.use(express.json())
@@ -32,9 +35,10 @@ const port = process.env.PORT || 3000
 var client;
 var dialogflowFilter = false;
 var totalMsjs; //MOD by CHV - 
-var vamosA = ""; //MOD by CHV - 
+// var vamosA = ""; //MOD by CHV - 
 var newBody; //MOD by CHV - 
 var nuevaRespuesta; //MOD by CHV - Se agrego para los remplazos
+var vars = []
 app.use('/', require('./routes/web'))
  
  /**
@@ -42,14 +46,16 @@ app.use('/', require('./routes/web'))
   */
 const listenMessage = () => client.on('message', async msg => {
     const { from, body, hasMedia } = msg;
+    if (vars[from] === undefined) vars[from] = []
     // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     console.log("+++++++++++++++++++++++++++++++++++++  INICIO  +++++++++++++++++++++++++++++++++++++++");
     // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     client.theMsg = msg;
-    console.log("HORA:"+new Date().toLocaleTimeString()+" FROM:"+from+", BODY:"+body+", HASMEDIA:"+hasMedia);
+    // console.log("%%%%%%%%%  userAgent = " + client?.options?.userAgent)
+    console.log("HORA:"+new Date().toLocaleTimeString()+" FROM:"+from+", BODY:"+body+", HASMEDIA:"+hasMedia+", DEVICETYPE:"+client.theMsg?.deviceType);
     newBody = removeDiacritics(body) //MOD by CHV - Agregamos para quitar acentos
     // newBody = remplazos(newBody);
-    vamosA = "";
+    // vamosA = "";
     if(!isValidNumber(from)){
         return
     }
@@ -59,9 +65,16 @@ const listenMessage = () => client.on('message', async msg => {
     }
     message = newBody.toLowerCase();
     const number = cleanNumber(from)
+    client.theMsg['numero'] = number
 
+    // Guardamos el mensaje en Google Sheets
+    ingresarDatos(from, body)
+
+
+// console.log(stepsInitial)
     var { key } = stepsInitial.find(k => k.keywords.includes(message)) || { key: null }//MOD by CHV - Se agrega para obtener KEY
     await readChat(number, message, null , key) //MOD by CHV - Agregamos key/regla para guardarla en "chats/numero.json"
+    client.theMsg['key'] = key
      
     /**
      * Guardamos el archivo multimedia que envia
@@ -74,7 +87,7 @@ const listenMessage = () => client.on('message', async msg => {
     /**
      * Si estas usando dialogflow solo manejamos una funcion todo es IA
      */
-    
+
     if (process.env.DATABASE === 'dialogflow') {
         if (process.env.DIALOGFLOW_MEDIA_FOR_SLOT_FILLING === 'true' && dialogflowFilter) {
             waitFor(_ => hasMedia, 30000)
@@ -102,8 +115,6 @@ const listenMessage = () => client.on('message', async msg => {
         return
     }
 
-
-    
     if(body=='/listas'){
         const productList = new List(
             "Here's our list of products at 50% off",
@@ -133,13 +144,13 @@ const listenMessage = () => client.on('message', async msg => {
             // await sendMessageList(client, '5215527049036@c.us', null, lista);
             // await sendMessageList(client, '5215554192439@c.us', null, lista);
             // client.sendMessage(from, lista);
-        }
+    }
         
-        /**
-         * PRUEBA BOTONES NUEVOS
-        */
-       //  if(body=="579"){
-           //     const buttons_reply = new Buttons("Por favor vuelve a intentar, mandando *SOLO* la palabra *gallina* con una diagonal al principio 👇🏽 \n\n           */gallina*\n ", [{body: "/gallina", id: 'errorGallina'}], 'Error', 'O haz clic en el siguiente botón') // Reply button
+    /**
+     * PRUEBA BOTONES NUEVOS
+    */
+    // if(body=="579"){
+    //     const buttons_reply = new Buttons("Por favor vuelve a intentar, mandando *SOLO* la palabra *gallina* con una diagonal al principio 👇🏽 \n\n           */gallina*\n ", [{body: "/gallina", id: 'errorGallina'}], 'Error', 'O haz clic en el siguiente botón') // Reply button
     //     for (const component of [buttons_reply]) await client.sendMessage(from, component);
     // }
 
@@ -149,16 +160,18 @@ const listenMessage = () => client.on('message', async msg => {
      * a tu gusto!
     */
 
-   const lastStep = await lastTrigger(from) || null;
-   //  console.log("LAST STEP="+lastStep+", FROM:"+from);
-   if (lastStep) {
-       const response = await responseMessages(lastStep)
-       console.log("CLIENT="+client+", FROM:"+from+", REPLYMESSAGE:"+response.replyMessage);
-       // await sendMessage(client, from, response.replyMessage, lastStep); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
-       response.replyMessage.forEach( async messages => {
-           var thisMsg = messages.mensaje
-           if(Array.isArray(messages.mensaje)){thisMsg = messages.mensaje.join('\n')}
-           await sendMessage(client, from, remplazos(thisMsg, client), response.trigger);
+    const lastStep = await lastTrigger(from) || null;
+    client.theMsg['lastStep'] = lastStep
+    //  console.log("LAST STEP="+lastStep+", FROM:"+from);
+    if (lastStep) {
+        const response = await responseMessages(lastStep)
+        client.theMsg['trigger'] = response.trigger
+        console.log("CLIENT="+client+", FROM:"+from+", REPLYMESSAGE:"+response.replyMessage);
+        // await sendMessage(client, from, response.replyMessage, lastStep); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
+        response.replyMessage.forEach( async messages => {
+            var thisMsg = messages.mensaje
+            if(Array.isArray(messages.mensaje)){thisMsg = messages.mensaje.join('\n')}
+            await sendMessage(client, from, remplazos(thisMsg, client), response.trigger);
         })
     }
 
@@ -170,17 +183,15 @@ const listenMessage = () => client.on('message', async msg => {
    //  console.log("******  STEP="+step);
    //  console.log("******  MESSAGE:"+message);
    const step = await getMessages(message, from);
+   client.theMsg['step'] = step
    if (step) {
        const response = await responseMessages(step);
-       
+       client.theMsg['trigger'] = response.trigger
        var resps = require('./flow/response.json');
        nuevaRespuesta = remplazos(resps[step].replyMessage.join(''), client);
+       client.theMsg['replyMessage'] = nuevaRespuesta
        var pasoRequerido = resps[step].pasoRequerido;
-       // var hayRequest = false;
-       // if(hayRequest==false && nuevaRespuesta.search("/URL")>-1){console.log("Paramos flujo para que no mande el mensaje '/URL'."); return;}//Si el trigger es desbloqueo ya no hace nada mas.
-       
-       // nuevaRespuesta = remplazos(resps[step].replyMessage.join(''), client);
-       console.log('NUEVA RESPUESTA=', nuevaRespuesta)
+    //    console.log('NUEVA RESPUESTA=', nuevaRespuesta)
        
        if(nuevaRespuesta.search("/URL")>-1){
            // Necesita instalado axios version 0.27.2 (npm i axios@0.27.2), si se instala una version mas nueva manda error de "GET no definido" o algo asi.
@@ -213,63 +224,201 @@ const listenMessage = () => client.on('message', async msg => {
             }
         }
         /**
-         * Llama el API para tre categoria de Guna.
+         * Llama el API para traer categorias de Guna.
          * @param {*} ctx El objeto del mensaje.
          */
         async function getGunaCats(ctx) {
-            // let par1 = ctx.theMsg.body
-            // let theUrl = `http://localhost:8888/dbrquery?j={"query":"selectTipoFerreroMty","exec":"ExecuteQuery","params":{"par1":"${par1}"}}`
-            // const RES = await axios.get(theUrl).then(function (response) {
-            //     console.log('getGunaCats = ', response.data.respuesta.length, response.data.respuesta)
-            //     let elMensaje = "%saludo%,\nEscoge una de nuestras categorías:\n\n"
-            //     let lasOpciones = "["
-            //     for(reg=0;reg<response.data.respuesta.length;reg++) {
-            //         // console.log("*** ", response.data.respuesta[reg])
-            //         lasOpciones = lasOpciones + `{id:'${response.data.respuesta[reg].CAT_PT_DESC}', title:'${response.data.respuesta[reg].CAT_PT_DESC}'}`
-            //         if(reg<response.data.respuesta.length-1) {lasOpciones=lasOpciones + ','}
-            //         elMensaje = elMensaje + (reg+1) + " .- " + response.data.respuesta[reg].CAT_PT_DESC + "\n"
-            //     }
-            //     lasOpciones = lasOpciones + "]"
-            //     console.log("lasOpciones="+lasOpciones)
-            //     const productList = new List(
-            //         "Aqui está la lista de nuestras categorias",
-            //         "Ver las categorías",
-            //         [
-            //             {
-            //                 title: "Lista de categprías",
-            //                 rows: lasOpciones,
-            //             }
-            //         ],
-            //         "Selecciona una categoría"
-            //     )
-
-            //     client.sendMessage(from, productList)
-            //     // sendMessagList(client, from, null, productList);
-            //     return "1"
-            // }).catch(function (error) {
-            // console.log(error);
-            // return error
-            // });
-
-            const productList = {
-                "body":"Hola *%primer_nombre%*, estos son ejemplos del uso de expresiones regulares, *todas* las opciones de la *lista* disparan la misma regla:\n\n'*pak*3*|*pak*angular*|*paquete*3*|*paquete*angular*'\n\nAutomáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 5 sin necesidad de volver a iniciar con */menu*.",
-                "buttonText":"Ver los ejemplos de RegEx",
-                "sections": [
-                    {"title":"Selecciona un mensaje:",
-                    "rows":[
-                            {"id": "paq3", "title": "Me gusta el paquete 3"},
-                            {"id": "paqA", "title": "Por favor mas info del paquete de Angular"},
-                            {"id": "pakA", "title": "Me gustó el pak de Angular"},
-                            {"id": "pak3", "title": "Estoy interesado en el pak 3"}
-                        ]
-                    }
-                ],
-                "title":"Por favor selecciona un producto"
-            }
-            sendMessageList(client, from, null, productList)
-                // client.sendMessage(from, productList)
-
+            let par1 = ctx.theMsg.body
+            let theUrl = `http://localhost:8888/dbrquery?j={"query":"selectTipoFerreroMty","exec":"ExecuteQuery","params":{"par1":"${par1}"}}`
+            const RES = await axios.get(theUrl).then(function (response) {
+                let lasOpciones = []
+                for(reg=0;reg<response.data.respuesta.length;reg++) {
+                    let tempItem = {}
+                    tempItem['id']=response.data.respuesta[reg].CAT_PT_DESC
+                    tempItem['title']=response.data.respuesta[reg].CAT_PT_DESC
+                    lasOpciones.push(tempItem)
+                    console.log(lasOpciones.length, tempItem)
+                }
+                // console.log("lasOpciones="+lasOpciones[1])
+                const productList = new List(
+                    remplazos("%saludo%, selecciona una categoría 👇🏽"),
+                    "Ver las categorías",
+                    [
+                        {   title: "Categorías",
+                            rows: lasOpciones,
+                        }
+                    ],
+                    "Categorías",
+                    "Selecciona"
+                )
+                console.log(productList)
+                client.sendMessage(from, productList)
+                // console.log(ctx)
+                // sendMessagList(client, from, null, productList);
+                return "1"
+            }).catch(function (error) {
+            console.log(error);
+            return error
+            });
         }
+        /**
+         * Llama el API para traer subcategorias de Guna.
+         * @param {*} ctx El objeto del mensaje.
+         */
+        async function getGunaSubtipo(ctx) {
+            let par1 = ctx.theMsg.body
+            vars[from]['tipo'] = ctx.theMsg.body
+            // console.log("V_TIPO=", from, vars[from]['tipo'])
+            let theUrl = `http://localhost:8888/dbrquery?j={"query":"selectSubtipoFerreroMty","exec":"ExecuteQuery","params":{"par1":"${vars[from]['tipo']}"}}`
+            const RES = await axios.get(theUrl).then(function (response) {
+                if( response.data.respuesta.length == 0 ) {
+                    console.log("No hay resultados",from)
+                    vamosA(from, "gunaCats")
+                    client.sendMessage(from, "Esa categoría *no existe*, por favor revisa y vuelve a intentar.")
+                }
+                let elMensaje = "Gracias,\nAhora una subcategoría:\n\n"
+                let lasOpciones = []
+                for(reg=0;reg<response.data.respuesta.length;reg++) {
+                    let tempItem = {}
+                    tempItem['id']=response.data.respuesta[reg].CAT_PS_DESC
+                    tempItem['title']=response.data.respuesta[reg].CAT_PS_DESC
+                    lasOpciones.push(tempItem)
+                    console.log(lasOpciones.length, tempItem)
+                }
+                // console.log("lasOpciones="+lasOpciones[3])
+                const productList = new List(
+                    "Selecciona una subcategoria 👇🏽",
+                    "Ver las subcategorías",
+                    [
+                        {   title: "Subcategorías",
+                            rows: lasOpciones,
+                        }
+                    ],
+                    `CATEGORÍA ${body}`
+                )
+                client.sendMessage(from, productList)
+                return "1"
+            }).catch(function (error) {
+            console.log(error);
+            return error
+            });
+        }
+        /**
+         * Llama el API para traer productos de Guna.
+         * @param {*} ctx El objeto del mensaje.
+         */
+        async function getGunaProds(ctx) {
+            if(vars[from]['recompra'] === undefined) vars[from]['subtipo'] = ctx.theMsg.body
+            let theUrl = `http://localhost:8888/dbrquery?j={"query":"selectProdsFerreroMty","exec":"ExecuteQuery","params":{"par1":"${vars[from]['tipo']}", "par2":"${vars[from]['subtipo']}"}}`
+            const RES = await axios.get(theUrl).then(function (response) {
+                let elMensaje = "Gracias,\nAhora un producto:\n\n"
+                let lasOpciones = []
+                for(reg=0;reg<response.data.respuesta.length;reg++) {
+                    let tempItem = {}
+                    tempItem['id']=response.data.respuesta[reg].CAT_GP_ID
+                    tempItem['title']=`${response.data.respuesta[reg].CAT_GP_NOMBRE} $${response.data.respuesta[reg].CAT_GP_PRECIO}, INV:${response.data.respuesta[reg].CAT_GP_ALMACEN}     `
+                    lasOpciones.push(tempItem)
+                }
+                const productList = new List(
+                    "Selecciona un producto 👇🏽",
+                    "Ver los productos",
+                    [
+                        {   title: "Productos",
+                            rows: lasOpciones,
+                        }
+                    ],
+                    `SUBCATEGORÍA ${body}`,
+                    "Footer"
+                )
+                client.sendMessage(from, productList)
+                return "1"
+            }).catch(function (error) {
+            console.log(error);
+            return error
+            });
+        }
+        /**
+         * Llama el API para traer productos de Guna.
+         * @param {*} ctx El objeto del mensaje.
+         */
+        async function agregaProds(ctx) {
+            // vars[from]['subtipo'] = ctx.theMsg.body
+            if(vars[from]['prods'] === undefined) { vars[from]['prods'] = [] }
+            let elProd = ctx.theMsg.body
+            elProd = elProd.substring(0, elProd.indexOf(' $')).trim().toLowerCase()
+            var precio = ctx.theMsg.body.substring(ctx.theMsg.body.indexOf(' $')+2)
+            console.log("precio",precio)
+            precio = precio.substring(0, precio.indexOf(','))
+            console.log("precio",precio)
+            vars[from]['prods'][elProd] = {"cant":0, "precio":precio}
+            console.log("EL_PROD=", elProd)
+            console.log(vars[from]['prods'][elProd])
+            let elMensaje = ctx.theMsg.replyMessage
+            let re = ctx.theMsg.body.trim().toLowerCase()
+            elMensaje = elMensaje.replace(re, elProd.toLowerCase())
+            sendMessage(client, from, elMensaje, ctx.theMsg.trigger, ctx.theMsg.step);
+            return
+        }
+        /**
+         * Tomamos la cantidad del producto seleccionado.
+         * @param {*} ctx El objeto del mensaje.
+         */
+        async function prodCantidad(ctx) {
+            // console.log("Entramos a prodCantidad")
+            let laCant = ctx.theMsg.body.trim()
+            const reg = new RegExp('^[0-9]+$')
+            let elProd = remplazos("%msjant_2%").toLowerCase()
+            elProd = elProd.substring(0, elProd.indexOf(' $')).trim()
+            if(reg.test(laCant)){
+                console.log("Recibimos cant = " + laCant)
+                console.log("EL_PROD=", vars[from]['prods'][elProd])
+                console.log("precio=", vars[from]['prods'][elProd].precio)
+                console.log("precio=", vars[from]['prods'][elProd]['precio'])
+                vars[from]['prods'][elProd] = {"cant":laCant, "precio":vars[from]['prods'][elProd]['precio']}
+                console.log(vars[from]['prods'])
+            var elMensaje = ""
+            const prods = Object.keys(vars[from]['prods']);
+            prods.forEach((prod, index) => {
+                elMensaje = elMensaje + `${vars[from]['prods'][prod].cant} - ${prod[0].toUpperCase() + prod.substring(1)}\n`
+                console.log(`${prod}: ${vars[from]['prods'][prod]}`);
+            });
+            elMensaje = elMensaje + "\n¿Quieres agregar mas productos a tu orden?"
+                // for(pr=0;pr<vars[from]['prods'].length;pr++){
+                //     elMensaje = elMensaje + vars[from]['prods'][pr]
+                // }
+                // sendMessage(client, from, elMensaje, response.trigger, step);
+                var bts = {
+                    "title":"Tu orden",
+                    "message":elMensaje,
+                    "buttons":[
+                        {"body":"Terminar"},
+                        {"body":"Agregar productos"}
+                    ]
+                }
+                sendMessageButton(client, from, "xxx", bts)
+            }
+            else{
+                console.log("NO SOLO NUMS")
+                vamosA(from, "gunaProdsAgrega")
+                sendMessage(client, from, "Por favor escribe 👉🏽 *solo* 👈🏽 el número.", response.trigger, step);
+            }
+            return "1"
+        }
+        
+        /**
+         * Mandamos nuevamente la lista de productos.
+         * @param {*} ctx El objeto del mensaje.
+         */
+        async function comprarMas(ctx) {
+            console.log("Entramos a comprarMas")
+            vars[from]['recompra'] = true
+            await getGunaProds(ctx)
+            vars[from]['recompra'] = false
+            return "1"
+        }
+
+
+
         /**
          * Llama el API para desbloquear un usuario.
          * @param {*} ctx El objeto del mensaje.
@@ -296,12 +445,11 @@ const listenMessage = () => client.on('message', async msg => {
          *   Si quieres ejecutar una función.
         */
         if(response.hasOwnProperty('funcion')){
-            console.log("#############    Encontramos Funcion, ejecutamos funcion " + response.funcion)
+            console.log("#############    Encontramos función, ejecutamos la función '" + response.funcion + "'")
             laFuncion = response.funcion + "(client)"
             eval(laFuncion)
             return
         }
-      
         if(response.hasOwnProperty('urlXXXXXXX') && response.hasOwnProperty('values')){
             let theURL = response.url;
             let url0 = theURL
@@ -322,7 +470,6 @@ const listenMessage = () => client.on('message', async msg => {
             desbloqueaUsuario2(url2, step) //Llamamos al API para desbloquear el usuario.
             return
         }
-
         /**
          * Si quieres enviar imagen.
         */
@@ -373,45 +520,44 @@ const listenMessage = () => client.on('message', async msg => {
            if(actions['sections'] === undefined){ //Botones
             console.log("Botones")
             await sendMessageButton(client, from, null, actions);
+            }
+            else { //Listas
+                console.log("Listas")
+                // console.log(actions)
+                await sendMessageList(client, from, null, actions);
+            }
         }
-        else{ //Listas
-            console.log("Listas")
-            // console.log(actions)
-            await sendMessageList(client, from, null, actions);
-        }
+        return
     }
-    return
-}
 
-if(body=='trae'){
-    const rows = await leeXLSDatos('x')
-    console.log("RESULTADOS:")
-    // d.forEach(row => async function() {
-    // console.log(row.nombre, row.edad, row.sexo)
-    // client.sendMessage(from, `Hola ${row.nombre}, recuerda que tienes un adeudo pendiente`)
-    // })
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-    async function retardo() {
-        for (sp=1;sp<rows.length;sp++) {
-            // console.log(masivo[sp].numero+"@c.us");
-            var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
-            if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
-            console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
-            var elTextoDelMensaje = `%saludo% ${rows[sp].prefijo} *${rows[sp].nombre}* con CARNET *${rows[sp].carnet}*, le saludamos de _CORPORACION AZUL_ le escribimos para recordarle que tiene un pago *pendiente* que se vence el *02/02/2023*`;
-            await sleep(500);
-            // let elNumero = '51968016860@c.us'
-            let elNumero = '5215554192439@c.us'
-            client.sendMessage(elNumero, remplazos(elTextoDelMensaje, client));
-            console.log(`Esperamos ${rnd} segundos...`);
-            await sleep(rnd*1000);
+    if(body=='trae'){
+        const rows = await leeXLSDatos('x')
+        console.log("RESULTADOS:")
+        // d.forEach(row => async function() {
+        // console.log(row.nombre, row.edad, row.sexo)
+        // client.sendMessage(from, `Hola ${row.nombre}, recuerda que tienes un adeudo pendiente`)
+        // })
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
-        console.log('Terminamos');
+        async function retardo() {
+            for (sp=1;sp<rows.length;sp++) {
+                // console.log(masivo[sp].numero+"@c.us");
+                var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
+                if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
+                console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
+                var elTextoDelMensaje = `%saludo% ${rows[sp].prefijo} *${rows[sp].nombre}* con CARNET *${rows[sp].carnet}*, le saludamos de _CORPORACION AZUL_ le escribimos para recordarle que tiene un pago *pendiente* que se vence el *02/02/2023*`;
+                await sleep(500);
+                // let elNumero = '51968016860@c.us'
+                let elNumero = '5215554192439@c.us'
+                client.sendMessage(elNumero, remplazos(elTextoDelMensaje, client));
+                console.log(`Esperamos ${rnd} segundos...`);
+                await sleep(rnd*1000);
+            }
+            console.log('Terminamos');
+        }
+        retardo();
     }
-    retardo();
-}
-
 
 /*
 ============================================================================
@@ -451,7 +597,7 @@ if(message=='/spam'){
             console.log('Done');
         }
         retardo();
-    }
+}
 
     function getRandomInt(min, max) {
         min = Math.ceil(min);

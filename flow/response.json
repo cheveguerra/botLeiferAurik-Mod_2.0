@@ -25,7 +25,8 @@
         ],
         "media":null,
         "trigger":null,
-        "goto":"menu"
+        "goto":"menu",
+        "pasoRequerido":"menu"
     },
     "menu":{
         "keywords": ["/menu"],
@@ -47,7 +48,7 @@
         "trigger":null
     },
     "opcion1":{
-        "keywords": ["1"],
+        "keywords": "1",
         "replyMessage":[
             {
                 "mensaje":[
@@ -67,7 +68,7 @@
         "goto":"menu"
     },
     "opcion2":{
-        "keywords": ["2"],
+        "keywords": "2",
         "replyMessage":[
             {
                 "mensaje":[
@@ -85,7 +86,7 @@
         "goto":"menu"
     },
     "opcion3":{
-        "keywords":  ["3"],
+        "keywords":  "3",
         "replyMessage":[
             {
                 "mensaje":[
@@ -179,7 +180,7 @@
         }
     },
     "lista":{
-        "keywords": ["4"],
+        "keywords": "4",
         "replyMessage":[
             {
                 "mensaje":["*%saludo%*, este es un ejemplo de listas"]
@@ -206,7 +207,7 @@
         "goto":"menu"
     },
     "botones":{
-        "keywords": ["5"],
+        "keywords": "5",
         "replyMessage":[
             {
                 "mensaje":["*%saludo%*, este es un ejemplo de botones"]
@@ -305,7 +306,7 @@
         "goto":"menu"
     },
     "botonespaq3":{
-        "keywords": ["6"],
+        "keywords": "6",
         "replyMessage":[
             {
                 "mensaje":["*%saludo%*, este es un ejemplo de botones y regExp"]
@@ -350,12 +351,62 @@
         "pasoRequerido":"soporte"
     },
     "gunaCats":{
-        "keywords": "/guna",
+        "keywords": ["/guna", "/demoventa", "/demoguna"],
         "replyMessage":[
             "Mensaje de getGunaCats"
         ],
         "funcion":"getGunaCats",
         "media":null,
         "trigger":null
+    },
+    "gunaCats2":{
+        "keywords": "*",
+        "replyMessage":[
+            "Mensaje de getGunaCats2"
+        ],
+        "funcion":"getGunaSubtipo",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gunaCats"
+    },
+    "gunaProds":{
+        "keywords": "*",
+        "replyMessage":[
+            "Mensaje de getGunaCats2"
+        ],
+        "funcion":"getGunaProds",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gunaCats2"
+    },
+    "gunaProdsAgrega":{
+        "keywords": "*",
+        "replyMessage":[
+            "Seleccionaste *%msjant_0%*, por favor indica la cantidad que quieres comprar (*solo el número*)."
+        ],
+        "funcion":"agregaProds",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gunaProds"
+    },
+    "gunaProdsCantidad":{
+        "keywords": "*",
+        "replyMessage":[
+            "Recibi cantidad"
+        ],
+        "funcion":"prodCantidad",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gunaProdsAgrega"
+    },
+    "gunaComprarMas":{
+        "keywords": ["Agregar productos"],
+        "replyMessage":[
+            "Quiero comprar mas."
+        ],
+        "funcion":"comprarMas",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gunaProdsCantidad"
     }
 }
