@@ -351,7 +351,7 @@
         "pasoRequerido":"soporte"
     },
     "gunaCats":{
-        "keywords": ["/guna", "/demoventa", "/demoguna"],
+        "keywords": ["/guna", "/demoventa", "/demoguna", "⬅️ cambiar categoria"],
         "replyMessage":[
             "Mensaje de getGunaCats"
         ],
@@ -400,11 +400,21 @@
         "pasoRequerido":"gunaProdsAgrega"
     },
     "gunaComprarMas":{
-        "keywords": ["Agregar productos"],
+        "keywords": "*agregar productos",
         "replyMessage":[
             "Quiero comprar mas."
         ],
         "funcion":"comprarMas",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gunaProdsCantidad"
+    },
+    "gunaTerminaCompra":{
+        "keywords": "*terminar",
+        "replyMessage":[
+            "Termina la compra"
+        ],
+        "funcion":"terminaCompra",
         "media":null,
         "trigger":null,
         "pasoRequerido":"gunaProdsCantidad"

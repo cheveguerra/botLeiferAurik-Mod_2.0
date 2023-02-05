@@ -31,7 +31,7 @@ app.use(express.json())
 const MULTI_DEVICE = process.env.MULTI_DEVICE || 'true';
 const server = require('http').Server(app)
 const port = process.env.PORT || 3000
-
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve,ms))
 var client;
 var dialogflowFilter = false;
 var totalMsjs; //MOD by CHV - 
@@ -40,11 +40,12 @@ var newBody; //MOD by CHV -
 var nuevaRespuesta; //MOD by CHV - Se agrego para los remplazos
 var vars = []
 app.use('/', require('./routes/web'))
- 
- /**
-  * Escuchamos cuando entre un mensaje
-  */
-const listenMessage = () => client.on('message', async msg => {
+let blackList = ['34692936038', '34678310819', '34660962689', '34649145761','34630283553','34648827637','34630255646','14178973313']
+
+/**
+ * Escuchamos cuando entre un mensaje
+*/
+listenMessage = () => client.on('message', async msg => {
     const { from, body, hasMedia } = msg;
     if (vars[from] === undefined) vars[from] = []
     // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
@@ -63,6 +64,12 @@ const listenMessage = () => client.on('message', async msg => {
     if (from === 'status@broadcast') {
         return
     }
+
+    /**
+     * Blacklist, los telefonos inlcuidos en este arreglo son ignorados por el bot.
+     */
+    console.log('BlackListed: ',blackList.includes(from.replace("@c.us","")))
+    if (blackList.includes(from.replace("@c.us",""))) return
     message = newBody.toLowerCase();
     const number = cleanNumber(from)
     client.theMsg['numero'] = number
@@ -223,13 +230,13 @@ const listenMessage = () => client.on('message', async msg => {
                                // console.log('RES=', RES)
             }
         }
+
         /**
          * Llama el API para traer categorias de Guna.
          * @param {*} ctx El objeto del mensaje.
          */
         async function getGunaCats(ctx) {
-            let par1 = ctx.theMsg.body
-            let theUrl = `http://localhost:8888/dbrquery?j={"query":"selectTipoFerreroMty","exec":"ExecuteQuery","params":{"par1":"${par1}"}}`
+            let theUrl = `http://localhost:8888/dbrquery?j={"query":"selectTipoFerreroMty","exec":"ExecuteQuery","params":{"par1":"xxx"}}`
             const RES = await axios.get(theUrl).then(function (response) {
                 let lasOpciones = []
                 for(reg=0;reg<response.data.respuesta.length;reg++) {
@@ -303,12 +310,14 @@ const listenMessage = () => client.on('message', async msg => {
             return error
             });
         }
+
         /**
          * Llama el API para traer productos de Guna.
          * @param {*} ctx El objeto del mensaje.
          */
         async function getGunaProds(ctx) {
             if(vars[from]['recompra'] === undefined) vars[from]['subtipo'] = ctx.theMsg.body
+            console.log(vars[from]['tipo'], vars[from]['subtipo'])
             let theUrl = `http://localhost:8888/dbrquery?j={"query":"selectProdsFerreroMty","exec":"ExecuteQuery","params":{"par1":"${vars[from]['tipo']}", "par2":"${vars[from]['subtipo']}"}}`
             const RES = await axios.get(theUrl).then(function (response) {
                 let elMensaje = "Gracias,\nAhora un producto:\n\n"
@@ -327,7 +336,7 @@ const listenMessage = () => client.on('message', async msg => {
                             rows: lasOpciones,
                         }
                     ],
-                    `SUBCATEGORÍA ${body}`,
+                    `SUBCATEGORÍA ${vars[from]['subtipo']}`,
                     "Footer"
                 )
                 client.sendMessage(from, productList)
@@ -337,6 +346,7 @@ const listenMessage = () => client.on('message', async msg => {
             return error
             });
         }
+
         /**
          * Llama el API para traer productos de Guna.
          * @param {*} ctx El objeto del mensaje.
@@ -345,20 +355,34 @@ const listenMessage = () => client.on('message', async msg => {
             // vars[from]['subtipo'] = ctx.theMsg.body
             if(vars[from]['prods'] === undefined) { vars[from]['prods'] = [] }
             let elProd = ctx.theMsg.body
-            elProd = elProd.substring(0, elProd.indexOf(' $')).trim().toLowerCase()
-            var precio = ctx.theMsg.body.substring(ctx.theMsg.body.indexOf(' $')+2)
-            console.log("precio",precio)
-            precio = precio.substring(0, precio.indexOf(','))
-            console.log("precio",precio)
-            vars[from]['prods'][elProd] = {"cant":0, "precio":precio}
-            console.log("EL_PROD=", elProd)
-            console.log(vars[from]['prods'][elProd])
-            let elMensaje = ctx.theMsg.replyMessage
-            let re = ctx.theMsg.body.trim().toLowerCase()
-            elMensaje = elMensaje.replace(re, elProd.toLowerCase())
+            let elMensaje = ""
+            if(elProd.indexOf(' $') > -1){ // Producto con formato correcto. 
+                vars[from]['ultimoProd'] = elProd
+                elProd = elProd.substring(0, elProd.indexOf(' $')).trim().toLowerCase()
+                var precio = ctx.theMsg.body.substring(ctx.theMsg.body.indexOf(' $')+2)
+                console.log("precio",precio)
+                precio = precio.substring(0, precio.indexOf(','))
+                console.log("precio",precio)
+                vars[from]['prods'][elProd] = {"cant":0, "precio":precio}
+                console.log("EL_PROD=", elProd)
+                console.log(vars[from]['prods'])
+                elMensaje = ctx.theMsg.replyMessage
+                let re = ctx.theMsg.body.trim().toLowerCase()
+                elMensaje = elMensaje.replace(re, elProd.toLowerCase())
+            }
+            else{ // Producto SIN precio.
+                elMensaje = "El producto que seleccionaste es *incorrecto*, por favor intenta de nuevo."
+                sendMessage(client, from, elMensaje, ctx.theMsg.trigger, ctx.theMsg.step);
+                    await delay(500)
+                    vars[from]['recompra'] = true
+                    getGunaProds()
+                    vamosA(from, "gunaProds")
+                return
+            }
             sendMessage(client, from, elMensaje, ctx.theMsg.trigger, ctx.theMsg.step);
             return
         }
+
         /**
          * Tomamos la cantidad del producto seleccionado.
          * @param {*} ctx El objeto del mensaje.
@@ -366,33 +390,39 @@ const listenMessage = () => client.on('message', async msg => {
         async function prodCantidad(ctx) {
             // console.log("Entramos a prodCantidad")
             let laCant = ctx.theMsg.body.trim()
-            const reg = new RegExp('^[0-9]+$')
-            let elProd = remplazos("%msjant_2%").toLowerCase()
+            const reg = new RegExp(/^\d+$/)
+            let elProd = vars[from]['ultimoProd'].toLowerCase()
             elProd = elProd.substring(0, elProd.indexOf(' $')).trim()
+            console.log("SOLO NUMS |" + laCant + "|", reg.test(laCant))
             if(reg.test(laCant)){
+                console.log(vars)
                 console.log("Recibimos cant = " + laCant)
                 console.log("EL_PROD=", vars[from]['prods'][elProd])
                 console.log("precio=", vars[from]['prods'][elProd].precio)
-                console.log("precio=", vars[from]['prods'][elProd]['precio'])
                 vars[from]['prods'][elProd] = {"cant":laCant, "precio":vars[from]['prods'][elProd]['precio']}
-                console.log(vars[from]['prods'])
-            var elMensaje = ""
-            const prods = Object.keys(vars[from]['prods']);
-            prods.forEach((prod, index) => {
-                elMensaje = elMensaje + `${vars[from]['prods'][prod].cant} - ${prod[0].toUpperCase() + prod.substring(1)}\n`
-                console.log(`${prod}: ${vars[from]['prods'][prod]}`);
-            });
-            elMensaje = elMensaje + "\n¿Quieres agregar mas productos a tu orden?"
-                // for(pr=0;pr<vars[from]['prods'].length;pr++){
-                //     elMensaje = elMensaje + vars[from]['prods'][pr]
-                // }
-                // sendMessage(client, from, elMensaje, response.trigger, step);
+                var elMensaje = ""
+                const prods = Object.keys(vars[from]['prods']);
+                var total = 0
+                prods.forEach((prod, index) => {
+                    if( vars[from]['prods'][prod] !== undefined && prod[0] !== undefined  ){
+                        elMensaje = elMensaje + `${vars[from]['prods'][prod].cant} - ${prod[0].toUpperCase() + prod.substring(1)}\n`
+                        console.log("cant y precio=", vars[from]['prods'][prod].cant, vars[from]['prods'][prod].precio)
+                        if(reg.test(vars[from]['prods'][prod].cant) && vars[from]['prods'][prod].precio != ""){
+                            total = total + (vars[from]['prods'][prod].cant * vars[from]['prods'][prod].precio)
+                        }
+                    } 
+                    console.log(prod, vars[from]['prods'][prod]);
+                });
+                let pesos = Intl.NumberFormat('en-US')
+                elMensaje = elMensaje + "\n*Total*: $" + pesos.format(total)
+                elMensaje = elMensaje + "\n¿Quieres agregar mas productos a tu orden?"
                 var bts = {
                     "title":"Tu orden",
                     "message":elMensaje,
                     "buttons":[
-                        {"body":"Terminar"},
-                        {"body":"Agregar productos"}
+                        {"body":"➕ Agregar productos"},
+                        {"body":"⬅️ Cambiar categoría"},
+                        {"body":"✖️ Terminar"}
                     ]
                 }
                 sendMessageButton(client, from, "xxx", bts)
@@ -412,11 +442,22 @@ const listenMessage = () => client.on('message', async msg => {
         async function comprarMas(ctx) {
             console.log("Entramos a comprarMas")
             vars[from]['recompra'] = true
+            vamosA(from, "gunaProds")
             await getGunaProds(ctx)
             vars[from]['recompra'] = false
             return "1"
         }
-
+        
+        /**
+         * Mandamos nuevamente la lista de categorías.
+         * @param {*} ctx El objeto del mensaje.
+         */
+        async function terminaCompra(ctx) {
+            console.log("Entramos a terminaCompra")
+            vars[from] = []
+            sendMessage(client, from, "!Gracias por tu compra, regresa pronto!", response.trigger, step);
+            return
+        }
 
 
         /**
@@ -448,7 +489,7 @@ const listenMessage = () => client.on('message', async msg => {
             console.log("#############    Encontramos función, ejecutamos la función '" + response.funcion + "'")
             laFuncion = response.funcion + "(client)"
             eval(laFuncion)
-            return
+            // return
         }
         if(response.hasOwnProperty('urlXXXXXXX') && response.hasOwnProperty('values')){
             let theURL = response.url;
@@ -568,35 +609,35 @@ if(message=='/spam'){
     const masivo = require('./spam.json')
     var saludo;
     var caritas;
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function retardo() {
+        for (sp=0;sp<masivo.length;sp++) {
+            console.log(masivo[sp].numero+"@c.us");
+            var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
+            if(rnd==1||rnd==4){saludo = "Hola ";}
+            else if(rnd==2||rnd==5){saludo = "Saludos ";}
+            else {saludo = "%saludo% ";}
+            if(rnd==1){caritas = "👨🏻‍🦰👩🏻‍🦰";}
+            else if(rnd==2){caritas = "👩🏻‍🦰👨🏻‍🦰";}
+            else if(rnd==3){caritas = "🧔🏽👧🏽";}
+            else if(rnd==4){caritas = "👧🏽🧔🏽";}
+            else if(rnd==5){caritas = "👩🏻‍🦰🧔🏽";}
+            else if(rnd==6){caritas = "🧔🏽👩🏻‍🦰";}
+            if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
+            console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
+            var elTextoDelMensaje = caritas + " *" + saludo + "amigo tendero*  ❗❗👋🏻\n🕊️ *GUNA* trae para ti dinámicas digitales, con las que podrás participar para ganar increíbles premios. 🏆💸💰\nSigue los siguientes pasos: 😃\n*1.* 📲Sigue la página de Yo Soy Guna en Facebook en la siguiente liga  ➡️  https://www.facebook.com/yosoyguna\n*2.* 👉🏻Es importante des click en el botón Me Gusta 👍\n*3.* 🧐Sigue la dinámica que publicaremos , subiendo tu foto 📸 con los siguientes #yosoyguna #gunatenderos #gunachampions\n*4.* 🥳🎉En esta misma página , podrás ver publicados los ganadores🏅 y el tiempo en que serán elegidos. 💲 Además de tener acceso a increíbles promociones 🤑";
+            sendMedia(client, masivo[sp].numero+"@c.us", "envioMasivoGuna.jpg");
+            await sleep(500);
+            client.sendMessage(masivo[sp].numero+"@c.us", remplazos(elTextoDelMensaje, client));
+            // client.sendMessage(masivo[i].numero+"@c.us", "Este es un mensaje de prueba para *"+masivo[i].numero+"*, HORA:*"+new Date().toLocaleTimeString()+"*");
+            console.log(`Esperamos ${rnd} segundos...`);
+            await sleep(rnd*1000);
         }
-        async function retardo() {
-            for (sp=0;sp<masivo.length;sp++) {
-                console.log(masivo[sp].numero+"@c.us");
-                var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
-                if(rnd==1||rnd==4){saludo = "Hola ";}
-                else if(rnd==2||rnd==5){saludo = "Saludos ";}
-                else {saludo = "%saludo% ";}
-                if(rnd==1){caritas = "👨🏻‍🦰👩🏻‍🦰";}
-                else if(rnd==2){caritas = "👩🏻‍🦰👨🏻‍🦰";}
-                else if(rnd==3){caritas = "🧔🏽👧🏽";}
-                else if(rnd==4){caritas = "👧🏽🧔🏽";}
-                else if(rnd==5){caritas = "👩🏻‍🦰🧔🏽";}
-                else if(rnd==6){caritas = "🧔🏽👩🏻‍🦰";}
-                if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
-                console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
-                var elTextoDelMensaje = caritas + " *" + saludo + "amigo tendero*  ❗❗👋🏻\n🕊️ *GUNA* trae para ti dinámicas digitales, con las que podrás participar para ganar increíbles premios. 🏆💸💰\nSigue los siguientes pasos: 😃\n*1.* 📲Sigue la página de Yo Soy Guna en Facebook en la siguiente liga  ➡️  https://www.facebook.com/yosoyguna\n*2.* 👉🏻Es importante des click en el botón Me Gusta 👍\n*3.* 🧐Sigue la dinámica que publicaremos , subiendo tu foto 📸 con los siguientes #yosoyguna #gunatenderos #gunachampions\n*4.* 🥳🎉En esta misma página , podrás ver publicados los ganadores🏅 y el tiempo en que serán elegidos. 💲 Además de tener acceso a increíbles promociones 🤑";
-                sendMedia(client, masivo[sp].numero+"@c.us", "envioMasivoGuna.jpg");
-                await sleep(500);
-                client.sendMessage(masivo[sp].numero+"@c.us", remplazos(elTextoDelMensaje, client));
-                // client.sendMessage(masivo[i].numero+"@c.us", "Este es un mensaje de prueba para *"+masivo[i].numero+"*, HORA:*"+new Date().toLocaleTimeString()+"*");
-                console.log(`Esperamos ${rnd} segundos...`);
-                await sleep(rnd*1000);
-            }
-            console.log('Done');
-        }
-        retardo();
+        console.log('Done');
+    }
+    retardo();
 }
 
     function getRandomInt(min, max) {
@@ -632,8 +673,6 @@ if(message=='/spam'){
          return
     }
  });
-
- 
 /**
  * Este evento es necesario para el filtro de Dialogflow
  */
@@ -745,6 +784,10 @@ function chkFile(theFile){ //MOD by CHV - Agregamos para revisar que exista el a
 function traeMensajes(from){ //MOD by CHV - Agregamos para traer el historial de mensajes
     var histlMsjs = {};
     var hayHistorial = (chkFile(`${__dirname}/chats/`+from+".json"));
+    console.log(hayHistorial)
+    // var hayHistorialNoBlanks = hayHistorial.find(k => k.messages.message != "")
+    // console.log(hayHistorialNoBlanks)
+    // var {keywords} = stepsInitial.find(k => k.key.includes(key))
     if(hayHistorial){
         let rawdata = fs.readFileSync(`./chats/${from}.json`);
         let elHistorial = JSON.parse(rawdata);
@@ -755,6 +798,10 @@ function traeMensajes(from){ //MOD by CHV - Agregamos para traer el historial de
         // console.log("Mensajes:"+totalMsjs+", Ultimo:"+JSON.stringify(ultimoMensaje));
         // console.log("Anterior:"+JSON.stringify(mensajeAnterior));
     }
+    console.log(histlMsjs)
+    // var histlMsjsNoBlanks = histlMsjs.find(k => k.message != "")
+    var histlMsjsNoBlanks = histlMsjs.filter(x => x.message != "")
+    console.log(histlMsjsNoBlanks)
     return histlMsjs;
 }
 
