@@ -49,9 +49,10 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
      */
 
     if (process.env.DATABASE === 'none') {
-
+        // console.log(message)
         var { key } = stepsInitial.find(k => k.keywords.includes(message)) || { key: null }
-        console.log("KEY="+key)
+        // console.log(stepsInitial)
+        // console.log("KEY="+key)
 
         /* ###############################################  *   REGEXP   *   ####################################################
             Si queremos usar RegExp, en los "keywords" de inital.json, en lugar de un arreglo usamos un string (quitamos los [])
@@ -71,7 +72,7 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
         var {keywords} = stepsInitial.find(k => k.key.includes(key)) || { keywords: null }
         if(!Array.isArray(keywords)){key=null;}//Si "keywords" no es arreglo entonces ponemos "key" en null y usamos REGEXP para buscar reglas.
         if(key == null && message.length > 0){
-            var logRegEx = true
+            var logRegEx = false
             console.log("=======  KEY ES NULO, USAMOS REGEXP  =======");
             for (i=0; i<stepsInitial.length;i++){
                 if(!Array.isArray(stepsInitial[i].keywords)){// Si "Keywords" NO es arreglo entonces ...
@@ -220,8 +221,8 @@ module.exports = { get, reply, getIA, saveMessage, remplazos, stepsInitial, vamo
 /**
  * Asigna el valor especificado a la variable pasoAnterior.
  * Esta hace que el flujo se redirija al paso siguente al especificado. 
- * @param {elNum} El numero del remitente.
- * @param {elPaso} El paso al que se va redirigir el flujo.
+ * @param {elNum} string - El numero del remitente.
+ * @param {elPaso} string - El paso al que se va redirigir el flujo.
  */
 function vamosA (elNum, elPaso){
     pasoAnterior[elNum] = elPaso;
@@ -305,7 +306,7 @@ function remplazos(elTexto, extraInfo){
                     let rawdata = fs.readFileSync(`./chats/${elNum}.json`);
                     let elHistorial0 = JSON.parse(rawdata);
                     elHistorial = elHistorial0["messages"];
-
+                    elHistorial = elHistorial.filter(x => x.message != "") //Quitamos mensajes en blanco.
                     var inicio = laLista[i].search('%msjant_');
                     var final = laLista[i].indexOf("%", inicio+1);
                     var subStr = laLista[i].substring(inicio, final+1);
