@@ -40,10 +40,11 @@ var newBody; //MOD by CHV -
 var nuevaRespuesta; //MOD by CHV - Se agrego para los remplazos
 var vars = []
 app.use('/', require('./routes/web'))
- 
- /**
-  * Escuchamos cuando entre un mensaje
-  */
+let blackList = ['34692936038', '34678310819', '34660962689', '34649145761','34630283553','34648827637','34630255646','14178973313']
+
+/**
+ * Escuchamos cuando entre un mensaje
+*/
 listenMessage = () => client.on('message', async msg => {
     const { from, body, hasMedia } = msg;
     if (vars[from] === undefined) vars[from] = []
@@ -63,7 +64,10 @@ listenMessage = () => client.on('message', async msg => {
     if (from === 'status@broadcast') {
         return
     }
-    let blackList = ['34692936038', '34678310819', '34660962689', '34649145761','34630283553','34648827637','34630255646','14178973313']
+
+    /**
+     * Blacklist, los telefonos inlcuidos en este arreglo son ignorados por el bot.
+     */
     console.log('BlackListed: ',blackList.includes(from.replace("@c.us","")))
     if (blackList.includes(from.replace("@c.us",""))) return
     message = newBody.toLowerCase();
