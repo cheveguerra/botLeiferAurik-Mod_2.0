@@ -48,7 +48,7 @@
         "trigger":null
     },
     "opcion1":{
-        "keywords": "1",
+        "keywords": ["1"],
         "replyMessage":[
             {
                 "mensaje":[
@@ -68,7 +68,7 @@
         "goto":"menu"
     },
     "opcion2":{
-        "keywords": "2",
+        "keywords": ["2"],
         "replyMessage":[
             {
                 "mensaje":[
@@ -86,12 +86,12 @@
         "goto":"menu"
     },
     "opcion3":{
-        "keywords":  "3",
+        "keywords":  ["3"],
         "replyMessage":[
             {
                 "mensaje":[
                     "Seleccionaste la *opción 3*\n",
-                    "Por favor dame tu nombre.\n",
+                    "*Por favor dame tu nombre.*\n",
                     "Aquí vamos a aceptar *cualquier* texto, porque en el *initial.json* tenemos keywords : \"*\" (un asterisco en expresiones regulares quiere decir *\"cualquier cosa\"*)",
                     "Y en *response.json* en la opción correspondiente tenemos \"pasoRequerido\" : \"menu\", que quiere decir que SOLO se va a disparar cuando el paso anterior sea \"menu\"."
                 ]
@@ -180,7 +180,7 @@
         }
     },
     "lista":{
-        "keywords": "4",
+        "keywords": ["4"],
         "replyMessage":[
             {
                 "mensaje":["*%saludo%*, este es un ejemplo de listas"]
@@ -207,7 +207,7 @@
         "goto":"menu"
     },
     "botones":{
-        "keywords": "5",
+        "keywords": ["5"],
         "replyMessage":[
             {
                 "mensaje":["*%saludo%*, este es un ejemplo de botones"]
@@ -306,7 +306,7 @@
         "goto":"menu"
     },
     "botonespaq3":{
-        "keywords": "6",
+        "keywords": ["6"],
         "replyMessage":[
             {
                 "mensaje":["*%saludo%*, este es un ejemplo de botones y regExp"]
