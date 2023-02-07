@@ -63,7 +63,7 @@ const sendMessage = async (client, number = null, text = null, trigger = null, r
     number = cleanNumber(number)
     const message = text
     client.sendMessage(number, message);
-    console.log(number, message, regla)
+    // console.log(number, message, regla)
     await readChat(number, message, trigger, regla) //MOD by CHV - Agregamos el parametro "regla"
     console.log(`⚡⚡⚡ Enviando mensajes....`);
     // console.log("*********************  SEND MESSAGE  **************************************");

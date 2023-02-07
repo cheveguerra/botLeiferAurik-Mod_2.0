@@ -15,6 +15,7 @@
         "trigger":null
     },
     "doblemensaje":{
+        "keywords": "7|*doble*mensaje*",
         "replyMessage":[
             {"mensaje":["Este es un ejemplo del envío de *varios* mensajes con la *misma regla* en el *response.json*"]},
             {
@@ -24,9 +25,11 @@
         ],
         "media":null,
         "trigger":null,
-        "goto":"menu"
+        "goto":"menu",
+        "pasoRequerido":"menu"
     },
     "menu":{
+        "keywords": ["/menu"],
         "replyMessage":[
             {
                 "mensaje":[
@@ -45,6 +48,7 @@
         "trigger":null
     },
     "opcion1":{
+        "keywords": ["1"],
         "replyMessage":[
             {
                 "mensaje":[
@@ -64,6 +68,7 @@
         "goto":"menu"
     },
     "opcion2":{
+        "keywords": ["2"],
         "replyMessage":[
             {
                 "mensaje":[
@@ -81,11 +86,12 @@
         "goto":"menu"
     },
     "opcion3":{
+        "keywords":  ["3"],
         "replyMessage":[
             {
                 "mensaje":[
                     "Seleccionaste la *opción 3*\n",
-                    "Por favor dame tu nombre.\n",
+                    "*Por favor dame tu nombre.*\n",
                     "Aquí vamos a aceptar *cualquier* texto, porque en el *initial.json* tenemos keywords : \"*\" (un asterisco en expresiones regulares quiere decir *\"cualquier cosa\"*)",
                     "Y en *response.json* en la opción correspondiente tenemos \"pasoRequerido\" : \"menu\", que quiere decir que SOLO se va a disparar cuando el paso anterior sea \"menu\"."
                 ]
@@ -95,6 +101,7 @@
         "pasoRequerido":"menu"
     },
     "recibenombre":{
+        "keywords": "*",        
         "replyMessage":[
             {
                 "mensaje":[
@@ -109,6 +116,7 @@
         "goto":"menu"
     },
     "gRevisaCliente":{
+        "keywords": "*",    
         "replyMessage":[
             {
                 "mensaje":[
@@ -121,6 +129,7 @@
         "pasoRequerido":"gallina"
     },
     "gGuardainfo":{
+        "keywords": "*",    
         "replyMessage":[
             {
                 "mensaje":[
@@ -133,6 +142,7 @@
         "pasoRequerido":"gRevisaCliente"
     },
     "rnd":{
+        "keywords": ["rnd"],
         "replyMessage":[
             {
                 "mensaje":[
@@ -150,6 +160,7 @@
         "trigger":null
     },
     "rnd2":{
+        "keywords": ["rnd2"],
         "replyMessage":[
             {
                 "mensaje":[""]
@@ -169,6 +180,7 @@
         }
     },
     "lista":{
+        "keywords": ["4"],
         "replyMessage":[
             {
                 "mensaje":["*%saludo%*, este es un ejemplo de listas"]
@@ -195,6 +207,7 @@
         "goto":"menu"
     },
     "botones":{
+        "keywords": ["5"],
         "replyMessage":[
             {
                 "mensaje":["*%saludo%*, este es un ejemplo de botones"]
@@ -216,6 +229,7 @@
         "goto":"menu"
     },
     "cursos":{
+        "keywords": ["cursos"],
         "replyMessage":[
             {
                 "mensaje":["*%saludo% %primer_nombre%*, seleccionaste *Cursos*\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 7 sin necesidad de volver a iniciar con */menu*."]
@@ -226,6 +240,7 @@
         "goto":"menu"
     },
     "youtube":{
+        "keywords": ["youtube"],
         "replyMessage":[
             {
                 "mensaje":["*%saludo% %primer_nombre%*, seleccionaste *YouTube*\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 7 sin necesidad de volver a iniciar con */menu*."]
@@ -236,6 +251,7 @@
         "goto":"menu"
     },
     "telegram":{
+        "keywords": ["telegram"],
         "replyMessage":[
             {
                 "mensaje":["*%saludo% %primer_nombre%*, seleccionaste *Telegram*\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 7 sin necesidad de volver a iniciar con */menu*."]
@@ -246,6 +262,7 @@
         "goto":"menu"
     },
     "manzana":{
+        "keywords": ["manzana"],
         "replyMessage":[
             {
                 "mensaje":["*%saludo% %primer_nombre%*, seleccionaste *manzana*\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 7 sin necesidad de volver a iniciar con */menu*."]
@@ -256,6 +273,7 @@
         "goto":"menu"
     },
     "mango":{
+        "keywords": ["mango"],
         "replyMessage":[
             {
                 "mensaje":["*%saludo% %primer_nombre%*, seleccionaste *mango*\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 7 sin necesidad de volver a iniciar con */menu*."]
@@ -266,6 +284,7 @@
         "goto":"menu"
     },
     "platano":{
+        "keywords": ["platano"],
         "replyMessage":[
             {
                 "mensaje":["*%saludo% %primer_nombre%*, seleccionaste *platano*\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 7 sin necesidad de volver a iniciar con */menu*."]
@@ -276,6 +295,7 @@
         "goto":"menu"
     },
     "paq3":{
+        "keywords": "*pak*3*|*pak*angular*|*paquete*3*|*paquete*angular*",
         "replyMessage":[
             {
                 "mensaje":["*%saludo% %primer_nombre%*, seleccionaste el *paquete 3 de Angular*\n","Automáticamente el flujo se regresa al *menú*, asi que puedes poner nuevamente un número del 1 al 7 sin necesidad de volver a iniciar con */menu*."]
@@ -286,6 +306,7 @@
         "goto":"menu"
     },
     "botonespaq3":{
+        "keywords": ["6"],
         "replyMessage":[
             {
                 "mensaje":["*%saludo%*, este es un ejemplo de botones y regExp"]
@@ -305,5 +326,97 @@
         },
         "pasoRequerido":"menu",
         "goto":"menu"
+    },
+    "soporte":{
+        "keywords":["/soporte", "/ayuda"],
+        "replyMessage":[
+            {
+                "mensaje":[
+                    "Bienvenido al soporte de Keymon, soy *Bow*.\n\n",
+                    "Dame por favor el usuario que quieres desbloquear respetando *mayúsculas* y *minúsculas*."
+                ]
+            }
+        ],
+        "media":null,
+        "trigger":null
+    },
+    "Desbloqueo":{
+        "keywords": "*",
+        "replyMessage":[
+            "Mensaje de desbloqueo de usuarios."
+        ],
+        "funcion":"desbloqueaUsuario",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"soporte"
+    },
+    "gunaCats":{
+        "keywords": ["/guna", "/demoventa", "/demoguna", "⬅️ cambiar categoria"],
+        "replyMessage":[
+            "Mensaje de getGunaCats"
+        ],
+        "funcion":"getGunaCats",
+        "media":null,
+        "trigger":null
+    },
+    "gunaCats2":{
+        "keywords": "*",
+        "replyMessage":[
+            "Mensaje de getGunaCats2"
+        ],
+        "funcion":"getGunaSubtipo",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gunaCats"
+    },
+    "gunaProds":{
+        "keywords": "*",
+        "replyMessage":[
+            "Mensaje de getGunaCats2"
+        ],
+        "funcion":"getGunaProds",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gunaCats2"
+    },
+    "gunaProdsAgrega":{
+        "keywords": "*",
+        "replyMessage":[
+            "Seleccionaste *%msjant_0%*, por favor indica la cantidad que quieres comprar (*solo el número*)."
+        ],
+        "funcion":"agregaProds",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gunaProds"
+    },
+    "gunaProdsCantidad":{
+        "keywords": "*",
+        "replyMessage":[
+            "Recibi cantidad"
+        ],
+        "funcion":"prodCantidad",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gunaProdsAgrega"
+    },
+    "gunaComprarMas":{
+        "keywords": "*agregar productos",
+        "replyMessage":[
+            "Quiero comprar mas."
+        ],
+        "funcion":"comprarMas",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gunaProdsCantidad"
+    },
+    "gunaTerminaCompra":{
+        "keywords": "*terminar",
+        "replyMessage":[
+            "Termina la compra"
+        ],
+        "funcion":"terminaCompra",
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"gunaProdsCantidad"
     }
 }
