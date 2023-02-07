@@ -33,7 +33,7 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
         "pasoRequerido":"menu"
     }
     ```
- - Permite **expresiones regulares** en las palabras predefinidas en el initial.json.
+ - Permite **expresiones regulares** en las palabras predefinidas en el **initial.json**.
     - Si queremos usar RegExp, en los "keywords" de **inital.json**, en lugar de un arreglo, debemos usar un string ( quitamos los [] )
       y en él usamos "*" para significar cualquier texto y "|" para significar "OR", esto nos permite ser mas flexibles
       con los "keywords", por ejemplo, si queremos que el mensaje pueda decir:
@@ -62,7 +62,7 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
     - Ponemos __%dia_semana%__ para que aparezca "lunes, martes, miercoles, etc" dependiendo del día de la semana.
     - Ponemos __%msjant_XX%__ para que aparezca el mensaje xx anterior, es decir, si quieres mostrar el texto de 2 mensajes anteriores se pone %msjant_2%.
     - etc, etc, se pueden agregar mas remplazos en la funcion "remplazos" en el archivo "adapter\index.js".
- - Permite el envío de **multiples mensajes** definidos en la **misma respuesta** del **response.json**. (Esta modificación se la robe por completo a [KJoaquin](https://github.com/KJoaquin), el lo solucionó [aquí](https://github.com/codigoencasa/bot-whatsapp/issues/111#issuecomment-1353504575) 🙌🏽 y yo solo lo adapté a mi repo!)
+ - Permite el envío de **multiples mensajes** definidos en la **misma respuesta** del **response.json**. (Esta modificación se la robe por completo a [KJoaquin](https://github.com/KJoaquin), el lo solucionó [aquí](https://github.com/codigoencasa/bot-whatsapp/issues/111#issuecomment-1353504575) 🙌🏽 y yo solo lo adapté a mi repositorio!.)
 
     Antes:
      ```json
@@ -88,7 +88,31 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
         }
     }
     ```
-
+ - Permite conectarse a APIs, por ejemplo: Google Sheets, Excel y cualquier otra API que se pueda llamar desde una funcion, esto se hace agregando el parametro "funcion" al **response.json**.
+ ```
+  "Desbloqueo":{
+        "keywords": "desbloqueo",
+        "replyMessage":[
+            "Mensaje de desbloqueo de usuarios."
+        ],
+        "funcion":"getFakeHTTP",  //esta linea ejecuta la funcion.
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"soporte"
+    }
+ 
+ ```
+ - Los archivos **initial.json** y **response.json** se unificaron y ya solo se usa el **response.json**, para esto solo se agrega el parametro "keywords" al **response.json**
+ - Se puede especificar que al terminar un paso, el flujo se vaya automaticamente a otro, por ejemplo, si tengo un flujo de tres pasos y quiero que al terminar el tercer paso, se regrese automaticamente al primero, agrego el parametro "goto" al **response.json** del tercer paso y pongo el nombre del paso 1.
+ ```
+  "paso3":{
+        "keywords": ["zapatos"],
+        "replyMessage":["Gracias por tu compra"],
+        "media":null,
+        "trigger":null,
+        "goto":"paso1"
+    },
+ ```
  - Las modificaciones están enfocadas al uso de los archivos __initial.json__ y __response.json__, yo no uso MySQL o DialogFlow, así que no sé si las modificaciones funcionen con esos modulos, en particular el __remplazo %msjant_XX%__ depende de los archivos __JSON__ que se crean en el directorio "chats".
  - Tiene agregado el parche de **botones y listas**, así que funcionan sin problema (las listas no funcionan si el bot esta ligado a un número que use **Whatsapp Business**).
  - Tiene los ultimos parches de **DialogFlow** (27-dic-2022) (When Dialogflow asks for an Image, then **Upload it to Google Drive** and then generate Shared Link)
