@@ -102,9 +102,9 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
     }
  
  ```
- - Los archivos **initial.json** y **response.json** se unificaron y ya solo se usa el **response.json**, para esto solo se agrega el parametro "keywords" al **response.json**
+ - Los archivos **initial.json** y **response.json** se unificaron y ya solo se usa el **response.json**, para esto solo se agrega el parametro "keywords" del **initial.json** al **response.json**
 
- - Se puede especificar que al terminar un paso, el flujo se **vaya automaticamente** a otro, por ejemplo, si tengo un flujo de tres pasos y quiero que al terminar el tercer paso, se regrese automaticamente al primero, agrego el parametro "goto" al **response.json** del tercer paso y pongo el nombre del paso 1.
+ - Se puede especificar que al terminar un paso, el flujo se **vaya automaticamente** a otro, por ejemplo, si tengo un flujo de tres pasos, y quiero que al terminar el tercer paso se regrese automaticamente al primero, agrego el parametro __"goto"__ al **response.json** del tercer paso y pongo el nombre del paso 1.
  ```
   "paso3":{
         "keywords": ["zapatos"],
