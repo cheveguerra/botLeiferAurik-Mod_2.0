@@ -1,5 +1,5 @@
 ## Chatbot Whatsapp (OpenSource)
-#### Actualizado Diciembre 2022
+#### Actualizado Febrero 2023
 
 Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https://github.com/leifermendez/bot-whatsapp) y tiene las siguientes modificaciones:
 
