@@ -104,7 +104,7 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
  ```
  - Los archivos **initial.json** y **response.json** se unificaron y ya solo se usa el **response.json**, para esto solo se agrega el parametro "keywords" del **initial.json** al **response.json**
 
- - Se puede especificar que al terminar un paso, el flujo se **vaya automaticamente** a otro, por ejemplo, si tengo un flujo de tres pasos, y quiero que al terminar el tercer paso se regrese automaticamente al primero, agrego el parametro __"goto"__ al **response.json** del tercer paso y pongo el nombre del paso 1.
+ - Se puede especificar que al terminar un paso, el flujo se **vaya automaticamente** a otro, por ejemplo, si tenemos un flujo de tres pasos, y queremos que al terminar el tercer paso se regrese automaticamente al primero, agregamos el parametro __"goto"__ al **response.json** del tercer paso y ponemos el nombre del paso 1.
  ```
   "paso3":{
         "keywords": ["zapatos"],
@@ -115,7 +115,7 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
     },
  ```
  - Las modificaciones están enfocadas al uso de los archivos __initial.json__ y __response.json__, yo no uso MySQL o DialogFlow, así que no sé si las modificaciones funcionen con esos modulos, en particular el __remplazo %msjant_XX%__ depende de los archivos __JSON__ que se crean en el directorio "chats".
- - Tiene agregado el parche de **botones y listas**, así que funcionan sin problema (las listas no funcionan si el bot esta ligado a un número que use **Whatsapp Business**).
+ - Tiene agregado el parche de **botones y listas**, así que funcionan sin problema (las listas no funcionan si el bot esta **ligado** a un número que use **Whatsapp Business**).
  - Tiene los ultimos parches de **DialogFlow** (27-dic-2022) (When Dialogflow asks for an Image, then **Upload it to Google Drive** and then generate Shared Link)
 
  ## INICIA DOCUMENTACION DEL PROYECTO ORIGINAL
