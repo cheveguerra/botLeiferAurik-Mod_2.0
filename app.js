@@ -11,19 +11,19 @@ const axios = require('axios').default;//MOD by CHV - Agregamos para el get del 
 const qrcode = require('qrcode-terminal');
 const { Client, LocalAuth, Buttons, List } = require('whatsapp-web.js');
 const mysqlConnection = require('./config/mysql')
-const { middlewareClient } = require('./middleware/client')
+// const { middlewareClient } = require('./middleware/client')
 const { generateImage, cleanNumber, checkEnvFile, createClient, isValidNumber } = require('./controllers/handle')
 const { connectionReady, connectionLost } = require('./controllers/connection')
 const { saveMedia, saveMediaToGoogleDrive } = require('./controllers/save')
 const { getMessages, responseMessages, bothResponse, waitFor } = require('./controllers/flows')
 const { sendMedia, sendMessage, lastTrigger, sendMessageButton, sendMessageList, readChat } = require('./controllers/send');
-const { remplazos, stepsInitial, vamosA } = require('./adapter/index');//MOD by CHV - Agregamos para utilizar remplazos y stepsInitial
-const { isUndefined } = require('util');
-const { isSet } = require('util/types');
+const { remplazos, stepsInitial, vamosA, traeUltimaVisita } = require('./adapter/index');//MOD by CHV - Agregamos para utilizar remplazos y stepsInitial
+// const { isUndefined } = require('util');
+// const { isSet } = require('util/types');
 const { Console } = require('console');
-const { ClientRequest } = require('http');
+// const { ClientRequest } = require('http');
 const { guardaXLSDatos, leeXLSDatos} = require('./Excel');
-const { ContextsClient } = require('@google-cloud/dialogflow');
+// const { ContextsClient } = require('@google-cloud/dialogflow');
 const { ingresarDatos, leerDatos } = require('./implementaciones/sheets')
 const app = express();
 app.use(cors())
@@ -34,7 +34,7 @@ const port = process.env.PORT || 3000
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve,ms))
 var client;
 var dialogflowFilter = false;
-var totalMsjs; //MOD by CHV - 
+// var totalMsjs; //MOD by CHV - 
 // var vamosA = ""; //MOD by CHV - 
 var newBody; //MOD by CHV - 
 var nuevaRespuesta; //MOD by CHV - Se agrego para los remplazos
@@ -48,41 +48,39 @@ let blackList = ['34692936038', '34678310819', '34660962689', '34649145761','346
 listenMessage = () => client.on('message', async msg => {
     const { from, body, hasMedia } = msg;
     if (vars[from] === undefined) vars[from] = []
-    // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     console.log("+++++++++++++++++++++++++++++++++++++  INICIO  +++++++++++++++++++++++++++++++++++++++");
-    // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     client.theMsg = msg;
-    // console.log("%%%%%%%%%  userAgent = " + client?.options?.userAgent)
     console.log("HORA:"+new Date().toLocaleTimeString()+" FROM:"+from+", BODY:"+body+", HASMEDIA:"+hasMedia+", DEVICETYPE:"+client.theMsg?.deviceType);
     newBody = removeDiacritics(body) //MOD by CHV - Agregamos para quitar acentos
-    // newBody = remplazos(newBody);
-    // vamosA = "";
+
+    // const uv = traeUltimaVisita(from, 's')
+    // console.log("ultVista=", uv)
+    
     if(!isValidNumber(from)){
         return
     }
     // Este bug lo reporto Lucas Aldeco Brescia para evitar que se publiquen estados
-    if (from === 'status@broadcast') {
-        return
-    }
-
+    if (from === 'status@broadcast') { return }
     /**
-     * Blacklist, los telefonos inlcuidos en este arreglo son ignorados por el bot.
-     */
-    console.log('BlackListed: ',blackList.includes(from.replace("@c.us","")))
-    if (blackList.includes(from.replace("@c.us",""))) return
+     * Blacklist, los telefonos incluidos en este arreglo son ignorados por el bot.
+    */
+   if (blackList.includes(from.replace("@c.us",""))) {
+       console.log('BlackListed: ',blackList.includes(from.replace("@c.us","")))
+       return
+    }
     message = newBody.toLowerCase();
     const number = cleanNumber(from)
     client.theMsg['numero'] = number
 
+
     // Guardamos el mensaje en Google Sheets
     ingresarDatos(from, body)
 
-
-// console.log(stepsInitial)
+    // console.log(stepsInitial)
     var { key } = stepsInitial.find(k => k.keywords.includes(message)) || { key: null }//MOD by CHV - Se agrega para obtener KEY
     await readChat(number, message, null , key) //MOD by CHV - Agregamos key/regla para guardarla en "chats/numero.json"
     client.theMsg['key'] = key
-     
+
     /**
      * Guardamos el archivo multimedia que envia
      */
@@ -94,7 +92,6 @@ listenMessage = () => client.on('message', async msg => {
     /**
      * Si estas usando dialogflow solo manejamos una funcion todo es IA
      */
-
     if (process.env.DATABASE === 'dialogflow') {
         if (process.env.DIALOGFLOW_MEDIA_FOR_SLOT_FILLING === 'true' && dialogflowFilter) {
             waitFor(_ => hasMedia, 30000)
@@ -123,6 +120,7 @@ listenMessage = () => client.on('message', async msg => {
     }
 
     if(body=='/listas'){
+        // Asi se manda directamente con el ciente de whatsapp-web.js "client.sendMessage(from, productList)"
         const productList = new List(
             "Here's our list of products at 50% off",
             "View all products",
@@ -139,96 +137,118 @@ listenMessage = () => client.on('message', async msg => {
             "Please select a product"
             );
             console.log('##################################################################################################')
-            // console.log(from, lista)
-            // let sections = [{title:'sectionTitle',rows:[{id:'ListItem1', title: 'title1'},{id:'ListItem2', title:'title2'}]}];
-            // let lista = new List('List body','btnText',sections,'Title','footer');
             console.log("******************     productList     ******************")
             console.log(productList)
-            client.sendMessage(from, productList); //cliente.sendMessage recibe el arreglo SIN nombres (solo las secciones los necesitan)
-            // client.sendMessage('5215527049036@c.us', productList);
-            // client.sendMessage('5215554192439@c.us', productList);
-            // await sendMessageList(client, '5215545815654@c.us', null, lista); //sendMessageList recibe el arreglo CON nombres, como viene del response.json
-            // await sendMessageList(client, '5215527049036@c.us', null, lista);
-            // await sendMessageList(client, '5215554192439@c.us', null, lista);
-            // client.sendMessage(from, lista);
+            client.sendMessage(from, productList); 
+            // Asi se manda directamente con la funcion del bot. "sendMessageList(client, from, null, lista)"
+            // let sections = [
+            //     {   title:'sectionTitle',
+            //         rows:[
+            //                 {id:'ListItem1', title: 'title1'},
+            //                 {id:'ListItem2', title:'title2'}
+            //             ]
+            //     }
+            // ];
+            // let lista = new List('List body','btnText',sections,'Title','footer');
+            await sendMessageList(client, from, null, productList); //sendMessageList recibe el arreglo CON nombres, tal cual se usa en "response.json"
     }
-        
-    /**
-     * PRUEBA BOTONES NUEVOS
-    */
-    // if(body=="579"){
-    //     const buttons_reply = new Buttons("Por favor vuelve a intentar, mandando *SOLO* la palabra *gallina* con una diagonal al principio 👇🏽 \n\n           */gallina*\n ", [{body: "/gallina", id: 'errorGallina'}], 'Error', 'O haz clic en el siguiente botón') // Reply button
-    //     for (const component of [buttons_reply]) await client.sendMessage(from, component);
-    // }
 
     /**
      * Ver si viene de un paso anterior
      * Aqui podemos ir agregando más pasos
      * a tu gusto!
     */
-
-    const lastStep = await lastTrigger(from) || null;
-    client.theMsg['lastStep'] = lastStep
-    //  console.log("LAST STEP="+lastStep+", FROM:"+from);
-    if (lastStep) {
-        const response = await responseMessages(lastStep)
-        client.theMsg['trigger'] = response.trigger
-        console.log("CLIENT="+client+", FROM:"+from+", REPLYMESSAGE:"+response.replyMessage);
-        // await sendMessage(client, from, response.replyMessage, lastStep); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
-        response.replyMessage.forEach( async messages => {
-            var thisMsg = messages.mensaje
-            if(Array.isArray(messages.mensaje)){thisMsg = messages.mensaje.join('\n')}
-            await sendMessage(client, from, remplazos(thisMsg, client), response.trigger);
-        })
-    }
+    // const lastStep = await lastTrigger(from) || null;
+    // client.theMsg['lastStep'] = lastStep
+    // //  console.log("LAST STEP="+lastStep+", FROM:"+from);
+    // if (lastStep) {
+    //     const response = await responseMessages(lastStep)
+    //     client.theMsg['trigger'] = response.trigger
+    //     console.log("CLIENT="+client+", FROM:"+from+", REPLYMESSAGE:"+response.replyMessage);
+    //     // await sendMessage(client, from, response.replyMessage, lastStep); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
+    //     response.replyMessage.forEach( async messages => {
+    //         var thisMsg = messages.mensaje
+    //         if(Array.isArray(messages.mensaje)){thisMsg = messages.mensaje.join('\n')}
+    //         await sendMessage(client, from, remplazos(thisMsg, client), response.trigger);
+    //     })
+    // }
 
     /**
      * Respondemos al primero paso si encuentra palabras clave
     */
-   //  const step = await getMessages(message, );
-   //  console.log("STEP - "+step+"|"+message);
-   //  console.log("******  STEP="+step);
-   //  console.log("******  MESSAGE:"+message);
-   const step = await getMessages(message, from);
-   client.theMsg['step'] = step
-   if (step) {
-       const response = await responseMessages(step);
-       client.theMsg['trigger'] = response.trigger
-       var resps = require('./flow/response.json');
-       nuevaRespuesta = remplazos(resps[step].replyMessage.join(''), client);
-       client.theMsg['replyMessage'] = nuevaRespuesta
-       var pasoRequerido = resps[step].pasoRequerido;
-    //    console.log('NUEVA RESPUESTA=', nuevaRespuesta)
-       
-       if(nuevaRespuesta.search("/URL")>-1){
-           // Necesita instalado axios version 0.27.2 (npm i axios@0.27.2), si se instala una version mas nueva manda error de "GET no definido" o algo asi.
-           // console.log(theUrl);
-           console.log("==========   GET URL   ============");
-           /*
-           ============================================================================
-            ========================   DESBLOQUEO DE USUARIOS ==========================
-            ============================================================================
-            */
-           console.log('PASOREQUERIDO=', pasoRequerido)
-           if(pasoRequerido=="soporte"){
-               // var theUrl=nuevaRespuesta.substring(5).replace("XXPARAM1XX",newBody);
-               // const RES = await axios.get(theUrl).then(function (response) {
-                   //     const { AffectedRows } = response.data['respuesta'][0]
-                   //     console.log('AFFECTED_ROWS = ', AffectedRows)
-                   //     if(response.data['respuesta'][0]['AffectedRows']=="1"){
-                       //         sendMessage(client, from, "Listo, usuario *"+response.data['params']['par1']+"* desbloqueado, por favor *cerrar navegadores* y reingresar.", response.trigger, step);
-                       //     }
-                       //     else{
-                           //         sendMessage(client, from, "El usuario *"+response.data['params']['par1']+"* no *existe* o esta dado de *baja*, por favor revisarlo y volver a intentar.", response.trigger, step);
-                           //     }
-                           //     return response
-                           //     // console.log('AXIOS RES=', response)
-                           // }).catch(function (error) {
-                               //     console.log(error);
-                               //     return error
-                               // });
-                               // console.log('RES=', RES)
+    const step = await getMessages(message, from);
+    client.theMsg['step'] = step
+    if (step) {
+        console.log("Entramos a STEP")
+        const response = await responseMessages(step);
+        client.theMsg['trigger'] = response.trigger
+        var resps = require('./flow/response.json');
+        nuevaRespuesta = remplazos(resps[step].replyMessage.join(''), client);
+        client.theMsg['replyMessage'] = nuevaRespuesta
+        // var pasoRequerido = resps[step].pasoRequerido;
+        if(body=='traeXLS'){
+            const rows = await leeXLSDatos('x')
+            console.log("RESULTADOS:")
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
             }
+            async function retardo() {
+                for (sp=1;sp<rows.length;sp++) {
+                    // console.log(masivo[sp].numero+"@c.us");
+                    var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
+                    if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
+                    console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
+                    var elTextoDelMensaje = `%saludo% ${rows[sp].prefijo} *${rows[sp].nombre}* con CARNET *${rows[sp].carnet}*, le saludamos de _CORPORACION AZUL_ le escribimos para recordarle que tiene un pago *pendiente* que se vence el *02/02/2023*`;
+                    await sleep(500);
+                    // let elNumero = '51968016860@c.us'
+                    let elNumero = '5215554192439@c.us'
+                    client.sendMessage(elNumero, remplazos(elTextoDelMensaje, client));
+                    console.log(`Esperamos ${rnd} segundos...`);
+                    await sleep(rnd*1000);
+                }
+                console.log('Terminamos');
+            }
+            retardo();
+        }
+
+        /*
+        ============================================================================
+        ==========================   ENVIO MASIVO TEST   ===========================
+        ============================================================================
+        */
+        if(message=='/spam'){
+            const masivo = require('./spam.json')
+            var saludo;
+            var caritas;
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            async function retardo() {
+                for (sp=0;sp<masivo.length;sp++) {
+                    console.log(masivo[sp].numero+"@c.us");
+                    var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
+                    if(rnd==1||rnd==4){saludo = "Hola ";}
+                    else if(rnd==2||rnd==5){saludo = "Saludos ";}
+                    else {saludo = "%saludo% ";}
+                    if(rnd==1){caritas = "👨🏻‍🦰👩🏻‍🦰";}
+                    else if(rnd==2){caritas = "👩🏻‍🦰👨🏻‍🦰";}
+                    else if(rnd==3){caritas = "🧔🏽👧🏽";}
+                    else if(rnd==4){caritas = "👧🏽🧔🏽";}
+                    else if(rnd==5){caritas = "👩🏻‍🦰🧔🏽";}
+                    else if(rnd==6){caritas = "🧔🏽👩🏻‍🦰";}
+                    if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
+                    console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
+                    var elTextoDelMensaje = caritas + " *" + saludo + "amigo tendero*  ❗❗👋🏻\n🕊️ *GUNA* trae para ti dinámicas digitales, con las que podrás participar para ganar increíbles premios. 🏆💸💰\nSigue los siguientes pasos: 😃\n*1.* 📲Sigue la página de Yo Soy Guna en Facebook en la siguiente liga  ➡️  https://www.facebook.com/yosoyguna\n*2.* 👉🏻Es importante des click en el botón Me Gusta 👍\n*3.* 🧐Sigue la dinámica que publicaremos , subiendo tu foto 📸 con los siguientes #yosoyguna #gunatenderos #gunachampions\n*4.* 🥳🎉En esta misma página , podrás ver publicados los ganadores🏅 y el tiempo en que serán elegidos. 💲 Además de tener acceso a increíbles promociones 🤑";
+                    sendMedia(client, masivo[sp].numero+"@c.us", "envioMasivoGuna.jpg");
+                    await sleep(500);
+                    client.sendMessage(masivo[sp].numero+"@c.us", remplazos(elTextoDelMensaje, client));
+                    // client.sendMessage(masivo[i].numero+"@c.us", "Este es un mensaje de prueba para *"+masivo[i].numero+"*, HORA:*"+new Date().toLocaleTimeString()+"*");
+                    console.log(`Esperamos ${rnd} segundos...`);
+                    await sleep(rnd*1000);
+                }
+                console.log('Done');
+            }
+            retardo();
         }
 
         /**
@@ -459,7 +479,6 @@ listenMessage = () => client.on('message', async msg => {
             return
         }
 
-
         /**
          * Llama el API para desbloquear un usuario.
          * @param {*} ctx El objeto del mensaje.
@@ -482,6 +501,36 @@ listenMessage = () => client.on('message', async msg => {
             return error
             });
         }
+        
+        /**
+         * Llama el API para desbloquear el usuario.
+         * 
+         * @param {*} theURL El URL para llamar al API 
+         * @param {*} step
+         */
+        async function desbloqueaUsuario2(theUrl, step) {
+            // const {from} = client.theMsg
+            // const RES = await axios.get(theUrl).then(function (response) {
+            //     const { AffectedRows } = response.data['respuesta'][0]
+            //     console.log('AFFECTED_ROWS = ', AffectedRows)
+            //     if(response.data['respuesta'][0]['AffectedRows']=="1"){
+            //         sendMessage(client, from, "Listo, usuario *"+response.data['params']['par1']+"* desbloqueado, por favor *cerrar navegadores* y reingresar.", response.trigger, step);
+            //     }
+            //     else{
+            //         sendMessage(client, from, "El usuario *"+response.data['params']['par1']+"* no *existe* o esta dado de *baja*, por favor revisarlo y volver a intentar.", response.trigger, step);
+            //     }
+            //     return response
+            // }).catch(function (error) {
+            //     console.log(error);
+            //     return error
+            // });
+        }
+
+        // ####################################################################################################################
+        // ##############################    INICIAN FUNCIONES PARA MANEJO DE PARAMETROS  #####################################
+        // ##############################               EN EL RESPONSE.JSON               #####################################
+        // ####################################################################################################################
+
         /*
          *   Si quieres ejecutar una función.
         */
@@ -491,25 +540,25 @@ listenMessage = () => client.on('message', async msg => {
             eval(laFuncion)
             // return
         }
-        if(response.hasOwnProperty('urlXXXXXXX') && response.hasOwnProperty('values')){
-            let theURL = response.url;
-            let url0 = theURL
-            let vals = response.values // Traemos los valores desde el response.json
-            let j = theURL.split('j=')[1] // Traemos el JSON del URL.
-            let j2 = JSON.parse(j)
-            let cont = 0
-            const { params } = j2 // Traemos los parametros del JSON.
-            console.log('PARAMS=', params, params['par1'], Object.keys(params).length)
-            let url2
-            for (const par in params) { // Remplazamos los valores en lo parametros.
-                console.log(`${par}: ${params[par]}, ${cont}: ${remplazos(vals[cont], client)}`);
-                if(cont==0){url2=url0.replace(params[par], remplazos(vals[cont], client));}
-                else {url2=url2.replace(params[par], remplazos(vals[cont], client));}
-                cont++
-            }
-            // console.log('THE_URL=', url2)
-            desbloqueaUsuario2(url2, step) //Llamamos al API para desbloquear el usuario.
-            return
+        if(response.hasOwnProperty('url') && response.hasOwnProperty('values')){
+            // let theURL = response.url;
+            // let url0 = theURL
+            // let vals = response.values // Traemos los valores desde el response.json
+            // let j = theURL.split('j=')[1] // Traemos el JSON del URL.
+            // let j2 = JSON.parse(j)
+            // let cont = 0
+            // const { params } = j2 // Traemos los parametros del JSON.
+            // console.log('PARAMS=', params, params['par1'], Object.keys(params).length)
+            // let url2
+            // for (const par in params) { // Remplazamos los valores en lo parametros.
+            //     console.log(`${par}: ${params[par]}, ${cont}: ${remplazos(vals[cont], client)}`);
+            //     if(cont==0){url2=url0.replace(params[par], remplazos(vals[cont], client));}
+            //     else {url2=url2.replace(params[par], remplazos(vals[cont], client));}
+            //     cont++
+            // }
+            // // console.log('THE_URL=', url2)
+            // desbloqueaUsuario2(url2, step) //Llamamos al API para desbloquear el usuario.
+            // return
         }
         /**
          * Si quieres enviar imagen.
@@ -571,82 +620,9 @@ listenMessage = () => client.on('message', async msg => {
         return
     }
 
-    if(body=='trae'){
-        const rows = await leeXLSDatos('x')
-        console.log("RESULTADOS:")
-        // d.forEach(row => async function() {
-        // console.log(row.nombre, row.edad, row.sexo)
-        // client.sendMessage(from, `Hola ${row.nombre}, recuerda que tienes un adeudo pendiente`)
-        // })
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-        async function retardo() {
-            for (sp=1;sp<rows.length;sp++) {
-                // console.log(masivo[sp].numero+"@c.us");
-                var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
-                if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
-                console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
-                var elTextoDelMensaje = `%saludo% ${rows[sp].prefijo} *${rows[sp].nombre}* con CARNET *${rows[sp].carnet}*, le saludamos de _CORPORACION AZUL_ le escribimos para recordarle que tiene un pago *pendiente* que se vence el *02/02/2023*`;
-                await sleep(500);
-                // let elNumero = '51968016860@c.us'
-                let elNumero = '5215554192439@c.us'
-                client.sendMessage(elNumero, remplazos(elTextoDelMensaje, client));
-                console.log(`Esperamos ${rnd} segundos...`);
-                await sleep(rnd*1000);
-            }
-            console.log('Terminamos');
-        }
-        retardo();
-    }
-
-/*
-============================================================================
-==========================   ENVIO MASIVO TEST   ===========================
-============================================================================
-*/
-if(message=='/spam'){
-    const masivo = require('./spam.json')
-    var saludo;
-    var caritas;
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-    async function retardo() {
-        for (sp=0;sp<masivo.length;sp++) {
-            console.log(masivo[sp].numero+"@c.us");
-            var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
-            if(rnd==1||rnd==4){saludo = "Hola ";}
-            else if(rnd==2||rnd==5){saludo = "Saludos ";}
-            else {saludo = "%saludo% ";}
-            if(rnd==1){caritas = "👨🏻‍🦰👩🏻‍🦰";}
-            else if(rnd==2){caritas = "👩🏻‍🦰👨🏻‍🦰";}
-            else if(rnd==3){caritas = "🧔🏽👧🏽";}
-            else if(rnd==4){caritas = "👧🏽🧔🏽";}
-            else if(rnd==5){caritas = "👩🏻‍🦰🧔🏽";}
-            else if(rnd==6){caritas = "🧔🏽👩🏻‍🦰";}
-            if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
-            console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
-            var elTextoDelMensaje = caritas + " *" + saludo + "amigo tendero*  ❗❗👋🏻\n🕊️ *GUNA* trae para ti dinámicas digitales, con las que podrás participar para ganar increíbles premios. 🏆💸💰\nSigue los siguientes pasos: 😃\n*1.* 📲Sigue la página de Yo Soy Guna en Facebook en la siguiente liga  ➡️  https://www.facebook.com/yosoyguna\n*2.* 👉🏻Es importante des click en el botón Me Gusta 👍\n*3.* 🧐Sigue la dinámica que publicaremos , subiendo tu foto 📸 con los siguientes #yosoyguna #gunatenderos #gunachampions\n*4.* 🥳🎉En esta misma página , podrás ver publicados los ganadores🏅 y el tiempo en que serán elegidos. 💲 Además de tener acceso a increíbles promociones 🤑";
-            sendMedia(client, masivo[sp].numero+"@c.us", "envioMasivoGuna.jpg");
-            await sleep(500);
-            client.sendMessage(masivo[sp].numero+"@c.us", remplazos(elTextoDelMensaje, client));
-            // client.sendMessage(masivo[i].numero+"@c.us", "Este es un mensaje de prueba para *"+masivo[i].numero+"*, HORA:*"+new Date().toLocaleTimeString()+"*");
-            console.log(`Esperamos ${rnd} segundos...`);
-            await sleep(rnd*1000);
-        }
-        console.log('Done');
-    }
-    retardo();
-}
-
-    function getRandomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
-    }
-
-    //Si quieres tener un mensaje por defecto
+    /**
+     * Si quieres tener un mensaje por defecto
+     */
     if (process.env.DEFAULT_MESSAGE === 'true') {
         const response = await responseMessages('DEFAULT')
         // await sendMessage(client, from, response.replyMessage, response.trigger); // Mod by CHV - Para mandar varios mensajes en el mismo response, se cambio esta linea por el forEach de abajo.
@@ -673,6 +649,7 @@ if(message=='/spam'){
          return
     }
  });
+
 /**
  * Este evento es necesario para el filtro de Dialogflow
  */
@@ -692,6 +669,11 @@ const listenMessageFromBot = () => client.on('message_create', async botMsg => {
         }
     }
 });
+
+// ####################################################################################################################
+// ##############################  INICIAN FUNCIONES PARA LA CREACION DEL CLIENTE  ####################################
+// ##############################                 DE WHATSAPP-WEB.JS               ####################################
+// ####################################################################################################################
 
 client = new Client({
          authStrategy: new LocalAuth(),
@@ -733,40 +715,32 @@ client.initialize();
  server.listen(port, () => {
      console.log(`El server esta listo en el puerto ${port}`);
  })
+
  checkEnvFile();
 
- /**
- * Llama el API para desbloquear el usuario.
- * 
- * @param {*} theURL El URL para llamar al API 
- * @param {*} step
+// ####################################################################################################################
+// ##############################              INICIAN FUNCIONES VARIAS            ####################################
+// ####################################################################################################################
+
+/**
+ * Regresa un número random entre los parametros min y max dados.
+ * @param {*} min 
+ * @param {*} max 
+ * @returns 
  */
- async function desbloqueaUsuario2(theUrl, step) {
-    const {from} = client.theMsg
-    const RES = await axios.get(theUrl).then(function (response) {
-        const { AffectedRows } = response.data['respuesta'][0]
-        console.log('AFFECTED_ROWS = ', AffectedRows)
-        if(response.data['respuesta'][0]['AffectedRows']=="1"){
-            sendMessage(client, from, "Listo, usuario *"+response.data['params']['par1']+"* desbloqueado, por favor *cerrar navegadores* y reingresar.", response.trigger, step);
-        }
-        else{
-            sendMessage(client, from, "El usuario *"+response.data['params']['par1']+"* no *existe* o esta dado de *baja*, por favor revisarlo y volver a intentar.", response.trigger, step);
-        }
-        return response
-    }).catch(function (error) {
-        console.log(error);
-        return error
-    });
-    // const r = await axios.get(theUrl).then(function (response) {
-    //     console.log('AXIOS RES=', response)
-    // }).catch(function (error) {
-    //     console.log(error);
-    //     return error
-    // })
-    // return Promise.resolve(r)
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
 }
- 
+
+/**
+ * Revisa que exista el archivo "chats/numero.json"
+ * @param {*} theFile 
+ * @returns 
+ */
 function chkFile(theFile){ //MOD by CHV - Agregamos para revisar que exista el archivo "chats/numero.json"
+    const fs = require('fs');
     if (fs.existsSync(theFile)) {
         // console.log("Si existe el archivo "+ theFile);
         var h = true;

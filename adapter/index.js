@@ -4,9 +4,7 @@ const { getDataIa } = require('./diaglogflow')
 // const  stepsInitial = require('../flow/initial.json')
 const  stepsReponse = require('../flow/response.json')
 const { isUndefined } = require('util');
-var msjsRecibidos = [];
 var ultimoStep; //MOD by CHV - 
-// var pasoAnterior = []; //MOD by CHV - Para guardar el paso anterior de cada número. (MOD - global en app.js)
 var pasoRequerido; //MOD by CHV - 
 var _vamosA = ""; //MOD by CHV - 
 var VA = ""; //MOD by CHV - 
@@ -45,14 +43,43 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
     if(siguientePaso.length>1){console.log(siguientePaso[1]["numero"], siguientePaso[1]["va"])}
 
     /**
-     * Si no estas usando un gesto de base de datos
+     * Si no estas usando una base de datos
      */
-
     if (process.env.DATABASE === 'none') {
-        // console.log(message)
-        var { key } = stepsInitial.find(k => k.keywords.includes(message)) || { key: null }
-        // console.log(stepsInitial)
-        // console.log("KEY="+key)
+        //******************************************************************************** */
+        var logKeysArray = false  // Poner en verdadero para ver logs de esta seccion.
+        //******************************************************************************** */
+        key = null
+        let q = 0;
+        if(logKeysArray) console.log(stepsInitial.length)
+        while (key == null && q < stepsInitial.length) {
+            if(Array.isArray(stepsInitial[q].keywords)){
+                let r = 0
+                let rFound = false
+                while(!rFound && r<stepsInitial[q].keywords.length){
+                    if(logKeysArray) console.log(q, "keyword=", stepsInitial[q].keywords[r], "msj=", message)
+                    if(logKeysArray) console.log(q, "req=", resps[stepsInitial[q].key.toString()].pasoRequerido, "ant=", pasoAnterior[elNum])
+                    if( message.toLowerCase() == stepsInitial[q].keywords[r].toLowerCase() && ( // Si el mensaje coincide con la palabra clave Y pasoRequerido es igual a pasoAnterior ...
+                            resps[stepsInitial[q].key.toString()].pasoRequerido == undefined ||
+                            resps[stepsInitial[q].key.toString()].pasoRequerido == pasoAnterior[elNum]
+                        )
+                    ){
+                        key = stepsInitial[q].key
+                        if(logKeysArray) console.log(key, " SI COINCIDE")
+                        rFound = true
+                    }
+                    else
+                    {
+                        // key = null
+                        if(logKeysArray) console.log("No coincide")
+                    }
+                    r++
+                }
+            }
+           q++
+        }
+        if(logKeysArray) console.log("KEY = ", key)
+        // var { key } = stepsInitial.find(k => k.keywords.includes(message)) || { key: null }
 
         /* ###############################################  *   REGEXP   *   ####################################################
             Si queremos usar RegExp, en los "keywords" de inital.json, en lugar de un arreglo usamos un string (quitamos los [])
@@ -72,14 +99,13 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
         var {keywords} = stepsInitial.find(k => k.key.includes(key)) || { keywords: null }
         if(!Array.isArray(keywords)){key=null;}//Si "keywords" no es arreglo entonces ponemos "key" en null y usamos REGEXP para buscar reglas.
         if(key == null && message.length > 0){
+            //******************************************************************************** */
             var logRegEx = false
+            //******************************************************************************** */
             console.log("=======  KEY ES NULO, USAMOS REGEXP  =======");
             for (i=0; i<stepsInitial.length;i++){
                 if(!Array.isArray(stepsInitial[i].keywords)){// Si "Keywords" NO es arreglo entonces ...
                     var coincideKeyword = null;
-                    // console.log("KEY=|" + stepsInitial[i].key.toString() + "|" )
-                    // if(resps[stepsInitial[i].key.toString()].pasoRequerido != undefined){pr = resps[stepsInitial[i].key].pasoRequerido};
-                    // console.log(resps[stepsInitial[i].key.toString()].pasoRequerido== ultimoStep)
                     if(logRegEx) console.log("*** PASO=" + stepsInitial[i].key.toString() + " - REQUERIDO=" + resps[stepsInitial[i].key.toString()].pasoRequerido + " - ANTERIOR=" + pasoAnterior[elNum])
                     //Si NO hay paso requerido, o el paso requerido es IGUAL al paso anterior, entonces ...
                     if(resps[stepsInitial[i].key.toString()].pasoRequerido == undefined || resps[stepsInitial[i].key.toString()].pasoRequerido == pasoAnterior[elNum]){
@@ -92,9 +118,6 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
                             tempKeyword = stepsInitial[i].keywords.toString().replaceAll("*",".*")
                         }
                         coincideKeyword = message.match(tempKeyword); // Verdadero cuando el mensaje COINCIDE con la palabre clave.
-                        // console.log("Keywords="+stepsInitial[i].keywords + " - key=" + stepsInitial[i].key + " - pasoReq=" + resps[stepsInitial[i].key].pasoRequerido + " - PasoAnt=" + ultimoStep)
-                        // console.log("coincideKeyword:"+coincideKeyword+" - ultimoStep="+ultimoStep+" - pasoReq="+resps[stepsInitial[i].key].pasoRequerido);
-                        // console.log(resps[stepsInitial[i].key].replyMessage.toString())
                         if (coincideKeyword != null){ //Si el mensaje COINCIDE con la palabra clave.
                             if(logRegEx) console.log(" - - El mensaje COINCIDE con el keyword")
                             key = stepsInitial[i].key;
@@ -115,11 +138,10 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
                     }
                     else { 
                         if(logRegEx) console.log("--- NO CUMPLE PASO REQ");
-                        // console.log("pasoReq=" + resps[stepsInitial[i].key.toString()].pasoRequerido + " - PasoAnt=" + ultimoStep)
                     }
                 }
             }
-            // console.log("<<<<<<<<<  "+key);
+            // console.log("<<<<<<<<<  " + key);
             // cumplePasoRequerido(key)
             // ultimoPaso = pasoRequerido;
             // ultimoStep = key;
@@ -135,7 +157,6 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
             console.log("ASIGNAMOS _VAMOSA = " + _vamosA);
             pasoAnterior[elNum] = _vamosA;
         }
-        // console.log("ULTIMOSTEP="+ultimoStep)
         _vamosA = "";
         // console.log("MESSAGE: "+message);
         // console.log("KEY: "+key);
@@ -155,7 +176,7 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
 
 const reply = (step) => new Promise((resolve, reject) => {
     /**
-    * Si no estas usando un gesto de base de datos
+    * Si no estas usando una base de datos
     */
     if (process.env.DATABASE === 'none') {
         let resData = { replyMessage: '', media: null, trigger: null }
@@ -207,7 +228,7 @@ const saveMessage = ( message, trigger, number, regla ) => new Promise( async (r
              resolve( await saveMessageMysql( message, trigger, number ) )
              break;
          case 'none':
-             resolve( await saveMessageJson( message, trigger, number, regla) ) //MOD by CHV - Agregamos el paranetro "regla"
+             resolve( await saveMessageJson( message, trigger, number, regla) ) //MOD by CHV - Agregamos el parametro "regla"
             //  console.log("REGLA DESDE APP.JS="+regla)
              break;
          default:
@@ -216,11 +237,12 @@ const saveMessage = ( message, trigger, number, regla ) => new Promise( async (r
     }
 })
 
-module.exports = { get, reply, getIA, saveMessage, remplazos, stepsInitial, vamosA } //MOD by CHV - Agregamos "remplazos" y "stepsInitial" para usarlos en "apps.js"
+module.exports = { get, reply, getIA, saveMessage, remplazos, stepsInitial, vamosA, traeUltimaVisita } //MOD by CHV - Agregamos "remplazos" y "stepsInitial" para usarlos en "apps.js"
 
 /**
  * Asigna el valor especificado a la variable pasoAnterior.
- * Esta hace que el flujo se redirija al paso siguente al especificado. 
+ * Esta hace que el flujo se redirija al paso siguente al especificado.
+ * NO EJECUTA EL PASO DADO, solo espfecifica cual es el paso anterior para cuando una regla tiene el parametro "pasoRequerido".
  * @param {elNum} string - El numero del remitente.
  * @param {elPaso} string - El paso al que se va redirigir el flujo.
  */
@@ -234,6 +256,7 @@ function vamosA (elNum, elPaso){
  */
 function remplazos(elTexto, extraInfo){
     if(elTexto == null){elTexto = '';}
+    const fs = require('fs');
     laLista = elTexto.toString().split(' ');
     // console.log(laLista);
     // console.log('=============  remplazos  ============');
@@ -390,8 +413,13 @@ function remplazos(elTexto, extraInfo){
     ultimoPaso = pasoRequerido;
 }
 
-const fs = require('fs');
+/**
+ * Revisa que exista el archivo "chats/numero.json"
+ * @param {*} theFile 
+ * @returns 
+ */
 function chkFile(theFile){ //MOD by CHV - Agregamos para revisar que exista el archivo "chats/numero.json"
+    const fs = require('fs');
     if (fs.existsSync(theFile)) {
         // console.log("Si existe el archivo "+ theFile);
         var h = true;
@@ -401,4 +429,59 @@ function chkFile(theFile){ //MOD by CHV - Agregamos para revisar que exista el a
         var h = false;
     }
     return h;
+}
+
+/**
+ * Regresa el tiempo tanscurrido en (datepart) desde la ultima visita.\n
+ * datepart: 'y', 'm', 'w', 'd', 'h', 'n', 's' (default = n)
+ * @param {*} file 
+ * @param {*} datepart
+ */
+function traeUltimaVisita(file, datepart = 'n'){
+    // Node.js program to demonstrate the
+    // fs.futimes() method
+    let thisLog = false
+    const fs = require('fs');
+    let theFile = `${__dirname}/../chats/`+file+".json"
+    if(thisLog) console.log("chkFile=", chkFile(theFile), datepart)
+    if(chkFile(theFile)){
+        // Get the file descriptor of the file
+        const fd = fs.openSync(theFile);
+        // console.log("Details before changing time:");
+        // Get the stats object of the file
+        if(thisLog) console.log(new Date())
+        prevStats = fs.statSync(theFile);
+        // Access the modified and access time of the file
+        if(thisLog) console.log("Modification Time:", prevStats.mtime);
+        if(thisLog) console.log("Access Time:", prevStats.atime);
+        // Get the current time to change the timestamps
+        let changedModifiedTime = new Date();
+        let changedAccessTime = new Date();
+        // Use the futimes() function to assign
+        // the new timestamps to the file descriptor
+        fs.futimes(fd, changedAccessTime, changedModifiedTime, ()=>{})
+        if(thisLog) console.log("dd=", dateDiff(datepart, prevStats.atime, changedAccessTime))
+        if(thisLog) console.log(new Date())
+        return dateDiff(datepart, prevStats.atime, changedAccessTime)
+    }
+    else { return 0 }
+}
+ /**
+ * Regresa el tiempo transcurrido en (datepart) entre las fechas dadas.
+ * datepart: 'y', 'm', 'w', 'd', 'h', 'n', 's'
+ * @param {*} datepart 
+ * @param {*} fromdate 
+ * @param {*} todate 
+ * @returns 
+ */
+function dateDiff(datepart, fromdate, todate){
+    datepart = datepart.toLowerCase();	
+    var diff = todate - fromdate;	
+    var divideBy = { w:604800000, 
+                        d:86400000, 
+                        h:3600000, 
+                        n:60000, 
+                        s:1000 };	
+    
+    return Math.floor( diff/divideBy[datepart]);
 }
