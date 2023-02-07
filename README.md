@@ -131,7 +131,7 @@ El siguiente proyecto se realizó con fines educativos para el canal de [Youtube
 > [VER](https://github.com/leifermendez/bot-whatsapp/commits/main)
 
 ### Busco colaboradores ⭐
-Hola amigos me gusta mucho este proyecto pero por cuestiones de tiempo se me dificulta mantener las actualizaciones si alguno quieres participar en el proyecto escribeme a leifer.contacto@gmail.com
+Hola amigos me gusta mucho este proyecto pero por cuestiones de tiempo se me dificulta mantener las actualizaciones si alguno quiere participar en el proyecto escribanme a leifer.contacto@gmail.com
 
 #### Acceso rápido 
 > Si tienes una cuenta en __heroku__ puedes desplegar este proyecto con (1 click)
@@ -262,7 +262,7 @@ __Listo 😎__
 
 ![](https://i.imgur.com/OSUgljQ.png)
 
-> Ahora deberías  obtener un arespuesta por parte del BOT como la siguiente, ademas de esto tambien se crea un archivo excel
+> Ahora deberías  obtener una respuesta por parte del BOT como la siguiente, ademas de esto tambien se crea un archivo excel
 con el historial de conversación  con el número de tu cliente
 
 ![](https://i.imgur.com/lrMLgR8.png)
