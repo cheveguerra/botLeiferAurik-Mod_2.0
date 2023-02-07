@@ -88,7 +88,7 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
         }
     }
     ```
- - Permite conectarse a **APIs**, por ejemplo: Google Sheets, Excel y cualquier otra API que se pueda llamar desde una funcion, esto se hace agregando el parametro "```funcion```" al **response.json**.
+ - Permite conectarse a **APIs**, por ejemplo: Google Sheets, Excel y cualquier otra API que se pueda llamar desde una función, esto se hace agregando el parametro "```funcion```" al **response.json**.
  ```
   "Desbloqueo":{
         "keywords": "desbloqueo",
