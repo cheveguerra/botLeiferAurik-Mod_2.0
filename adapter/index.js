@@ -35,7 +35,6 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
     elNum = num //MOD by CHV - 
     if(siguientePaso.find(k => k.numero.includes(elNum))){
         console.log("siguientePaso="+siguientePaso.find(k => k.numero.includes(elNum))["numero"], siguientePaso.find(k => k.numero.includes(elNum))["va"])        
-        // ultimoStep = siguientePaso.find(k => k.numero.includes(elNum))["va"]
         pasoAnterior[elNum] = siguientePaso.find(k => k.numero.includes(elNum))["va"] //Asignamos pasoAnterior al número.
         siguientePaso.splice(siguientePaso.indexOf(elNum), 1)
         console.log("********************   "+siguientePaso.find(k => k.numero.includes(elNum)))
@@ -103,31 +102,30 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
             var logRegEx = false
             //******************************************************************************** */
             console.log("=======  KEY ES NULO, USAMOS REGEXP  =======");
-            for (i=0; i<stepsInitial.length;i++){
-                if(!Array.isArray(stepsInitial[i].keywords)){// Si "Keywords" NO es arreglo entonces ...
+            for (si=0; si<stepsInitial.length;si++){
+                if(!Array.isArray(stepsInitial[si].keywords)){// Si "Keywords" NO es arreglo entonces ...
                     var coincideKeyword = null;
-                    if(logRegEx) console.log("*** PASO=" + stepsInitial[i].key.toString() + " - REQUERIDO=" + resps[stepsInitial[i].key.toString()].pasoRequerido + " - ANTERIOR=" + pasoAnterior[elNum])
+                    if(logRegEx) console.log("*** PASO=" + stepsInitial[si].key.toString() + " - REQUERIDO=" + resps[stepsInitial[si].key.toString()].pasoRequerido + " - ANTERIOR=" + pasoAnterior[elNum])
                     //Si NO hay paso requerido, o el paso requerido es IGUAL al paso anterior, entonces ...
-                    if(resps[stepsInitial[i].key.toString()].pasoRequerido == undefined || resps[stepsInitial[i].key.toString()].pasoRequerido == pasoAnterior[elNum]){
+                    if(resps[stepsInitial[si].key.toString()].pasoRequerido == undefined || resps[stepsInitial[si].key.toString()].pasoRequerido == pasoAnterior[elNum]){
                         var tempKeyword = "";
                         if(logRegEx) console.log(" - El paso requerido COINCIDE con el anterior, o NO hay paso requerido.")
-                        if (stepsInitial[i].keywords == "%solo_correos%"){
+                        if (stepsInitial[si].keywords == "%solo_correos%"){
                             if(logRegEx) console.log("solo_correos")
                             tempKeyword = "[a-zA-Z0-9]+[_a-zA-Z0-9\.-]*[a-zA-Z0-9]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+[\.][a-zA-Z]{2,12})"}
                         else { 
-                            tempKeyword = stepsInitial[i].keywords.toString().replaceAll("*",".*")
+                            tempKeyword = stepsInitial[si].keywords.toString().replaceAll("*",".*")
                         }
                         coincideKeyword = message.match(tempKeyword); // Verdadero cuando el mensaje COINCIDE con la palabre clave.
                         if (coincideKeyword != null){ //Si el mensaje COINCIDE con la palabra clave.
                             if(logRegEx) console.log(" - - El mensaje COINCIDE con el keyword")
-                            key = stepsInitial[i].key;
+                            key = stepsInitial[si].key;
                             //Si HAY paso requerido, y el paso requerido es DIFERENTE del paso anterior, entonces ...
-                            if(resps[stepsInitial[i].key].pasoRequerido != null && resps[stepsInitial[i].key].pasoRequerido != pasoAnterior[elNum]){
+                            if(resps[stepsInitial[si].key].pasoRequerido != null && resps[stepsInitial[si].key].pasoRequerido != pasoAnterior[elNum]){
                                 key=null
-                                if(logRegEx) console.log(" - - - Hay paso requerido y NO coincide con en paso anterior")
+                                if(logRegEx) console.log(" - - - Hay paso requerido y NO COINCIDE con en paso anterior")
                             }
-                            // console.log("KEY="+key+" - coincideKeyword="+coincideKeyword);
-                            if(resps[stepsInitial[i].key].replyMessage.toString().search("/URL") > -1){
+                            if(resps[stepsInitial[si].key].replyMessage.toString().search("/URL") > -1){
                                 if(logRegEx) console.log("****************    HAY URL    ****************")
                             }
                             break;
@@ -151,16 +149,12 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
         if(resps[key]!=undefined){VA = resps[key].goto}else{VA=null}
         cumplePasoRequerido(key);
         _vamosA = VA;
-        console.log("cumplePasoPrevio[elNum]=", cumplePasoPrevio[elNum])
-        
+        if(logRegEx) console.log("cumplePasoPrevio[elNum]=", cumplePasoPrevio[elNum], "_vamosA=", _vamosA)
         if(_vamosA != "" && _vamosA != undefined && cumplePasoPrevio[elNum] == true){
-            console.log("ASIGNAMOS _VAMOSA = " + _vamosA);
+            if(logRegEx) console.log("ASIGNAMOS _VAMOSA = " + _vamosA);
             pasoAnterior[elNum] = _vamosA;
         }
         _vamosA = "";
-        // console.log("MESSAGE: "+message);
-        // console.log("KEY: "+key);
-        // console.log("RESPONSE: "+response);
         if(cumplePasoPrevio[elNum]) {resolve(response);}
     }
 
@@ -410,7 +404,7 @@ function remplazos(elTexto, extraInfo){
         cumplePasoPrevio[elNum] = true;
     }
     pasoAnterior[elNum] = step
-    ultimoPaso = pasoRequerido;
+    // ultimoPaso = pasoRequerido;
 }
 
 /**

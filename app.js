@@ -179,7 +179,7 @@ listenMessage = () => client.on('message', async msg => {
     const step = await getMessages(message, from);
     client.theMsg['step'] = step
     if (step) {
-        console.log("Entramos a STEP")
+        // console.log("Entramos a STEP")
         const response = await responseMessages(step);
         client.theMsg['trigger'] = response.trigger
         var resps = require('./flow/response.json');
@@ -604,16 +604,15 @@ listenMessage = () => client.on('message', async msg => {
         /**
          * Si quieres enviar botones o listas
         */
-       if(response.hasOwnProperty('actions')){
-           const { actions } = response;
-           // console.log("++++++++++++++++++++++++++++  SEND MESG BUTTON/LIST  +++++++++++++++++++++++++++++++++++");
-           if(actions['sections'] === undefined){ //Botones
-            console.log("Botones")
-            await sendMessageButton(client, from, null, actions);
+        if(response.hasOwnProperty('actions')){
+            const { actions } = response;
+            // console.log("++++++++++++++++++++++++++++  SEND MESG BUTTON/LIST  +++++++++++++++++++++++++++++++++++");
+            if(actions['sections'] === undefined){ //Botones
+                // console.log("Botones")
+                await sendMessageButton(client, from, null, actions);
             }
             else { //Listas
-                console.log("Listas")
-                // console.log(actions)
+                // console.log("Listas")
                 await sendMessageList(client, from, null, actions);
             }
         }
