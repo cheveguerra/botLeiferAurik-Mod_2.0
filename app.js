@@ -56,7 +56,9 @@ listenMessage = () => client.on('message', async msg => {
     // const uv = traeUltimaVisita(from, 's')
     // console.log("ultVista=", uv)
     
-    if(!isValidNumber(from)){ return }
+    if(!isValidNumber(from)){
+        return
+    }
     // Este bug lo reporto Lucas Aldeco Brescia para evitar que se publiquen estados
     if (from === 'status@broadcast') { return }
     /**
@@ -66,12 +68,6 @@ listenMessage = () => client.on('message', async msg => {
        console.log('BlackListed: ',blackList.includes(from.replace("@c.us","")))
        return
     }
-
-    /**
-     * Blacklist, los telefonos inlcuidos en este arreglo son ignorados por el bot.
-     */
-    console.log('BlackListed: ',blackList.includes(from.replace("@c.us","")))
-    if (blackList.includes(from.replace("@c.us",""))) return
     message = newBody.toLowerCase();
     const number = cleanNumber(from)
     client.theMsg['numero'] = number
