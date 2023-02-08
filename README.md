@@ -72,7 +72,7 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
             "replyMessage":
             [
                "¿Hola como estas?"
-             ],
+            ],
             "media":null,
             "trigger":null
         }
