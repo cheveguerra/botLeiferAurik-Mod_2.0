@@ -67,8 +67,12 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
     Antes:
      ```json
     {
-        "ejemploViejo":{
-            "replyMessage":["¿Hola como estas?"],
+        "ejemploViejo":
+        {
+            "replyMessage":
+            [
+               "¿Hola como estas?"
+             ],
             "media":null,
             "trigger":null
         }
@@ -78,7 +82,8 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
      ```json
     {
         "ejemploNuevo":{
-            "replyMessage":[
+            "replyMessage":
+             [
                 {   "mensaje":["¿Hola como estas?"]},
                 {   "mensaje":["Este es el *segundo* mensaje.","Contiene dos lineas 🤪"]},
                 {   "mensaje":["Este es el *tercer* mensaje"]}
