@@ -93,7 +93,9 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
         }
     }
     ```
- - Permite conectarse a **APIs**, por ejemplo: Google Sheets, Excel y cualquier otra API que se pueda llamar desde una función, esto se hace agregando el parametro "```funcion```" al **response.json**.
+ - Permite conectarse a **APIs**, por ejemplo: Google Sheets, Excel y cualquier otra API que se pueda llamar desde una función, esto se hace agregando el parámetro "```funcion```" al **response.json**, la funcion especificada recibe automaticamente una variable con toda la información del *mensaje recibido*.
+
+ ```response.json```
  ```
   "Desbloqueo":{
         "keywords": "desbloqueo",
@@ -107,7 +109,29 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
     }
  
  ```
- - Los archivos **initial.json** y **response.json** se unificaron y ya solo se usa el **response.json**, para esto solo se agrega el parametro "```keywords```" del **initial.json** al **response.json**
+ ```app.js```
+ ```
+ function fakeHTTP(data){
+  let body = data.theMsg.body
+  let from= data.theMsg.from
+ }
+ ```
+ - Los archivos **initial.json** y **response.json** se unificaron, y ya solo se usa el **response.json**, para esto solo se agrega el parametro "```keywords```" del **initial.json** al **response.json**.
+ 
+ ```response.json```
+ ```
+  "Desbloqueo":{
+        "keywords": "desbloqueo",  //Esta linea se trae desde initial.json
+        "replyMessage":[
+            "Mensaje de desbloqueo de usuarios."
+        ],
+        "media":null,
+        "trigger":null,
+        "pasoRequerido":"soporte"
+    }
+ 
+ ```
+
 
  - Se puede especificar que al terminar un paso, el flujo se **vaya automaticamente** a otro, por ejemplo, si tenemos un flujo de tres pasos, y queremos que al terminar el tercer paso se regrese automaticamente al primero, agregamos el parametro "```goto```" al **response.json** del tercer paso y ponemos el nombre del paso 1.
  ```
