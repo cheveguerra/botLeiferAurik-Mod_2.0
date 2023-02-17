@@ -3,7 +3,7 @@ const { saveMessageJson } = require('./jsonDb')
 const { getDataIa } = require('./diaglogflow')
 // const  stepsInitial = require('../flow/initial.json')
 const  stepsReponse = require('../flow/response.json')
-const { isUndefined } = require('util');
+// const { isUndefined } = require('util');
 var ultimoStep; //MOD by CHV - 
 var pasoRequerido; //MOD by CHV - 
 var _vamosA = ""; //MOD by CHV - 
@@ -11,7 +11,9 @@ var VA = ""; //MOD by CHV -
 var elNum; //MOD by CHV - 
 var cumplePasoPrevio = []; //MOD by CHV - 
 const resps = require('../flow/response.json'); //MOD by CHV - Agregamos para traer las respuestas.
-const { appendFile } = require('fs')
+// const { appendFile, existsSync } = require('fs')
+// const { traeVariables } = require(`../provider/${provider}.js`)
+
 /**
  * Regresa un arreglo de objetos como el stepsInitial original, que se generaba desde "initial.json".
  * Contiene el nombre del paso (key) y las palabras clave correspondientes (keywords).
@@ -30,6 +32,12 @@ const getStepsInitial = () => {
 }
 const stepsInitial = getStepsInitial()
 
+/**
+ * Revisa si el texto del mensaje dispara alguna regla (body == keyword)
+ * @param {*} message 
+ * @param {*} num 
+ * @returns 
+ */
 const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - Agregamos parametro "num" para recibir el número de "app.js" 
     // console.log(num)
     elNum = num //MOD by CHV - 
@@ -145,7 +153,6 @@ const get = (message, num) => new Promise((resolve, reject) => { //MOD by CHV - 
             // ultimoStep = key;
         }
         const response = key || null
-        // if(key != null){remplazos(resps[key].replyMessage.join(''));}
         if(resps[key]!=undefined){VA = resps[key].goto}else{VA=null}
         cumplePasoRequerido(key);
         _vamosA = VA;
@@ -223,7 +230,7 @@ const saveMessage = ( message, trigger, number, regla ) => new Promise( async (r
              break;
          case 'none':
              resolve( await saveMessageJson( message, trigger, number, regla) ) //MOD by CHV - Agregamos el parametro "regla"
-            //  console.log("REGLA DESDE APP.JS="+regla)
+             console.log("Guardamos mensaje JSON=", message)
              break;
          default:
              resolve(true)
@@ -231,7 +238,6 @@ const saveMessage = ( message, trigger, number, regla ) => new Promise( async (r
     }
 })
 
-module.exports = { get, reply, getIA, saveMessage, remplazos, stepsInitial, vamosA, traeUltimaVisita } //MOD by CHV - Agregamos "remplazos" y "stepsInitial" para usarlos en "apps.js"
 
 /**
  * Asigna el valor especificado a la variable pasoAnterior.
@@ -239,156 +245,16 @@ module.exports = { get, reply, getIA, saveMessage, remplazos, stepsInitial, vamo
  * NO EJECUTA EL PASO DADO, solo espfecifica cual es el paso anterior para cuando una regla tiene el parametro "pasoRequerido".
  * @param {elNum} string - El numero del remitente.
  * @param {elPaso} string - El paso al que se va redirigir el flujo.
- */
+*/
 function vamosA (elNum, elPaso){
     pasoAnterior[elNum] = elPaso;
     console.log("Asignamos pasoAnterior con " + elPaso, elNum)
 }
-
-/**
- * Reemplaza texto en la respuesta con variables predefinidas.  
- */
-function remplazos(elTexto, extraInfo){
-    if(elTexto == null){elTexto = '';}
-    const fs = require('fs');
-    laLista = elTexto.toString().split(' ');
-    // console.log(laLista);
-    // console.log('=============  remplazos  ============');
-        for (var i = 0; i < laLista.length; i++) {
-            // console.log('Revisamos: '+laLista[i]);
-            if (laLista[i].search('%dia_semana%')>-1){//Remplaza con el dia de hoy.
-                var dia = new Date().getDay();
-                if(dia==0){diaSemana='domingo';}
-                else if(dia==1){diaSemana='lunes';}
-                else if(dia==2){diaSemana='martes';}
-                else if(dia==3){diaSemana='miercoles';}
-                else if(dia==4){diaSemana='jueves';}
-                else if(dia==5){diaSemana='viernes';}
-                else {diaSemana='sábado';}
-                elTexto = elTexto.replace('%dia_semana%', diaSemana);
-            }
-            if (laLista[i].search('%saludo%')>-1){//Remplaza con "Buenos dias, tardes o noches" dependiendo de la hora.
-                var hora = new Date().getHours()
-                if(hora>0 && hora < 12){saludo='Buenos días';}
-                else if(hora>11 && hora < 19){saludo='Buenas tardes';}
-                else {saludo='Buenas noches';}
-                elTexto = elTexto.toString().replace('%saludo%', saludo);
-            }
-            if (laLista[i].search('%hora24%')>-1){//Remplaza con la hora a 24 hrs.
-                var hora = new Date().getHours();
-                if (hora.toString().length < 2){hora = "0" + hora;}
-                elTexto = elTexto.toString().replace('%hora24%', hora);
-            }
-            if (laLista[i].search('%hora12%')>-1){//Remplaza con la hora a 12 hrs.
-                var hora = new Date().getHours();
-                var ampm = hora >= 12 ? 'pm' : 'am';
-                hora = hora % 12;
-                hora = hora ? hora : 12; // the hour '0' should be '12'
-                if (hora.toString().length < 2){hora = "0" + hora;}
-                elTexto = elTexto.toString().replace('%hora12%', hora);
-            }
-            if (laLista[i].search('%minutos%')>-1){//Remplaza con los minutos de la hora actual.
-                var mins = new Date().getMinutes();
-                if (mins.toString().length < 2){mins = "0" + mins;}
-                elTexto = elTexto.toString().replace('%minutos%', mins);
-            }
-            if (laLista[i].search('%ampm%')>-1){//Remplaza con am o pm.
-                var hours = new Date().getHours();
-                var ampm = hours >= 12 ? 'pm' : 'am';
-                elTexto = elTexto.toString().replace('%ampm%', ampm);
-            }
-            if (laLista[i].search('%rnd_')>-1){//Remplaza con opción al azar dentro de las especificadas.
-                var inicio = laLista[i].search('%rnd_');
-                var final = laLista[i].indexOf("%", inicio+1);
-                // console.log(inicio, final);
-                var subStr = laLista[i].substring(inicio, final+1);
-                // console.log("El substring="+subStr);
-                var partes = subStr.toString().split('_');
-                if(partes.length > 1){
-                    var opciones = partes[1].toString().substring(0,partes[1].toString().length-1).split(",");
-                    var elRand = Math.floor(Math.random() * (opciones.length));
-                    if(elRand == opciones.length){elRand = elRand - 1;}
-                    // console.log(opciones.length, elRand, opciones[elRand]);
-                    elTexto = elTexto.toString().replace(subStr, opciones[elRand]);
-                }
-                else{
-                    elTexto = elTexto.toString().replace(subStr, "");
-                }
-            }
-            if(laLista[i].search('%msjant_')>-1){//Remplaza con el mensaje anterior especificado.
-                var histlMsjs = {};
-                // console.log("entramos a msjant")
-                // var hayHistorial = (chkFile(`${__dirname}/chats/`+from+".json"));
-                if(chkFile(`${__dirname}/../chats/`+elNum+".json")){
-                    let rawdata = fs.readFileSync(`./chats/${elNum}.json`);
-                    let elHistorial0 = JSON.parse(rawdata);
-                    elHistorial = elHistorial0["messages"];
-                    elHistorial = elHistorial.filter(x => x.message != "") //Quitamos mensajes en blanco.
-                    var inicio = laLista[i].search('%msjant_');
-                    var final = laLista[i].indexOf("%", inicio+1);
-                    var subStr = laLista[i].substring(inicio, final+1);
-                    // console.log("Substr = |" + subStr + "|");
-                    var partes = subStr.toString().split('_');
-                    if(partes.length > 1){
-                        // console.log("Partes[1] = |" + partes[1] + "|");
-                        let posicion0 = partes[1].substring(0, partes[1].length-1)
-                        // console.log("Posicion0 = |" + posicion0 + "|");
-                        posicion = ((posicion0*1) + 1);
-                        // console.log("Posicion = " + posicion);
-                        // console.log( elHistorial.length );
-                        // console.log((elHistorial.length*1)-posicion);
-                        // console.log("Mensaje="+elHistorial[elHistorial.length - posicion]["message"])
-                        elTexto = elTexto.toString().replace(subStr, elHistorial[elHistorial.length - posicion]["message"].trim());
-                    }
-                    // histlMsjs = elHistorial["messages"];
-                    // totalMsjs = histlMsjs.length-1;
-                    // ultimoMensaje = histlMsjs[histlMsjs.length-1];
-                    // let mensajeAnterior = elHistorial["messages"][totalMsjs-1];
-                    // console.log("Mensajes:"+totalMsjs+", Ultimo:"+JSON.stringify(ultimoMensaje));
-                    // console.log("Anterior:"+JSON.stringify(mensajeAnterior));
-                }
-                // return histlMsjs;
-            }
-            if (laLista[i].search('%body%')>-1){//Remplaza con el body del ctx.
-                const {theMsg} = extraInfo;
-                const { body } = theMsg
-                elTexto = elTexto.toString().replace('%body%', body);
-            }
-            if (laLista[i].search('%from%')>-1){//Remplaza con el from del ctx.
-                const {theMsg} = extraInfo;
-                const { from } = theMsg
-                elTexto = elTexto.toString().replace('%from%', from);
-            }
-            if (laLista[i].search('%solonumero%')>-1){//Remplaza con el from del ctx.
-                const {theMsg} = extraInfo;
-                const { from } = theMsg
-                elTexto = elTexto.toString().replace('%solonumero%', from.replace('@c.us', ''));
-            }
-            if (laLista[i].search('%nombre%')>-1){//Remplaza con el nombre del remitente.
-                if(typeof extraInfo !== undefined){
-                    const {theMsg} = extraInfo;
-                    if(theMsg['_data']['notifyName'] !== undefined){
-                        elTexto = elTexto.toString().replace('%nombre%', theMsg['_data']['notifyName']);
-                    }
-                }
-            }
-            if (laLista[i].search('%primer_nombre%')>-1){//Remplaza con el nombre del remitente.
-                if(typeof extraInfo !== undefined){
-                    const {theMsg} = extraInfo;
-                    if(theMsg['_data']['notifyName'] !== undefined){
-                        elTexto = elTexto.toString().replace('%primer_nombre%', theMsg['_data']['notifyName'].split(' ')[0]);
-                    }
-                }
-            }
-      }
-    //   console.log("EL TEXTO="+elTexto);
-      return elTexto.trim()
- }
-
+    
 /**
  * Revisa si la regla especificada depende (es submenu) de otra regla, y cambia la variable "cumplePasoPrevio" a verdadero o falso.
- */
- function cumplePasoRequerido(step){
+*/
+function cumplePasoRequerido(step){
     //Traemos las respuestas para obtener el "pasoRequerido".
     if(resps[step]!=undefined){pasoRequerido=resps[step].pasoRequerido}else{pasoRequerido=null}
     if((pasoRequerido != null && pasoRequerido == ultimoStep)){
@@ -411,7 +277,7 @@ function remplazos(elTexto, extraInfo){
  * Revisa que exista el archivo "chats/numero.json"
  * @param {*} theFile 
  * @returns 
- */
+*/
 function chkFile(theFile){ //MOD by CHV - Agregamos para revisar que exista el archivo "chats/numero.json"
     const fs = require('fs');
     if (fs.existsSync(theFile)) {
@@ -430,7 +296,7 @@ function chkFile(theFile){ //MOD by CHV - Agregamos para revisar que exista el a
  * datepart: 'y', 'm', 'w', 'd', 'h', 'n', 's' (default = n)
  * @param {*} file 
  * @param {*} datepart
- */
+*/
 function traeUltimaVisita(file, datepart = 'n'){
     // Node.js program to demonstrate the
     // fs.futimes() method
@@ -460,7 +326,7 @@ function traeUltimaVisita(file, datepart = 'n'){
     }
     else { return 0 }
 }
- /**
+/**
  * Regresa el tiempo transcurrido en (datepart) entre las fechas dadas.
  * datepart: 'y', 'm', 'w', 'd', 'h', 'n', 's'
  * @param {*} datepart 
@@ -472,10 +338,12 @@ function dateDiff(datepart, fromdate, todate){
     datepart = datepart.toLowerCase();	
     var diff = todate - fromdate;	
     var divideBy = { w:604800000, 
-                        d:86400000, 
-                        h:3600000, 
-                        n:60000, 
-                        s:1000 };	
-    
+        d:86400000, 
+        h:3600000, 
+        n:60000, 
+        s:1000
+    };	
     return Math.floor( diff/divideBy[datepart]);
 }
+
+module.exports = { get, reply, getIA, saveMessage, stepsInitial, vamosA, traeUltimaVisita } //MOD by CHV - Agregamos "stepsInitial" para usarlos en "apps.js"

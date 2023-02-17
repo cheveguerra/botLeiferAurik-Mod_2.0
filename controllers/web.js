@@ -1,5 +1,5 @@
 const fs = require('fs')
-const { sendMessage } = require('../controllers/send')
+const { sendMessage } = require(`./send_${provider}`)
 
 const sendMessagePost = (req, res) => {
     console.log('asdasdasdasdasd')

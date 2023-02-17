@@ -1,6 +1,12 @@
 const { get, reply, getIA } = require('../adapter')
 const { saveExternalFile, checkIsUrl } = require('./handle')
 
+/**
+ * Regresa la regla que se cumple con el texto el mensaje.
+ * @param {*} message 
+ * @param {*} num 
+ * @returns 
+ */
 const getMessages = async (message, num) => { //MOD by CHV - Agregamos el parametro "num" para recibir el numero desde "app.js"
     // console.log("GETMESSAGES (flow.js)")
     const data = await get(message, num) //MOD by CHV - Agregamos "num"

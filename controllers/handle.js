@@ -6,9 +6,15 @@ const qr = require('qr-image')
 
 const MULTI_DEVICE = process.env.MULTI_DEVICE || 'true';
 
-const cleanNumber = (number) => {
+const cleanNumber_wwebjs = (number) => {
     number = number.replace('@c.us', '');
     number = `${number}@c.us`;
+    return number
+}
+
+const cleanNumber_baileys = (number) => {
+    number = number.replace('@s.whatsapp.net', '');
+    number = `${number}@s.whatsapp.net`;
     return number
 }
 
@@ -74,10 +80,21 @@ const createClient =  () => {
     });
 }
 
-const isValidNumber = (rawNumber) => {
+const isValidNumber_wwebjs = (rawNumber) => {
     const regexGroup = /\@g.us\b/gm;
     const exist = rawNumber.match(regexGroup);
+    console.log("IsValidWawebJS", rawNumber, exist, !exist)
     return !exist
 }
 
-module.exports = {cleanNumber, saveExternalFile, generateImage, checkIsUrl, checkEnvFile, createClient, isValidNumber}
+const isValidNumber_baileys = (rawNumber) => {
+    const regexGroup = /\@g.us\b/gm;
+    const exist = rawNumber.match(regexGroup);
+    // console.log("IsValidBaileys", rawNumber, exist, !exist)
+    return !exist
+}
+
+const isValidNumber = eval(`isValidNumber_${provider}`)
+const cleanNumber = eval(`cleanNumber_${provider}`)
+
+module.exports = {cleanNumber, saveExternalFile, generateImage, checkIsUrl, checkEnvFile, createClient, isValidNumber }

@@ -11,8 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@adiwajshing/baileys": "^4.4.0",
     "@google-cloud/dialogflow": "^5.2.0",
     "axios": "^0.27.2",
+    "combine-image": "^1.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "exceljs": "^4.3.0",

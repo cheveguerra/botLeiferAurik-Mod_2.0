@@ -9,5 +9,8 @@ mediaSend/*
 !mediaSend/.gitkeep
 !mediaSend/nota-de-voz.mp3
 .wwebjs_auth
+/baileys_sessions/*
+bot.qr.png
 backup
 backup/*
+implementaciones/credenciales.json
