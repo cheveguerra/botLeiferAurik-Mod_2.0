@@ -51,13 +51,6 @@ function listenMessage(client){
         if (blackList.includes(number)){ console.log('BlackListed'); return }
         var { key } = stepsInitial.find(k => k.keywords.includes(message)) || { key: null }//MOD by CHV - Se agrega para obtener KEY
         await readChat(number, message, null , key) //MOD by CHV - Agregamos key/regla para guardarla en "chats/numero.json"
-        // client.theMsg = msg;
-        // client.theMsg['body'] = body
-        // client.theMsg['from'] = from
-        // client.theMsg['hasMedia'] = hasMedia
-        // client.theMsg['key'] = key
-        // client.theMsg['name'] = name
-        // client.theMsg['numero'] = number
         client = agregaVars(client, msg, traeVariables(msg))
         client.theMsg['key'] = key
 
@@ -169,8 +162,12 @@ function listenMessage(client){
             nuevaRespuesta = remplazos(resps[step].replyMessage.join(''), client);
             client.theMsg['replyMessage'] = nuevaRespuesta
 
+            // ############################################################################################################
+            // ##############################     INICIAN FUNCIONES PERSONALIZADAS    #####################################
+            // ############################################################################################################
+
             /**
-             * Trae información desde un archivo de excel y le manda a cada numero un mensaje. (Envío masivo)
+             * Trae información desde un archivo de excel y le manda a cada número un mensaje. (Envío masivo)
              */
             if(body=='traeXLS'){
                 const rows = await leeXLSDatos('x')
@@ -520,26 +517,6 @@ function listenMessage(client){
                 console.log("#############    Encontramos función, ejecutamos la función '" + response.funcion + "'")
                 laFuncion = response.funcion + "(client)"
                 eval(laFuncion)
-            }
-            if(response.hasOwnProperty('url') && response.hasOwnProperty('values')){
-                // let theURL = response.url;
-                // let url0 = theURL
-                // let vals = response.values // Traemos los valores desde el response.json
-                // let j = theURL.split('j=')[1] // Traemos el JSON del URL.
-                // let j2 = JSON.parse(j)
-                // let cont = 0
-                // const { params } = j2 // Traemos los parametros del JSON.
-                // console.log('PARAMS=', params, params['par1'], Object.keys(params).length)
-                // let url2
-                // for (const par in params) { // Remplazamos los valores en lo parametros.
-                //     console.log(`${par}: ${params[par]}, ${cont}: ${remplazos(vals[cont], client)}`);
-                //     if(cont==0){url2=url0.replace(params[par], remplazos(vals[cont], client));}
-                //     else {url2=url2.replace(params[par], remplazos(vals[cont], client));}
-                //     cont++
-                // }
-                // // console.log('THE_URL=', url2)
-                // desbloqueaUsuario2(url2, step) //Llamamos al API para desbloquear el usuario.
-                // return
             }
             /**
              * Si quieres enviar imagen.
