@@ -13,4 +13,5 @@ mediaSend/*
 bot.qr.png
 backup
 backup/*
-implementaciones/credenciales.json
+/implementaciones/credenciales.json
+
