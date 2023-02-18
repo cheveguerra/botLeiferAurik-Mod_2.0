@@ -214,6 +214,128 @@ function agregaVars(client, msg, vars){
     return client
 }
 
+async function variousFuncs(){
+    /**
+     * Trae información desde un archivo de excel y le manda a cada número un mensaje. (Envío masivo)
+     */
+    if(body=='traeXLS'){
+        const rows = await leeXLSDatos('x')
+        console.log("RESULTADOS:")
+        function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)) }
+        async function retardo() {
+            for (sp=1;sp<rows.length;sp++) {
+                // console.log(masivo[sp].numero+"@c.us");
+                var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
+                if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
+                console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
+                var elTextoDelMensaje = `%saludo% ${rows[sp].prefijo} *${rows[sp].nombre}* con CARNET *${rows[sp].carnet}*, le saludamos de _CORPORACION AZUL_ le escribimos para recordarle que tiene un pago *pendiente* que se vence el *02/02/2023*`;
+                await sleep(500);
+                // let elNumero = '51968016860@c.us'
+                let elNumero = '5215554192439@c.us'
+                client.sendMessage(elNumero, remplazos(elTextoDelMensaje, client));
+                console.log(`Esperamos ${rnd} segundos...`);
+                await sleep(rnd*1000);
+            }
+            console.log('Terminamos');
+        }
+        retardo();
+    }
+
+    /*
+    ============================================================================
+    ==========================   ENVIO MASIVO (JSON))  =========================
+    ============================================================================
+    */
+    if(message=='/spam'){
+        const masivo = require('./spam.json')
+        var saludo;
+        var caritas;
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        async function retardo() {
+            for (sp=0;sp<masivo.length;sp++) {
+                console.log(masivo[sp].numero+"@c.us");
+                var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
+                if(rnd==1||rnd==4){saludo = "Hola ";}
+                else if(rnd==2||rnd==5){saludo = "Saludos ";}
+                else {saludo = "%saludo% ";}
+                if(rnd==1){caritas = "👨🏻‍🦰👩🏻‍🦰";}
+                else if(rnd==2){caritas = "👩🏻‍🦰👨🏻‍🦰";}
+                else if(rnd==3){caritas = "🧔🏽👧🏽";}
+                else if(rnd==4){caritas = "👧🏽🧔🏽";}
+                else if(rnd==5){caritas = "👩🏻‍🦰🧔🏽";}
+                else if(rnd==6){caritas = "🧔🏽👩🏻‍🦰";}
+                if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
+                console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
+                var elTextoDelMensaje = caritas + " *" + saludo + "amigo tendero*  ❗❗👋🏻\n🕊️ *GUNA* trae para ti dinámicas digitales, con las que podrás participar para ganar increíbles premios. 🏆💸💰\nSigue los siguientes pasos: 😃\n*1.* 📲Sigue la página de Yo Soy Guna en Facebook en la siguiente liga  ➡️  https://www.facebook.com/yosoyguna\n*2.* 👉🏻Es importante des click en el botón Me Gusta 👍\n*3.* 🧐Sigue la dinámica que publicaremos , subiendo tu foto 📸 con los siguientes #yosoyguna #gunatenderos #gunachampions\n*4.* 🥳🎉En esta misma página , podrás ver publicados los ganadores🏅 y el tiempo en que serán elegidos. 💲 Además de tener acceso a increíbles promociones 🤑";
+                sendMedia(client, masivo[sp].numero+"@c.us", "envioMasivoGuna.jpg");
+                await sleep(500);
+                client.sendMessage(masivo[sp].numero+"@c.us", remplazos(elTextoDelMensaje, client));
+                // client.sendMessage(masivo[i].numero+"@c.us", "Este es un mensaje de prueba para *"+masivo[i].numero+"*, HORA:*"+new Date().toLocaleTimeString()+"*");
+                console.log(`Esperamos ${rnd} segundos...`);
+                await sleep(rnd*1000);
+            }
+            console.log('Done');
+        }
+        retardo();
+    }
+
+
+    if(body == "/botones"){
+        // Asi se mandan botones **directamente** con el cliente de whatsapp-web.js "client.sendMessage(from, productList)"
+        const buttonMessage = [
+            {"body":"boton 1"},
+            {"body":"boton 2"}
+            ]
+        const ab = {
+            "title":"¿Que te interesa ver?",
+            "message":"%saludo%\nHoy es %dia_semana%.\nSon las %hora24%:%minutos% hrs.\nSon las %hora12%:%minutos% %ampm%\n*Palabra random:* %rnd_arbol,burro,cabra,dinosaurio,elefante,fuego,gorila%\n*Emoji random:* %rnd_👍🏽,😁,🤣,🤔,🤦🏽‍♂️,🙄,😎%\n*Número random:* %rnd_1,2,3,4,5,6,7%\n",
+            "footer":"Gracias",
+            "buttons":[
+                {"body":"Cursos"},
+                {"body":"Youtube"},
+                {"body":"Telegram"}
+            ]
+        }
+        console.log("Enviamos botones = ", from, ab)
+        sendMessageButton(client, from, "texto", ab)
+    }
+
+    if(body=='/listas'){
+    // Asi se mandan **listas** directamente con el ciente de whatsapp-web.js "client.sendMessage(from, productList)"
+    const productList = new List(
+        "Here's our list of products at 50% off",
+        "View all products",
+        [
+            {
+                title: "Products list",
+                rows: [
+                    { id: "apple", title: "Apple" },
+                    { id: "mango", title: "Mango" },
+                    { id: "banana", title: "Banana" },
+                ],
+            },
+        ],
+        "Please select a product"
+        );
+        console.log('##################################################################################################')
+        console.log("******************     productList     ******************")
+        console.log(productList)
+        client.sendMessage(from, productList); 
+        // Asi se manda directamente con la funcion del bot. "sendMessageList(client, from, null, lista)"
+        // let sections = [
+        //     {   title:'sectionTitle',
+        //         rows:[
+        //                 {id:'ListItem1', title: 'title1'},
+        //                 {id:'ListItem2', title:'title2'}
+        //             ]
+        //     }
+        // ];
+        // let lista = new List('List body','btnText',sections,'Title','footer');
+        await sendMessageList(client, from, null, productList); //sendMessageList recibe el arreglo CON nombres, tal cual se usa en "response.json"
+    }
+}
 /*
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

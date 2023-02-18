@@ -6,7 +6,7 @@ global.provider = process.env.PROVIDER || 'wwebjs';
 const fs = require('fs');
 global.siguientePaso = [{"numero":"1", "va":"XXX"}]; //MOD by CHV - Agregamos para pasar el VAMOSA a "index.js"
 global.pasoAnterior = [];
-const axios = require('axios').default;//MOD by CHV - Agregamos para el get del "/URL"
+const axios = require('axios').default;
 const { List } = require('whatsapp-web.js');
 // const mysqlConnection = require('./config/mysql')
 const { initBot, traeVariables } = require(`./provider/${provider}`)
@@ -16,8 +16,8 @@ const { getMessages, responseMessages, bothResponse, waitFor } = require('./cont
 const { sendMedia, sendMessage, sendMessageButton, sendMessageList, readChat } = require(`./controllers/send_${provider}`);
 const { stepsInitial, vamosA, traeUltimaVisita } = require('./adapter/index');//MOD by CHV - Agregamos para utilizar remplazos y stepsInitial
 const { removeDiacritics, getRandomInt, remplazos, soloNumero, agregaVars } = require('./implementaciones/extraFuncs')
-const { guardaXLSDatos, leeXLSDatos} = require('./Excel');
-const { ingresarDatos, leerDatos } = require('./implementaciones/sheets')
+// const { guardaXLSDatos, leeXLSDatos} = require('./Excel');
+// const { ingresarDatos, leerDatos } = require('./implementaciones/sheets')
 const MULTI_DEVICE = process.env.MULTI_DEVICE || 'true';
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve,ms))
 let client
@@ -39,7 +39,7 @@ function listenMessage(client){
         if(provider == 'wwebjs'){ msg.type = 'notify' }
         if (vars[from] === undefined) vars[from] = []
         // Este bug lo reporto Lucas Aldeco Brescia para evitar que se publiquen estados
-        if (from === 'status@broadcast' || msg.type !== 'notify') { console.log("########### status@broadcast o tipo mensaje = ", msg.type); return }
+        if (from === 'status@broadcast' || msg.type !== 'notify') { console.log("++++++  status@broadcast o tipo mensaje = ", msg.type); return }
         console.log("+++++++++++++++++++++++++++++++++++++  INICIO  +++++++++++++++++++++++++++++++++++++++");
         console.log("HORA:"+new Date().toLocaleTimeString()+" FROM:"+from+", BODY:"+body+", HASMEDIA:"+hasMedia+", DEVICETYPE:"+client.theMsg?.deviceType);
         // * Numero NO válido.
@@ -57,10 +57,7 @@ function listenMessage(client){
         /**
          * Si el mensaje trae un archivo multimedia, aquí lo guardamos.
         */
-        if (process.env.SAVE_MEDIA === 'true' && hasMedia) {
-            const media = await msg.downloadMedia();
-            saveMedia(media);
-        }
+        if (process.env.SAVE_MEDIA === 'true' && hasMedia) { const media = await msg.downloadMedia(); saveMedia(media); }
         
         // Guardamos los mensajes  entrantes en una hoja de Google Sheets
         // ingresarDatos(from, body, 'Entrada', 'Bot Pruebas')
@@ -95,60 +92,6 @@ function listenMessage(client){
             return
         }
 
-        if(body == "/botones"){
-            // Asi se mandan botones **directamente** con el cliente de whatsapp-web.js "client.sendMessage(from, productList)"
-            const buttonMessage = [
-                {"body":"boton 1"},
-                {"body":"boton 2"}
-                ]
-            const ab = {
-                "title":"¿Que te interesa ver?",
-                "message":"%saludo%\nHoy es %dia_semana%.\nSon las %hora24%:%minutos% hrs.\nSon las %hora12%:%minutos% %ampm%\n*Palabra random:* %rnd_arbol,burro,cabra,dinosaurio,elefante,fuego,gorila%\n*Emoji random:* %rnd_👍🏽,😁,🤣,🤔,🤦🏽‍♂️,🙄,😎%\n*Número random:* %rnd_1,2,3,4,5,6,7%\n",
-                "footer":"Gracias",
-                "buttons":[
-                    {"body":"Cursos"},
-                    {"body":"Youtube"},
-                    {"body":"Telegram"}
-                ]
-            }
-            console.log("Enviamos botones = ", from, ab)
-            sendMessageButton(client, from, "texto", ab)
-        }
-
-        if(body=='/listas'){
-            // Asi se mandan **listas** directamente con el ciente de whatsapp-web.js "client.sendMessage(from, productList)"
-            const productList = new List(
-                "Here's our list of products at 50% off",
-                "View all products",
-                [
-                    {
-                        title: "Products list",
-                        rows: [
-                            { id: "apple", title: "Apple" },
-                            { id: "mango", title: "Mango" },
-                            { id: "banana", title: "Banana" },
-                        ],
-                    },
-                ],
-                "Please select a product"
-                );
-                console.log('##################################################################################################')
-                console.log("******************     productList     ******************")
-                console.log(productList)
-                client.sendMessage(from, productList); 
-                // Asi se manda directamente con la funcion del bot. "sendMessageList(client, from, null, lista)"
-                // let sections = [
-                //     {   title:'sectionTitle',
-                //         rows:[
-                //                 {id:'ListItem1', title: 'title1'},
-                //                 {id:'ListItem2', title:'title2'}
-                //             ]
-                //     }
-                // ];
-                // let lista = new List('List body','btnText',sections,'Title','footer');
-                await sendMessageList(client, from, null, productList); //sendMessageList recibe el arreglo CON nombres, tal cual se usa en "response.json"
-        }
-
         /**
          * Si el texto del mensaje dispara alguna regla, entramos a esta condición.
         */
@@ -165,72 +108,6 @@ function listenMessage(client){
             // ############################################################################################################
             // ##############################     INICIAN FUNCIONES PERSONALIZADAS    #####################################
             // ############################################################################################################
-
-            /**
-             * Trae información desde un archivo de excel y le manda a cada número un mensaje. (Envío masivo)
-             */
-            if(body=='traeXLS'){
-                const rows = await leeXLSDatos('x')
-                console.log("RESULTADOS:")
-                function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)) }
-                async function retardo() {
-                    for (sp=1;sp<rows.length;sp++) {
-                        // console.log(masivo[sp].numero+"@c.us");
-                        var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
-                        if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
-                        console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
-                        var elTextoDelMensaje = `%saludo% ${rows[sp].prefijo} *${rows[sp].nombre}* con CARNET *${rows[sp].carnet}*, le saludamos de _CORPORACION AZUL_ le escribimos para recordarle que tiene un pago *pendiente* que se vence el *02/02/2023*`;
-                        await sleep(500);
-                        // let elNumero = '51968016860@c.us'
-                        let elNumero = '5215554192439@c.us'
-                        client.sendMessage(elNumero, remplazos(elTextoDelMensaje, client));
-                        console.log(`Esperamos ${rnd} segundos...`);
-                        await sleep(rnd*1000);
-                    }
-                    console.log('Terminamos');
-                }
-                retardo();
-            }
-
-            /*
-            ============================================================================
-            ==========================   ENVIO MASIVO (JSON))  =========================
-            ============================================================================
-            */
-            if(message=='/spam'){
-                const masivo = require('./spam.json')
-                var saludo;
-                var caritas;
-                function sleep(ms) {
-                    return new Promise(resolve => setTimeout(resolve, ms));
-                }
-                async function retardo() {
-                    for (sp=0;sp<masivo.length;sp++) {
-                        console.log(masivo[sp].numero+"@c.us");
-                        var rnd = getRandomInt(1,7); // Random entre 1 y 6 segundos.
-                        if(rnd==1||rnd==4){saludo = "Hola ";}
-                        else if(rnd==2||rnd==5){saludo = "Saludos ";}
-                        else {saludo = "%saludo% ";}
-                        if(rnd==1){caritas = "👨🏻‍🦰👩🏻‍🦰";}
-                        else if(rnd==2){caritas = "👩🏻‍🦰👨🏻‍🦰";}
-                        else if(rnd==3){caritas = "🧔🏽👧🏽";}
-                        else if(rnd==4){caritas = "👧🏽🧔🏽";}
-                        else if(rnd==5){caritas = "👩🏻‍🦰🧔🏽";}
-                        else if(rnd==6){caritas = "🧔🏽👩🏻‍🦰";}
-                        if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
-                        console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
-                        var elTextoDelMensaje = caritas + " *" + saludo + "amigo tendero*  ❗❗👋🏻\n🕊️ *GUNA* trae para ti dinámicas digitales, con las que podrás participar para ganar increíbles premios. 🏆💸💰\nSigue los siguientes pasos: 😃\n*1.* 📲Sigue la página de Yo Soy Guna en Facebook en la siguiente liga  ➡️  https://www.facebook.com/yosoyguna\n*2.* 👉🏻Es importante des click en el botón Me Gusta 👍\n*3.* 🧐Sigue la dinámica que publicaremos , subiendo tu foto 📸 con los siguientes #yosoyguna #gunatenderos #gunachampions\n*4.* 🥳🎉En esta misma página , podrás ver publicados los ganadores🏅 y el tiempo en que serán elegidos. 💲 Además de tener acceso a increíbles promociones 🤑";
-                        sendMedia(client, masivo[sp].numero+"@c.us", "envioMasivoGuna.jpg");
-                        await sleep(500);
-                        client.sendMessage(masivo[sp].numero+"@c.us", remplazos(elTextoDelMensaje, client));
-                        // client.sendMessage(masivo[i].numero+"@c.us", "Este es un mensaje de prueba para *"+masivo[i].numero+"*, HORA:*"+new Date().toLocaleTimeString()+"*");
-                        console.log(`Esperamos ${rnd} segundos...`);
-                        await sleep(rnd*1000);
-                    }
-                    console.log('Done');
-                }
-                retardo();
-            }
 
             /**
              * Llama el API para traer categorias de Guna.
@@ -309,7 +186,6 @@ function listenMessage(client){
                 return error
                 });
             }
-
             /**
              * Llama el API para traer productos de Guna.
              * @param {*} ctx El objeto del mensaje.
@@ -345,7 +221,6 @@ function listenMessage(client){
                 return error
                 });
             }
-
             /**
              * Llama el API para traer productos de Guna.
              * @param {*} ctx El objeto del mensaje.
@@ -381,7 +256,6 @@ function listenMessage(client){
                 sendMessage(client, from, elMensaje, ctx.theMsg.trigger, ctx.theMsg.step);
                 return
             }
-
             /**
              * Tomamos la cantidad del producto seleccionado.
              * @param {*} ctx El objeto del mensaje.
@@ -433,7 +307,6 @@ function listenMessage(client){
                 }
                 return "1"
             }
-            
             /**
              * Mandamos nuevamente la lista de productos.
              * @param {*} ctx El objeto del mensaje.
@@ -446,7 +319,6 @@ function listenMessage(client){
                 vars[from]['recompra'] = undefined
                 return "1"
             }
-            
             /**
              * Mandamos nuevamente la lista de categorías.
              * @param {*} ctx El objeto del mensaje.
@@ -457,7 +329,6 @@ function listenMessage(client){
                 sendMessage(client, from, "!Gracias por tu compra, regresa pronto!", response.trigger, step);
                 return
             }
-
             /**
              * Llama el API para desbloquear un usuario.
              * @param {*} ctx El objeto del mensaje.
@@ -480,7 +351,6 @@ function listenMessage(client){
                 return error
                 });
             }
-            
             /**
              * Llama el API para desbloquear el usuario.
              * 
@@ -509,7 +379,6 @@ function listenMessage(client){
             // ##############################    INICIAN FUNCIONES PARA MANEJO DE PARAMETROS  #####################################
             // ##############################               EN EL RESPONSE.JSON               #####################################
             // ####################################################################################################################
-
             /*
             *   Si quieres ejecutar una función.
             */
@@ -580,7 +449,6 @@ function listenMessage(client){
             }
             return
         }
-
         /**
          * Si quieres tener un mensaje por defecto
          */
