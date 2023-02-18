@@ -9,7 +9,7 @@ const DIR_MEDIA = `${__dirname}/../mediaSend`;
 // import { Low, JSONFile } from 'lowdb'
 // import { join } from 'path'
 const { saveMessage } = require('../adapter')
-const { ingresarDatos, leerDatos } = require('../implementaciones/sheets')
+// const { ingresarDatos, leerDatos } = require('../implementaciones/sheets')
 const mime = require('mime-types')
 
 /**
