@@ -1,5 +1,5 @@
 const mimeDb = require('mime-db');
-const { uploadSingleFile } = require('../adapter/gdrive');
+// const { uploadSingleFile } = require('../adapter/gdrive') // Para Goole Drive y DialogFlow
 const fs = require('fs');
 
 var fileName;

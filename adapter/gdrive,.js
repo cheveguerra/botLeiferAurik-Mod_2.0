@@ -5,7 +5,7 @@ const fs = require('fs');
 //const clientEmail = require(`${__dirname}/../chatbot-account.json`);
 
 /**
- * La funcion 'generatePublicUrl' genera un error muy menor al enviar el 'requestBody'
+ * La funcion 'generatePublicUrl' genera un error muy pequeño al enviar el 'requestBody'
  * siempre y cuando necesites que el acceso sea restringido y solo ciertos usuarios puedan acceder.
  * Esto se logra con la combinacion requerida: 'reader', 'user' y 'emailAddress':
  * requestBody: {
@@ -51,6 +51,7 @@ if (process.env.DATABASE === 'dialogflow') {
       },
       fields: 'id,name',
     });
+
     generatePublicUrl(id).then(() => {
       console.log(`Se generó enlace https://drive.google.com/open?id=${id} para el archivo ${name}`);
     });

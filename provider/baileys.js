@@ -1,4 +1,5 @@
 const  { default: makeWASocket, useMultiFileAuthState, Browsers, DisconnectReason } = require ('@adiwajshing/baileys')
+// const { traeVariablesFromMsg, traeVariablesFromClient } = require('../implementaciones/extraFuncs')
 var pino = require('pino');
 const { createWriteStream } = require('fs')
 var combineImage = require('combine-image');
@@ -39,8 +40,9 @@ const baileyGenerateImage = async (base64, name = 'qr.png') => {
     });
     cleanImage.write(PATH_QR);
 };
+
 /**
- * Iniciar todo Bailey
+ * Inicializa el Bot con Baileys
  */
 initBot = async () => {
     console.log("Baileys Init")
@@ -104,30 +106,11 @@ initBot = async () => {
     }
     // listenMessage(sock.ev)
     return sock
-    }
-    // run in main file
-    // initBot()
+}
+// run in main file
+// initBot()
 
-    /**
-     * Regresa las variables from, body, name y hasMedia de el objeto del mensaje.
-     * @param {*} msg 
-     * @returns from, body, name, hasMedia
-     */
-    function traeVariables(msg){
-        const { remoteJid } = msg.messages[0].key
-        const { pushName } = msg.messages[0]
-        // console.log("THE_MSG = ", client.theMsg.messages[0])
-        // console.log("*** CONVERSATION=", client.theMsg.messages[0].message?.conversation)
-        // console.log("*** SELECTEDDISPLAYTEXT=", client.theMsg.messages[0].message?.buttonsResponseMessage?.selectedDisplayText)
-        // console.log("*** TITLE=", client.theMsg.messages[0].message?.listResponseMessage?.title)
-        let theBody = msg.messages[0].message?.conversation || msg.messages[0].message?.buttonsResponseMessage?.selectedDisplayText || msg.messages[0].message?.listResponseMessage?.title
-        let from = remoteJid
-        let body = theBody
-        let name = pushName
-        let hasMedia = false
-        // console.log("fromBody=", from, body)
-        return {"from":from, "body":body, "name":name, "hasMedia":hasMedia}
-    }
+
     
 
-module.exports = { initBot, baileyGenerateImage, makeWASocket, traeVariables }
+module.exports = { initBot, baileyGenerateImage, makeWASocket }

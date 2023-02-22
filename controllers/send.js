@@ -2,7 +2,9 @@
 const ExcelJS = require('exceljs');
 const moment = require('moment');
 const fs = require('fs');
-const { MessageMedia, Buttons, List } = require('whatsapp-web.js');
+const { MessageMedia, Buttons, List } = require('whatsapp-web.js')
+const baileys = require('./send_baileys')
+const wwebjs = require('./send_wwebjs')
 const { cleanNumber } = require('./handle')
 const { remplazos } = require('../adapter/index'); //MOD by CHV - Agregamos remplazos
 const DELAY_TIME = 170; //ms
@@ -12,22 +14,26 @@ const DIR_MEDIA = `${__dirname}/../mediaSend`;
 const { saveMessage } = require('../adapter')
 /**
  * Enviamos archivos multimedia a nuestro cliente
- * @param {*} number 
+ * @param {*} client
+ * @param {*} number
  * @param {*} fileName 
+ * @param {*} caption
  */
 
-const sendMedia = (client, number = null, fileName = null, trigger = null) => {
+const sendMedia = (client, number = null, fileName = null, caption = null) => {
     if(!client) return console.error("El objeto cliente no está definido.");
-    console.log("MEDIA:"+fileName);
+    // console.log("MEDIA:"+fileName);
     try {
-        number = cleanNumber(number || 0)
-        const file = `${DIR_MEDIA}/${fileName}`;
-        console.log("FILE="+file);
-        if (fs.existsSync(file)) {
-            console.log("ARCHIVO EXISTE");
-            const media = MessageMedia.fromFilePath(file);
-            client.sendMessage(number, media, { sendAudioAsVoice: true });
-        }
+        // number = cleanNumber(number || 0)
+        // const file = `${DIR_MEDIA}/${fileName}`;
+        // console.log("FILE="+file);
+        // if (fs.existsSync(file)) {
+        //     console.log("ARCHIVO EXISTE");
+        //     const media = MessageMedia.fromFilePath(file);
+            if(provider === 'baileys'){baileys.sendMedia(client, number, fileName, caption)}
+            else{wwebjs.sendMedia(client, number, fileName, caption)}
+            // client.sendMessage(number, media, { sendAudioAsVoice: true });
+        // }
     } catch(e) {
         throw e;
     }
@@ -42,13 +48,14 @@ const sendMedia = (client, number = null, fileName = null, trigger = null) => {
  const sendMediaVoiceNote = (client, number = null, fileName = null) => {
      if(!client) return console.error("El objeto cliente no está definido.");
      try { 
-        number = cleanNumber(number || 0)
-        const file = `${DIR_MEDIA}/${fileName}`;
-        if (fs.existsSync(file)) {
-            const media = MessageMedia.fromFilePath(file);
-            client.sendMessage(number, media ,{ sendAudioAsVoice: true });
-
-        }
+        // number = cleanNumber(number || 0)
+        // const file = `${DIR_MEDIA}/${fileName}`;
+        // if (fs.existsSync(file)) {
+        //     const media = MessageMedia.fromFilePath(file)
+            if(provider === 'baileys'){baileys.sendMediaVoiceNote(client, number, fileName)}
+            else{wwebjs.sendMediaVoiceNote(client, number, fileName)}
+            // client.sendMessage(number, media ,{ sendAudioAsVoice: true });
+        // }
     }catch(e) {
         throw e;
 }
@@ -58,13 +65,15 @@ const sendMedia = (client, number = null, fileName = null, trigger = null) => {
  * Enviamos un mensaje simple (texto) a nuestro cliente
  * @param {*} number 
  */
-const sendMessage = async (client, number = null, text = null, trigger = null, regla) => { //MOD by CHV - Agregamos el parametro "regla" para guardarlo en "chats/numero.json"
+const sendMessage = async (client, number = null, text = null, regla) => { //MOD by CHV - Agregamos el parametro "regla" para guardarlo en "chats/numero.json"
     setTimeout(async () => {
-    number = cleanNumber(number)
-    const message = text
-    client.sendMessage(number, message);
+    // number = cleanNumber(number)
+    // const message = text
+    if(provider === 'baileys'){baileys.sendMessage(client, number, text, regla)}
+    else{wwebjs.sendMessage(client, number, text, regla)}
+    // client.sendMessage(number, message);
     // console.log(number, message, regla)
-    await readChat(number, message, trigger, regla) //MOD by CHV - Agregamos el parametro "regla"
+    await readChat(number, message, regla) //MOD by CHV - Agregamos el parametro "regla"
     console.log(`⚡⚡⚡ Enviando mensajes....`);
     // console.log("*********************  SEND MESSAGE  **************************************");
    },DELAY_TIME)
@@ -76,13 +85,14 @@ const sendMessage = async (client, number = null, text = null, trigger = null, r
  */
 const sendMessageButton = async (client, number = null, text = null, actionButtons) => {
     setTimeout(async () => {
-        number = cleanNumber(number)
-        const { title = null, message = null, footer = null, buttons = [] } = actionButtons;
-        let button = new Buttons(remplazos(message, client),[...buttons], remplazos(title, client), remplazos(footer, client));
-        await readChat(number, message, actionButtons)
-        client.sendMessage(number, button);
+        if(provider === 'baileys'){baileys.sendMessageButton(client, number, text, actionButtons)}
+        else{wwebjs.sendMessageButton(client, number, text, actionButtons)}
+        // number = cleanNumber(number)
+        // const { title = null, message = null, footer = null, buttons = [] } = actionButtons;
+        // let button = new Buttons(remplazos(message, client),[...buttons], remplazos(title, client), remplazos(footer, client));
+        await readChat(number, message)
+        // client.sendMessage(number, button);
         console.log(`⚡⚡⚡ Enviando mensajes (botones)....`);
-        // console.log("sendMessageButton.");
     }, DELAY_TIME)
     // console.log("************************  SEND MESSAGE BUTTON ***********************************");
 }
@@ -95,12 +105,14 @@ const sendMessageList = async (client, number = null, text = null, actionList) =
     setTimeout(async () => {
         // console.log("**********************   client   **************************")
         // console.log(client)
-        number = cleanNumber(number)
-        const { body = null, buttonText = null, sections = [], title = null, footer = null } = actionList;
-        let aList = new List( remplazos(body, client),remplazos(buttonText, client),[...sections],remplazos(title, client),remplazos(footer, client));
-        client.sendMessage(number, aList);
-        await readChat(number, message, actionList)
-        console.log('⚡⚡⚡ Enviando lista a '+number+' ....');
+        // number = cleanNumber(number)
+        // const { body = null, buttonText = null, sections = [], title = null, footer = null } = actionList;
+        // let aList = new List( remplazos(body, client),remplazos(buttonText, client),[...sections],remplazos(title, client),remplazos(footer, client));
+        if(provider === 'baileys'){baileys.sendMessageList(client, number, text, actionList)}
+        else{wwebjs.sendMessageList(client, number, text, actionList)}
+        // client.sendMessage(number, aList);
+        await readChat(number, message)
+        // console.log('⚡⚡⚡ Enviando lista a '+number+' ....');
     }, DELAY_TIME)
 }
 
@@ -130,9 +142,9 @@ const lastTrigger = (number) => new Promise((resolve, reject) => {
  * @param {*} number 
  * @param {*} message 
  */
-const readChat = async (number, message, trigger = null, regla) => { //MOD by CHV - Agregamos el parametro "regla" para guardarlo en "chats/numero.json"
+const readChat = async (number, message, regla) => { //MOD by CHV - Agregamos el parametro "regla" para guardarlo en "chats/numero.json"
     number = cleanNumber(number)
-    await saveMessage( message, trigger, number, regla ) //MOD by CHV - Agregamos "regla"
+    await saveMessage( message, number, regla ) //MOD by CHV - Agregamos "regla"
     // console.log('Saved')
 }
 

@@ -3,7 +3,7 @@ const middlewareClient = (client = null) => async (req, res, next) => {
 
         if(!client){
             res.status(409)
-            console.log(client)
+            // console.log(client)
             res.send({ error: 'Error de client.' }) 
         }else{
             req.clientWs = client;

@@ -47,10 +47,10 @@ getMessages = ( number ) => new Promise((resolve,reejct) => {
     }
 })
 
-saveMessageMysql = ( message, date, trigger, number ) => new Promise((resolve,reejct) => {
+saveMessageMysql = ( message, date, number ) => new Promise((resolve,reejct) => {
     try {
         connection.query(
-        `INSERT INTO ${DATABASE_NAME}.messages  `+"( `message`, `date`, `trigger`, `number`)"+` VALUES ('${message}','${date}','${trigger}', '${number}')` , (error, results) => {
+        `INSERT INTO ${DATABASE_NAME}.messages  `+"( `message`, `date`, `number`)"+` VALUES ('${message}','${date}', '${number}')` , (error, results) => {
             if(error) {
                 //TODO esta parte es mejor incluirla directamente en el archivo .sql template
                 console.log('DEBES DE CREAR LA TABLA DE MESSAGE')

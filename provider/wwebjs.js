@@ -14,7 +14,7 @@ app.use('/', require('../routes/web'))
 
 initBot = async () => {
     console.log("WaWebJS Init")
-    client = new Client({
+    const client = new Client({
         authStrategy: new LocalAuth(),
         puppeteer: { headless: true, args: ['--no-sandbox','--disable-setuid-sandbox'] }
     });
@@ -59,16 +59,4 @@ initBot = async () => {
     return client
 }
 
-/**
- * Regresa las variables from, body, name y hasMedia de el objeto del mensaje.
- * @param {*} msg 
- * @returns from, body, name, hasMedia
- */
-function traeVariables(msg){
-    const { from, body, hasMedia } = msg;
-    let name = msg?._data?.notifyName
-    // console.log("fromBody=", msg?._data)
-    return {"from":from, "body":body, "name":name, "hasMedia":hasMedia}
-}
-
-module.exports = { initBot, traeVariables }
+module.exports = { initBot }

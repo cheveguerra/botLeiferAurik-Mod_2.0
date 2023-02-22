@@ -17,10 +17,11 @@ const mime = require('mime-types')
  * @param {*} number
  * @param {*} mediaInput
  * @param {*} message
- * @example await sendMessage('+XXXXXXXXXXX', 'https://dominio.com/imagen.jpg' | 'img/imagen.jpg')
+ * @param {*} caption
+ * @example await sendMessage(client, '+XXXXXXXXXXX', 'https://dominio.com/imagen.jpg' | 'img/imagen.jpg', 'caption')
  */
-const sendMedia = async (client, number, fileName, text) => {
-    console.log("SendMedia = ", number, fileName, text)
+const sendMedia = async (client, number, fileName, caption = null) => {
+    console.log("SendMedia Baileys = ", number, fileName, caption)
     // const fileDownloaded = await generalDownload(imageUrl)
 
     const file = `${DIR_MEDIA}/${fileName}`;
@@ -28,9 +29,9 @@ const sendMedia = async (client, number, fileName, text) => {
     if (fs.existsSync(file)) {
         console.log("ARCHIVO EXISTE");
         const mimeType = mime.lookup(file)
-        if (mimeType.includes('image')) return sendImage(client, number, file, text)
-        if (mimeType.includes('video')) return sendVideo(client, number, file, text)
-        if (mimeType.includes('audio')) return sendAudio(client, number, file, text)
+        if (mimeType.includes('image')) return sendImage(client, number, file, caption)
+        if (mimeType.includes('video')) return sendVideo(client, number, file, caption)
+        if (mimeType.includes('audio')) return sendAudio(client, number, file, caption)
         return sendFile(client, number, file)
     }
 }
@@ -63,7 +64,6 @@ const sendImage = async (client, number, filePath, text) => {
         if (fs.existsSync(file)) {
             const media = MessageMedia.fromFilePath(file);
             client.sendMessage(number, media ,{ sendAudioAsVoice: true });
-
         }
     }catch(e) {
         throw e;
@@ -74,13 +74,13 @@ const sendImage = async (client, number, filePath, text) => {
  * Enviamos un mensaje simple (texto) a nuestro cliente
  * @param {*} number 
  */
-const sendMessage = async (client, number = null, text = null, trigger = null, regla) => { //MOD by CHV - Agregamos el parametro "regla" para guardarlo en "chats/numero.json"
+const sendMessage = async (client, number = null, text = null, regla = null) => { //MOD by CHV - Agregamos el parametro "regla" para guardarlo en "chats/numero.json"
     if(text !== undefined && text != null){
         setTimeout(async () => {
         number = cleanNumber(number)
-        await client.sendMessage(number, { text: text })
+        client.sendMessage(number, { text: text })
         // console.log(number, message, regla)
-        await readChat(number, text, trigger, regla) //MOD by CHV - Agregamos el parametro "regla"
+        await readChat(number, text, regla) //MOD by CHV - Agregamos el parametro "regla"
         console.log(`⚡⚡⚡ Enviando mensajes....`);
         // ingresarDatos(number, text, 'Salida', 'Bot Pruebas')
         // console.log("*********************  SEND MESSAGE  **************************************");
@@ -97,7 +97,7 @@ const sendMessageButton2 = async (client, number = null, text = null, actionButt
         number = cleanNumber(number)
         const { title = null, message = null, footer = null, buttons = [] } = actionButtons;
         let button = new Buttons(remplazos(message, client),[...buttons], remplazos(title, client), remplazos(footer, client));
-        await readChat(number, message, actionButtons)
+        await readChat(number, message)
         client.sendMessage(number, button);
         console.log(`⚡⚡⚡ Enviando mensajes (botones)....`);
         // console.log("sendMessageButton.");
@@ -122,10 +122,11 @@ const sendMessageButton = async (client, number, text = null, actionButtons) => 
         type: 1,
     }))
     text = remplazos(`*${title}*\n${message}`, client)
-    await readChat(number, message, actionButtons)
-    // console.log("sendMessageButton:", text, templateButtons)
     const buttonMessage = { text, footer, buttons: templateButtons, headerType: 1 }
+    console.log("sendMessageButton:", buttonMessage)
+    console.log(templateButtons)
     return client.sendMessage(number, buttonMessage)
+    await readChat(number, message)
 }
 
 /**
@@ -133,7 +134,7 @@ const sendMessageButton = async (client, number, text = null, actionButtons) => 
  * @param {*} number
  */
 const sendMessageList = async (client, number = null, text = null, actionList) => {
-    console.log("****************   baileys send")
+    // console.log("****************   baileys send ", number, text, actionList)
     setTimeout(async () => {
         // console.log("**********************   client   **************************")
         number = cleanNumber(number)
@@ -145,10 +146,10 @@ const sendMessageList = async (client, number = null, text = null, actionList) =
             buttonText: remplazos(buttonText, client),
             sections
           }
-        console.log(theList)
+        // console.log(theList)
         // console.log(sections[0])
         client.sendMessage(number, theList);
-        await readChat(number, body, actionList)
+        await readChat(number, body)
         console.log('⚡⚡⚡ Enviando lista a '+number+' ....');
     }, DELAY_TIME)
 }
@@ -179,9 +180,9 @@ const lastTrigger = (number) => new Promise((resolve, reject) => {
  * @param {*} number 
  * @param {*} message 
  */
-const readChat = async (number, message, trigger = null, regla) => { //MOD by CHV - Agregamos el parametro "regla" para guardarlo en "chats/numero.json"
+const readChat = async (number, message, regla = null) => { //MOD by CHV - Agregamos el parametro "regla" para guardarlo en "chats/numero.json"
     number = cleanNumber(number)
-    await saveMessage( message, trigger, number, regla ) //MOD by CHV - Agregamos "regla"
+    await saveMessage( message, number, regla ) //MOD by CHV - Agregamos "regla"
     // console.log('Saved')
 }
 

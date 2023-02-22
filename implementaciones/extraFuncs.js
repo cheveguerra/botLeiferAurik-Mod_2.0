@@ -1,4 +1,10 @@
 const fs = require('fs')
+
+function alertas(ctx){
+    console.log("LISTO - ALERTAS")
+    console.log(ctx)
+}
+
 /**
  * Regresa un número random entre los parametros min y max dados.
  * @param {*} min 
@@ -192,6 +198,47 @@ function traeMensajes(from){ //MOD by CHV - Agregamos para traer el historial de
 }
 
 /**
+ * Regresa las variables from, body, name y hasMedia del objeto del mensaje.
+ * @param {*} msg 
+ * @returns from, body, name, hasMedia
+ */
+function traeVariablesFromMsg(msg){
+    if(provider == 'baileys'){return traeVariablesFromMsgBaileys(msg)}
+    else{return traeVariablesFromMsgWWebJS(msg)}
+}
+
+function traeVariablesFromMsgBaileys(msg){
+    const { remoteJid } = msg.messages[0].key
+    const { pushName } = msg.messages[0]
+    let theBody = msg.messages[0].message?.conversation || msg.messages[0].message?.buttonsResponseMessage?.selectedDisplayText || msg.messages[0].message?.listResponseMessage?.title
+    let from = remoteJid
+    let body = theBody
+    let name = pushName
+    let hasMedia = false
+    // console.log("fromBody=", from, body, name)
+    return {"from":from, "body":body, "name":name, "hasMedia":hasMedia}
+}
+
+function traeVariablesFromMsgWWebJS(msg){
+    const { from, body, hasMedia } = msg;
+    let name = msg?._data?.notifyName
+    // console.log("fromBody=", msg?._data)
+    return {"from":from, "body":body, "name":name, "hasMedia":hasMedia}
+}
+
+/**
+ * Regresa las variables from, body, name, hasMedia y steps del objeto del cliente.
+ * @param {*} client 
+ * @returns from, body, name, hasMedia y step
+ */
+function traeVariablesFromClient(client){
+    // console.log(client)
+    const { body, from, name, hasMedia, step } = client.theMsg
+    const { pushName } = client.theMsg
+    return {"from":from, "body":body, "name":name, "hasMedia":hasMedia, "step":step}
+}
+
+/**
  * Regresa el número limpio, sin @x.xxx
  * @param {*} from 
  * @returns 
@@ -203,6 +250,13 @@ function soloNumero(from){
     return soloNum
 }
 
+/**
+ * Agrega las variables msg, body, from, hasMedia, name y numero al objeto del cliente.
+ * @param {*} client 
+ * @param {*} msg 
+ * @param {*} vars 
+ * @returns 
+ */
 function agregaVars(client, msg, vars){
     const { from, body, name, hasMedia } = vars
     client.theMsg = msg;
@@ -265,7 +319,7 @@ async function variousFuncs(){
                 else if(rnd==3){caritas = "🧔🏽👧🏽";}
                 else if(rnd==4){caritas = "👧🏽🧔🏽";}
                 else if(rnd==5){caritas = "👩🏻‍🦰🧔🏽";}
-                else if(rnd==6){caritas = "🧔🏽👩🏻‍🦰";}
+                else if(rnd==6){caritas = "🧔🏽👩🏻‍🦰";}s
                 if(sp % 15 === 0){console.log("********  VAN 15, HACEMOS PAUSA DE 10 SEGUNDOS ********"); await sleep(10000);} //
                 console.log(`=============   Mandamos el mensaje ${sp}   ==============`);
                 var elTextoDelMensaje = caritas + " *" + saludo + "amigo tendero*  ❗❗👋🏻\n🕊️ *GUNA* trae para ti dinámicas digitales, con las que podrás participar para ganar increíbles premios. 🏆💸💰\nSigue los siguientes pasos: 😃\n*1.* 📲Sigue la página de Yo Soy Guna en Facebook en la siguiente liga  ➡️  https://www.facebook.com/yosoyguna\n*2.* 👉🏻Es importante des click en el botón Me Gusta 👍\n*3.* 🧐Sigue la dinámica que publicaremos , subiendo tu foto 📸 con los siguientes #yosoyguna #gunatenderos #gunachampions\n*4.* 🥳🎉En esta misma página , podrás ver publicados los ganadores🏅 y el tiempo en que serán elegidos. 💲 Además de tener acceso a increíbles promociones 🤑";
@@ -280,7 +334,6 @@ async function variousFuncs(){
         }
         retardo();
     }
-
 
     if(body == "/botones"){
         // Asi se mandan botones **directamente** con el cliente de whatsapp-web.js "client.sendMessage(from, productList)"
@@ -455,4 +508,4 @@ function removeDiacritics (str) {
 // var paragraph = "L'avantage d'utiliser le lorem ipsum est bien     évidemment de pouvoir créer des maquettes ou de remplir un site internet de contenus qui présentent un rendu s'approchant un maximum du rendu final. \n Par défaut lorem ipsum ne contient pas d'accent ni de caractères spéciaux contrairement à la langue française qui en contient beaucoup. C'est sur ce critère que nous proposons une solution avec cet outil qui générant du faux-texte lorem ipsum mais avec en plus, des caractères spéciaux tel que les accents ou certains symboles utiles pour la langue française. \n L'utilisation du lorem standard est facile d’utilisation mais lorsque le futur client utilisera votre logiciel il se peut que certains caractères spéciaux ou qu'un accent ne soient pas codés correctement. \n Cette page a pour but donc de pouvoir perdre le moins de temps possible et donc de tester directement si tous les encodages de base de donnée ou des sites sont les bons de plus il permet de récuperer un code css avec le texte formaté !";
 // alert(removeDiacritics(paragraph));
 
-module.exports = { removeDiacritics, traeMensajes, chkFile, getRandomInt, remplazos, soloNumero, agregaVars }
+module.exports = { removeDiacritics, traeMensajes, chkFile, getRandomInt, remplazos, soloNumero, agregaVars, traeVariablesFromClient, traeVariablesFromMsg }

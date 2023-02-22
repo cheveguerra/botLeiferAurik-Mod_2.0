@@ -218,19 +218,18 @@ const getIA = (message) => new Promise((resolve, reject) => {
 /**
  * 
  * @param {*} message 
- * @param {*} date 
- * @param {*} trigger 
+ * @param {*} date
  * @param {*} number
  * @returns 
  */
-const saveMessage = ( message, trigger, number, regla ) => new Promise( async (resolve, reject) => { //MOD by CHV - Agregamos el partametro "regla" para poder guardarlo en "chats/numero.json"
+const saveMessage = ( message, number, regla ) => new Promise( async (resolve, reject) => { //MOD by CHV - Agregamos el partametro "regla" para poder guardarlo en "chats/numero.json"
      switch ( process.env.DATABASE ) {
          case 'mysql':
-             resolve( await saveMessageMysql( message, trigger, number ) )
+             resolve( await saveMessageMysql( message, number ) )
              break;
          case 'none':
-             resolve( await saveMessageJson( message, trigger, number, regla) ) //MOD by CHV - Agregamos el parametro "regla"
-             console.log("Guardamos mensaje JSON=", message)
+             resolve( await saveMessageJson( message, number, regla) ) //MOD by CHV - Agregamos el parametro "regla"
+            //  console.log("Guardamos mensaje JSON =", message)
              break;
          default:
              resolve(true)
