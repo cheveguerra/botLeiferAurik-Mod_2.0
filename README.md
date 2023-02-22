@@ -4,7 +4,7 @@
 Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https://github.com/leifermendez/bot-whatsapp) y tiene las siguientes modificaciones:
 
  - Permite **submenus**.
-    - Un submenú es un paso que **sólo se dispara** cuando el paso anterior es el especificado, los submenus se definen agregando el parametro "```pasoRequerido```" en el **response.json**, entonces si queremos que el paso **zapatos** solo se muestre cuando antes pasamos por el **menú inicial**, agregamos el parámetro "pasoRequerido" a la regla "zapatos", de esta forma si alguien pone el número **1** sin estar en el menú principal, **no** los va a mandar a **zapatos**.
+    - Un submenú es un paso que **sólo se dispara** cuando el paso anterior (regla) es el especificado, los submenus se definen agregando el parametro "```pasoRequerido```" en el **response.json**, entonces si queremos que el paso **zapatos** solo se muestre cuando antes pasamos por el **menú inicial**, agregamos el parámetro "pasoRequerido" a la regla "zapatos", de esta forma si alguien pone el número **1** sin estar en el menú principal, **no** los va a mandar a **zapatos**.
     
     ```json
     "menu":{
@@ -95,7 +95,7 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
         }
     }
     ```
- - Permite conectarse a **APIs**, por ejemplo: Google Sheets, Excel y cualquier otra API que se pueda llamar desde una función, esto se hace agregando el parámetro "```funcion```" al **response.json**, la funcion especificada recibe automaticamente una variable con toda la información del *mensaje recibido*.
+ - Permite ejecutar **funciones** y conectarse a **APIs**, por ejemplo: Google Sheets, Excel y cualquier otra API que se pueda llamar desde una función, esto se hace agregando el parámetro "```funcion```" al **response.json**, la funcion especificada recibe automaticamente una variable con toda la información del *mensaje recibido*, Nota: Si se especifica una funcion, esa regla ya no usa los parámetros de ```replyMessage```, ```media``` o ```goto```, solo toma en cuenta el parámetro pasoRequerido y ejecuta la función.
 
  ```response.json```
  ```
@@ -145,6 +145,8 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
         "goto":"paso1"
     },
  ```
+ - Función ```vamosA(from, "regla")``` (goto), esta función nos permite decirle al bot que él ```pasoAnterior``` es él que estamos especificando en ```vamosA```, de esta forma solo se van a disparar reglas que tengan como ```pasoRequerido``` la que estamos indicando. 
+
  - Las modificaciones están enfocadas al uso de los archivos __initial.json__ y __response.json__, yo no uso MySQL o DialogFlow, así que no sé si las modificaciones funcionen con esos modulos, en particular el __remplazo %msjant_XX%__ depende de los archivos __JSON__ que se crean en el directorio "chats".
  - Tiene agregado el parche de **botones y listas**, así que funcionan sin problema (las listas no funcionan si el bot esta **ligado** a un número que use **Whatsapp Business**).
  - Tiene los ultimos parches de **DialogFlow** (27-dic-2022) (When Dialogflow asks for an Image, then **Upload it to Google Drive** and then generate Shared Link)
