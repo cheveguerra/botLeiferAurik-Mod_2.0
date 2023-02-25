@@ -17,7 +17,6 @@ const { sendMedia, sendMessage, sendMessageButton, sendMessageList, readChat } =
 const { stepsInitial, vamosA, traeUltimaVisita } = require('./adapter/index');//MOD by CHV - Agregamos para utilizar remplazos y stepsInitial
 const { removeDiacritics, getRandomInt, remplazos, soloNumero, agregaVars, traeVariablesFromMsg, traeVariablesFromClient } = require('./implementaciones/extraFuncs')
 const appFuncs = require('./implementaciones/appFuncs')
-// import * as appFuncs from './implementaciones/appFuncs'
 // const { guardaXLSDatos, leeXLSDatos} = require('./Excel');
 // const { ingresarDatos, leerDatos } = require('./implementaciones/sheets')
 const MULTI_DEVICE = process.env.MULTI_DEVICE || 'true';
@@ -35,17 +34,13 @@ let blackList = ['34692936038', '34678310819', '34660962689', '34649145761','346
 // ############################################################################################################
 
 const arrayOfAppFuncs = Object.entries(appFuncs);
-// console.log(arrayOfAppFuncs)
-// console.log(arrayOfAppFuncs[0][0], arrayOfAppFuncs[0][1])
 for(thisF = 0; thisF < arrayOfAppFuncs.length; thisF++){
     // console.log(arrayOfAppFuncs[thisF][0], "|", arrayOfAppFuncs[thisF][1])
-    // console.log(eval(arrayOfAppFuncs[thisF][0]), "|", arrayOfAppFuncs[thisF][1])
     global[arrayOfAppFuncs[thisF][0]] = arrayOfAppFuncs[thisF][1]
-    // eval(arrayOfAppFuncs[thisF][0]) = eval(arrayOfAppFuncs[thisF][1])
 }
 
 /**
- * Escuchamos cuando entra un mensaje
+ * Escuchamos cuando entra un mensaje.
 */
 function listenMessage(client){
     if(provider == 'wwebjs'){ client0 = client; messageEV = 'message' } // Usamos WWebJS.
@@ -54,7 +49,7 @@ function listenMessage(client){
         if(provider == 'wwebjs'){ msg.type = 'notify' }
         const { from, body, name, hasMedia } = traeVariablesFromMsg(msg);
         if (vars[from] === undefined) vars[from] = []
-        // Este bug lo reporto Lucas Aldeco Brescia para evitar que se publiquen estados
+        // Este bug lo reporto Lucas Aldeco Brescia para evitar que se publiquen estados.
         if (from === 'status@broadcast' || msg.type !== 'notify') { console.log("++++++  status@broadcast o tipo mensaje = ", msg.type); return }
         console.log("+++++++++++++++++++++++++++++++++++++  INICIO  +++++++++++++++++++++++++++++++++++++++");
         console.log("HORA:"+new Date().toLocaleTimeString()+" FROM:"+from+", BODY:"+body+", HASMEDIA:"+hasMedia+", DEVICETYPE:"+client.theMsg?.deviceType);
@@ -69,6 +64,27 @@ function listenMessage(client){
         await readChat(number, message, key) //MOD by CHV - Agregamos key/regla para guardarla en "chats/numero.json"
         client = agregaVars(client, msg, traeVariablesFromMsg(msg))
         client.theMsg['key'] = key
+        // console.log(client)
+
+
+        if (body == '/bt') {
+            // send a buttons message with image header!
+            const buttons = [
+                { buttonId: 'id1', buttonText: { displayText: 'Button 1' }, type: 1 },
+                { buttonId: 'id2', buttonText: { displayText: 'Button 2' }, type: 1 },
+                { buttonId: 'id3', buttonText: { displayText: 'Button 3' }, type: 1 }
+            ]
+
+            const buttonMessage = {
+                image: { url: 'https://media2.giphy.com/media/VQJu0IeULuAmCwf5SL/giphy.gif' },
+                caption: "Hi it's button message",
+                footer: 'Hello World',
+                buttons: buttons,
+                headerType: 4
+            }
+            const sendMsg = await client.sendMessage(from, buttonMessage)
+
+        }
 
         /**
          * Si el mensaje trae un archivo multimedia, aquí lo guardamos.
