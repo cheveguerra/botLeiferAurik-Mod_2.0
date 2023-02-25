@@ -148,7 +148,7 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
  - **Función** ```vamosA(from, 'regla')``` (goto), esta función nos permite decirle al bot que el ```pasoAnterior``` es el que estamos especificando en ```vamosA```, de esta forma solo se van a disparar reglas que tengan como ```pasoRequerido``` la que estamos indicando. 
  - Se agregó la posibilidad de usar **Baileys** como proveedor, para esto solo hay que cambiar la variable ```PROVIDER``` en el archivo ```.env```, usamos "```wwebjs```" para *whatsapp-web.js* y "```baileys```" para *Baileys*.
 
- - Las modificaciones están enfocadas al uso de los archivos __initial.json__ y __response.json__, yo no uso MySQL o DialogFlow, así que no sé si las modificaciones funcionen con esos modulos, en particular el __remplazo %msjant_XX%__ depende de los archivos __JSON__ que se crean en el directorio "chats".
+ - Las modificaciones están enfocadas al uso de los archivos ~~__initial.json__ y~~ __response.json__, yo no uso MySQL o DialogFlow, así que no sé si las modificaciones funcionen con esos modulos, en particular el __remplazo %msjant_XX%__ depende de los archivos __JSON__ que se crean en el directorio "chats".
  - Tiene agregado el parche de **botones y listas**, así que funcionan sin problema (las listas no funcionan si el bot esta **ligado** a un número que use **Whatsapp Business**).
  - Tiene los ultimos parches de **DialogFlow** (27-dic-2022) (When Dialogflow asks for an Image, then **Upload it to Google Drive** and then generate Shared Link)
 
