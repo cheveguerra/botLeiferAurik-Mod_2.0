@@ -80,21 +80,14 @@ const createClient =  () => {
     });
 }
 
-const isValidNumber_wwebjs = (rawNumber) => {
+const isValidNumber = (rawNumber) => {
     const regexGroup = /\@g.us\b/gm;
     const exist = rawNumber.match(regexGroup);
     console.log("IsValidWawebJS", rawNumber, exist, !exist)
     return !exist
 }
 
-const isValidNumber_baileys = (rawNumber) => {
-    const regexGroup = /\@g.us\b/gm;
-    const exist = rawNumber.match(regexGroup);
-    // console.log("IsValidBaileys", rawNumber, exist, !exist)
-    return !exist
-}
-
-const isValidNumber = eval(`isValidNumber_${provider}`)
+// const isValidNumber = eval(`isValidNumber_${provider}`)
 const cleanNumber = eval(`cleanNumber_${provider}`)
 
 module.exports = {cleanNumber, saveExternalFile, generateImage, checkIsUrl, checkEnvFile, createClient, isValidNumber }

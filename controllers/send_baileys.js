@@ -121,6 +121,33 @@ const sendMessageButton = async (client, number, text = null, actionButtons) => 
         buttonText: { displayText: btn.body },
         type: 1,
     }))
+    let mensaje2 = ""
+    if (title != null) { mensaje2 = "*" + title + "*\n\n" + message }
+    else { mensaje2 = message }
+    text = remplazos(mensaje2, client)
+    const buttonMessage = { text, footer, buttons: templateButtons, headerType: 1 }
+    console.log("sendMessageButton:", buttonMessage)
+    console.log(templateButtons)
+    return client.sendMessage(number, buttonMessage)
+    await readChat(number, message)
+}
+
+/**
+ *
+ * @param {string} number
+ * @param {string} text
+ * @param {string} footer
+ * @param {Array} buttons
+ * @example await sendMessage("+XXXXXXXXXXX", "Your Text", "Your Footer", [{"buttonId": "id", "buttonText": {"displayText": "Button"}, "type": 1}])
+ */
+const sendMessageButtonTemplate = async (client, number, text = null, actionButtons) => {
+    number = cleanNumber(number)
+    const { title = null, message = null, footer = null, buttons = [] } = actionButtons;
+    const templateButtons = buttons.map((btn, i) => ({
+        buttonId: `id-btn-${i}`,
+        buttonText: { displayText: btn.body },
+        type: 1,
+    }))
     text = remplazos(`*${title}*\n${message}`, client)
     const buttonMessage = { text, footer, buttons: templateButtons, headerType: 1 }
     console.log("sendMessageButton:", buttonMessage)
