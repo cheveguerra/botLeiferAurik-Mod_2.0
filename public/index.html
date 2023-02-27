@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Whatsapp API by Ngekoding</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- This parts is optional, just for improve the styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            padding: 20px;
+        }
+
+        #app {
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        #qrcode {
+            /* display: none; */
+            /* Showed when qr code received */
+            width: 100%;
+            margin: 10px 0;
+            border: 1px solid #efefef;
+            border-radius: 4px;
+        }
+
+        ul.logs {
+            max-height: 150px;
+            padding: 15px 15px 15px 30px;
+            margin-top: 5px;
+            border-radius: 4px;
+            overflow-y: auto;
+            background: #efefef;
+            color: #666;
+            font-size: 14px;
+        }
+
+        ul.logs li:first-child {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app">
+        <div style="text-align:center;">
+            <h1>Whatsapp API</h1>
+            <br>
+            <div id="qrDiv" style=""display:none;>
+                <img src="bot.qr.png" alt="QR Code" id="qrcode" style="width:300px">
+                <div id="countdown" style="margin-top:-25px"></div>
+            </div>
+            <div id="postman" style="display:flex;justify-content:center;">
+                   <table>
+                    <tr>
+                        <td>Número:</td><td><input type="text" id="number" value="5215554192439"></td>
+                    </tr>
+                    <tr>
+                        <td>Mensaje:</td><td><input type="text" id="message" value="test1"></td>
+                    </tr>
+                    <tr>
+                        <td> </td><td align="center"><input type="button" id="btnMessage" value="Enviar Mensaje"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <input type="button" id="chkConn" value="ChkConn">
+        <br>
+        <h3>Logs:</h3>
+        <ul class="logs"></ul>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js" crossorigin="anonymous"></script>
+    <script>
+        let downloadTimer;
+        let IntervaloABorrar
+        let waReady = false
+        $(document).ready(function () {
+            if(waReady == false) { $("#btnMessage").attr("disabled", true)}
+            var socket = io();
+            socket.on('message', function (msg) {
+                $('.logs').prepend($('<li>').text(msg));
+                    console.log("|"+msg+"|");
+                    if(msg == 'Connecting...') { $('#qrDiv').hide(); $('#postman').show(); waReady  = false, $("#btnMessage").attr("disabled", true) }
+                    if(msg == 'Whatsapp is ready!'){ $("#btnMessage").attr("disabled", false) }
+            });
+            socket.on('qr', function (src) {
+                var extra = Date.now();
+                console.log(extra)
+                $('#qrcode').attr('src', src+'?'+extra);
+                $('#postman').hide();
+                $('#qrDiv').show();
+                waReady = false;
+                $("#btnMessage").attr("disabled", true)
+                startImer()
+            });
+            socket.on('ready', function (data) {
+                $('#qrDiv').hide();
+                $('#postman').show();
+                clearInterval(IntervaloABorrar);
+            });
+            socket.on('authenticated', function (data) {
+                $('#qrDiv').hide();
+                $('#postman').show();
+            });
+            socket.on("connect_error", (err) => {
+                $('.logs').prepend($('<li>').text("¡Error de conexión!"));
+                    waReady = false
+                    $("#btnMessage").attr("disabled", true)
+                console.log(`connect_error due to ${err.message}`);
+            });
+            socket.on('incomming', function(){
+                if(waReady == false){
+                    $('.logs').prepend($('<li>').text('Whatsapp is ready!'));
+                    console.log("incomming")
+                    $("#btnMessage").attr("disabled", false)
+                    waReady = true
+                }
+            })
+            socket.on('connOk', function(){
+                console.log("connOk")
+                if (waReady == false) {
+                    $('.logs').prepend($('<li>').text('Whatsapp is ready!'));
+                    console.log("incomming")
+                    $("#btnMessage").attr("disabled", false)
+                    waReady = true
+                }
+            })
+            $("#chkConn").on('click', async function () {
+                console.log("check Conn");
+                socket.emit('checkConn', 'check conn');
+            })
+            function revisaConexion(){
+                var checkConnection = setInterval(function () {
+                    if (waReady == false) {
+                        socket.emit('checkConn', 'check conn');
+                        console.log("chk conn")
+                        IntervaloABorrar = checkConnection
+                        clearInterval(IntervaloABorrar)
+                        console.log("borrado " + IntervaloABorrar)
+                    }
+                }, 2000);
+            }
+            revisaConexion();
+        });
+        function startImer(){
+            clearInterval(IntervaloABorrar);
+            var timeleft = 60;
+            console.log(typeof downloadTimer)
+            var downloadTimer = setInterval(function () {
+                if (timeleft <= 0) {
+                    IntervaloABorrar = downloadTimer
+                    clearInterval(IntervaloABorrar);
+                    document.getElementById("countdown").innerHTML = "Finished";
+                    // startImer();
+                } else {
+                    document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                }
+                console.log(typeof downloadTimer + "|" + downloadTimer)
+                IntervaloABorrar = downloadTimer
+                timeleft -= 1;
+            }, 1000);
+        }
+        $('#btnMessage').on('click', function(){
+            console.log("msg clicked")
+         $.post("http://localhost:3005/send-message/", { "number": $("#number").val(), "message": $("#message").val() })
+         .done(function (data) {
+                 console.log(data.status);
+                 if(data.status == true){alert("¡Mensaje enviado!")}
+             });
+        }
+        )
+
+    </script>
+</body>
+
+</html>

@@ -15,8 +15,8 @@ var qr = require('qr-image');
  * Hace promesa el write
  * @param {*} base64
  */
-const baileyGenerateImage = async (base64, name = 'qr.png') => {
-    const PATH_QR = `${process.cwd()}/${name}`;
+const baileyGenerateImage = async (base64, name = 'bot.qr.png') => {
+    const PATH_QR = `${process.cwd()}/public/${name}`;
     let qr_svg = qr.image(base64, { type: 'png', margin: 4 });
 
     const writeFilePromise = () =>
@@ -87,14 +87,14 @@ initBailey = async () => {
             if (qr) {
                 console.log('require_action', {
                     instructions: [
-                        `Debes escanear el QR Code para iniciar ${globalVendorArgs.name}.qr.png`,
+                        `Debes escanear el QR Code para iniciar bot.qr.png`,
                         `Recuerda que el QR se actualiza cada minuto `,
                         `Necesitas ayuda: https://link.codigoencasa.com/DISCORD`,
                     ],
                 });
                 await baileyGenerateImage(
                     qr,
-                    `${globalVendorArgs.name}.qr.png`
+                    `bot.qr.png`
                 );
             }
         });

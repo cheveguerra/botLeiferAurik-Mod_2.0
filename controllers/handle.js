@@ -50,8 +50,8 @@ const checkIsUrl = (path) => {
 }
 
 const generateImage = (base64, cb = () => {}) => {
-    let qr_svg = qr.image(base64, { type: 'svg', margin: 4 });
-    qr_svg.pipe(require('fs').createWriteStream('./mediaSend/qr-code.svg'));
+    let qr_svg = qr.image(base64, { type: 'png', margin: 4 });
+    qr_svg.pipe(require('fs').createWriteStream('./public/bot.qr.png'));
     console.log(`⚡ Recuerda que el QR se actualiza cada minuto ⚡'`);
     console.log(`⚡ Actualiza F5 el navegador para ver el QR mas reciente⚡`);
     cb()
