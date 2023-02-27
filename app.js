@@ -26,7 +26,7 @@ let client0
 var dialogflowFilter = false;
 var newBody; //MOD by CHV - 
 var nuevaRespuesta; //MOD by CHV - Se agrego para los remplazos
-let blackList = ['34692936038', '34678310819', '34660962689', '34649145761','34630283553','34648827637','34630255646','14178973313']
+let blackList = ['346XXXX6038', '3467XXXX819', '34660XXXX89', '3464XXXX761','3463XXXX553','3464XXXX637','3463XXXX646','1417XXXX313']
 
 // ############################################################################################################
 // ##########################   AQUI SE DECLARAN LAS FUNCIONES PERSONALIZADAS DESDE   #########################
