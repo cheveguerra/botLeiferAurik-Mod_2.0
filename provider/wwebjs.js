@@ -1,6 +1,8 @@
-const { Client, LocalAuth, Buttons, List } = require('whatsapp-web.js');
+const { MessageMedia, Client, LocalAuth, Buttons, List } = require('whatsapp-web.js');
 const { sendMedia, sendMessage, sendMessageButton, sendMessageList, readChat } = require(`../controllers/send`);
+const mime = require('mime-types')
 require('dotenv').config()
+const fs = require('fs');
 const express = require('express');
 const bodyParser = require("body-parser");
 const cors = require('cors')
@@ -8,11 +10,14 @@ const qrcode = require('qrcode-terminal');
 const app = express();
 app.use(cors())
 app.use(express.json())
+// Use the express-fileupload middleware
 const server = require('http').Server(app)
 const port = process.env.PORT || 3000
 const { generateImage, checkEnvFile } = require('../controllers/handle')
 const { connectionReady } = require('../controllers/connection')
 const { body, validationResult } = require('express-validator');
+const fileUpload = require('express-fileupload');
+app.use(fileUpload());
 app.use('/', require('../routes/web'))
 
 
@@ -31,7 +36,7 @@ initBot = async () => {
     console.log("Iniciamos WaWebJS")
     client = new Client({
         authStrategy: new LocalAuth(),
-        puppeteer: { headless: true, args: ['--no-sandbox','--disable-setuid-sandbox'] }
+        pup: { headless: true, args: ['--no-sandbox','--disable-setuid-sandbox'] }
     });
     client.on('ready', (a) => {
         connectionReady()
@@ -86,7 +91,7 @@ initBot = async () => {
             client.on('ready', async () => {
                 socketioStatus = "wa_ready"
                 await socket.emit('ready', 'Whatsapp esta listo!');
-                await socket.emit('message', 'Whatsapp esta listo!');
+                await socket.emit('message', 'Whatsapp está listo!');
                 waReady = true
             });
 
@@ -112,9 +117,9 @@ initBot = async () => {
         }
         catch (e) {waReady = false }
 
-    });
+     });
     server.listen(port, () => {
-    console.log(`El servidor web esta listo en el puerto ${port} - http://localhost:${port}`);
+        console.log(`El servidor web esta listo en el puerto ${port} - http://localhost:${port}`);
     })
     const phoneNumberFormatter = function (number) {
         // 1. Eliminar caracteres que no sean números
@@ -217,6 +222,63 @@ initBot = async () => {
             });
         });
     });
+    // Send image
+    app.post('/send-image', async (req, res) => {
+        console.log("REQUEST=", req.body)
+        socks.emit('incomming', 'Image In')
+        const number = phoneNumberFormatter(req.body.number);
+        // const filename = req.body.image || null;
+        const caption = req.body.caption || null;
+        const { image } = req.files;
+        // If no image submitted, exit
+        if (!image) return res.sendStatus(400);
+        // Move the uploaded image to our upload folder
+        image.mv(__dirname + '/../mediaSend/' + image.name);
+        res.sendStatus(200);
+        const isRegisteredNumber = await checkRegisteredNumber(number);
+        if (!isRegisteredNumber) {
+            return res.status(422).json({
+                status: false,
+                message: 'The number is not registered'
+            });
+        }
+        // sendMedia(client, number, image.name, caption)
+        // `${__dirname}/../mediaSend`;
+        const file = `${__dirname}/../mediaSend/${image.name}`;
+        console.log("FILE="+file);
+        if (fs.existsSync(file)) {
+            console.log("ARCHIVO EXISTE");
+            const media = MessageMedia.fromFilePath(file);
+        }
+        const base64 = fs.readFileSync(file, { encoding: 'base64' })
+        const mimeType = mime.lookup(file)
+        const media = new MessageMedia(mimeType, base64)
+        client.sendMessage(number, media, { caption }).then(response => {
+            socks.emit('imgOk', 'image sent')
+            console.log("Imagen OK")
+            // res.status(200).json({
+            //     status: true,
+            //     response: response
+            // });
+
+        }).catch(err => {
+            socks.emit('imgKo', 'image NOT sent')
+            console.log("Imagen NOT OK")
+            // res.status(500).json({
+            //     status: false,
+            //     response: err
+            // });
+        });
+    });
+    // app.post('/upload', async (req, res) => {
+    //     // Get the file that was set to our field named "image"
+    //     const { image } = req.files;
+    //     // If no image submitted, exit
+    //     if (!image) return res.sendStatus(400);
+    //     // Move the uploaded image to our upload folder
+    //     image.mv(__dirname + '/../mediaSend/' + image.name);
+    //     res.sendStatus(200);
+    // });
 
     checkEnvFile();
     return client
