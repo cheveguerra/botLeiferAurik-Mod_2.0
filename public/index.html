@@ -54,7 +54,6 @@
 </head>
 
 <body>
-
     <div id="app">
         <div style="text-align:center;">
             <h1>Whatsapp API</h1>
@@ -150,14 +149,6 @@
         <ul class="logs"></ul>
     </div>
     <div id="div_wa_msg" style="display: none;"></div>
-
-
-    <!-- <form action="/send-image" method="POST" enctype="multipart/form-data">
-        <input type="text" name="number" value="5215554192439"><br>
-        <input type="text" name="caption" placeholder="El texto de la imagen"><br>
-        <input type="file" name="image" />
-        <button type="submit">Upload</button>
-    </form> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" crossorigin="anonymous"></script>
     <script src="/socket.io/socket.io.js" crossorigin="anonymous"></script>
     <script>
@@ -252,8 +243,6 @@
                 }
             })
             $("#chkConn").on('click', async function () {
-                // console.log("check Conn");
-                // socket.emit('checkConn', 'check conn');
                 loadQR()
             })
             function revisaConexion() {
@@ -317,7 +306,6 @@
                 }
                 else{alert("Es necesario llenar por lo menos el número, mensaje y boton1.")}
             })
-
             $("#btnImg").click(function () {
                var fd = new FormData();
                console.log("IMAGEN=" + $('#imgimage')[0]?.files[0])
@@ -341,7 +329,6 @@
                    },
                });
            });
-
             $("#tipoMensaje").change(function () {
                 let sel = $("select option:selected").val()
                 console.log(sel)
