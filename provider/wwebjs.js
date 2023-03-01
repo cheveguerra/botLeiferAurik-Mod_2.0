@@ -61,6 +61,7 @@ initBot = async () => {
  // Socket IO
      io.on('connection', async function (socket) {
         console.log("Connecting ...")
+        socket.emit('ioStatus', socketioStatus);
         socks = socket
         
         await socket.emit('message', 'Connecting...');
@@ -73,10 +74,12 @@ initBot = async () => {
         try {
             client.on('message', () => {
                 console.log(waReady)
+                socketioStatus = "wa_msg"; socket.emit('ioStatus', socketioStatus);
                 socket.emit('incomming', 'Message In')
                 waReady = true
             })
             client.on('qr', qr => generateImage(qr, async () => {
+                socketioStatus = "wa_qr"; socket.emit('ioStatus', socketioStatus);
                 qrcode.generate(qr, { small: true });
                 console.log(`Ver QR http://localhost:${port}/bot.qr.png`)
                 await socket.emit('qr', `http://localhost:${port}/bot.qr.png`);
@@ -84,12 +87,14 @@ initBot = async () => {
             }))
 
             client.on('ready', async () => {
+                socketioStatus = "wa_ready"
                 await socket.emit('ready', 'Whatsapp is ready!');
                 await socket.emit('message', 'Whatsapp is ready!');
                 waReady = true
             });
 
             client.on('authenticated', async () => {
+                socketioStatus = "wa_autenticated"; socket.emit('ioStatus', socketioStatus);
                 await socket.emit('authenticated', 'Whatsapp is authenticated!');
                 await socket.emit('message', 'Whatsapp is authenticated!');
                 // console.log('AUTHENTICATED');
@@ -101,6 +106,7 @@ initBot = async () => {
             });
 
             client.on('disconnected', async (reason) => {
+                socketioStatus = "wa_disconnected"; socket.emit('ioStatus', socketioStatus);
                 await socket.emit('message', 'Whatsapp is disconnected!');
                 waReady = false
                 // client.destroy();

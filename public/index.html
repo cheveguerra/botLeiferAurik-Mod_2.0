@@ -55,26 +55,27 @@
     <div id="app">
         <div style="text-align:center;">
             <h1>Whatsapp API</h1>
-            <br>
-            <div id="qrDiv" style=""display:none;>
-                <img src="bot.qr.png" alt="QR Code" id="qrcode" style="width:300px">
-                <div id="countdown" style="margin-top:-25px"></div>
-            </div>
+            <br><br>
+            <div id="divQRPage" style="display:none;"></div>
+            <div id="countdown" style="margin-top:-25px"></div>
             <div id="postman" style="display:flex;justify-content:center;">
-                   <table>
+                <table>
                     <tr>
-                        <td>Número:</td><td><input type="text" id="number" value="5215554192439"></td>
+                        <td>Número:</td>
+                        <td><input type="text" id="number" value="5215554192439"></td>
                     </tr>
                     <tr>
-                        <td>Mensaje:</td><td><input type="text" id="message" value="test1"></td>
+                        <td>Mensaje:</td>
+                        <td><input type="text" id="message" value="test1"></td>
                     </tr>
                     <tr>
-                        <td> </td><td align="center"><input type="button" id="btnMessage" value="Enviar Mensaje"></td>
+                        <td> </td>
+                        <td align="center"><input type="button" id="btnMessage" value="Enviar Mensaje"></td>
                     </tr>
                 </table>
             </div>
         </div>
-        <input type="button" id="chkConn" value="ChkConn">
+        <!-- <input type="button" id="chkConn" value="QR"> -->
         <br>
         <h3>Logs:</h3>
         <ul class="logs"></ul>
@@ -86,49 +87,59 @@
         let downloadTimer;
         let IntervaloABorrar
         let waReady = false
-        $(document).ready(function () {
-            if(waReady == false) { $("#btnMessage").attr("disabled", true)}
+        let IOSTATUS = "NONE"
+        $(document).ready( function(){
+            if (waReady == false && IOSTATUS == "wa_ready") { $("#btnMessage").attr("disabled", true) }
             var socket = io();
+            socket.on('ioStatus', function ( msg ){
+                IOSTATUS = msg;
+                console.log("IOSTATUS="+msg);
+                console.log("XXXXXXXXXXXXX   " + IOSTATUS)
+                if (IOSTATUS == 'wa_ready') { $("#postman").show(); $("#divQRPage").hide() }
+                else if (IOSTATUS == 'wa_qr') { $("#divQRPage").show(); loadQR(); $("#postman").hide(); console.log("mostramos QRPage") }
+                else { $("#divQRPage").hide(); $("#postman").hide(); }
+            })
             socket.on('message', function (msg) {
                 $('.logs').prepend($('<li>').text(msg));
-                    console.log("|"+msg+"|");
-                    if(msg == 'Connecting...') { $('#qrDiv').hide(); $('#postman').show(); waReady  = false, $("#btnMessage").attr("disabled", true) }
-                    if(msg == 'Whatsapp is ready!'){ $("#btnMessage").attr("disabled", false) }
-            });
+                console.log("|" + msg + "|");
+                if (msg == 'Connecting...' && IOSTATUS == "wa_ready") { $('#divQRPage').hide(); $('#postman').show(); waReady = false, $("#btnMessage").attr("disabled", true) }
+                if (msg == 'Whatsapp is ready!') { $("#btnMessage").attr("disabled", false) }
+            })
             socket.on('qr', function (src) {
                 var extra = Date.now();
                 console.log(extra)
-                $('#qrcode').attr('src', src+'?'+extra);
+                loadQR()
+                // $('#qrcode').attr('src', src + '?' + extra);
                 $('#postman').hide();
-                $('#qrDiv').show();
+                $('#divQRPage').show();
                 waReady = false;
                 $("#btnMessage").attr("disabled", true)
                 startImer()
-            });
+            })
             socket.on('ready', function (data) {
-                $('#qrDiv').hide();
+                $("#divQRPage").hide()
                 $('#postman').show();
                 clearInterval(IntervaloABorrar);
-            });
+            })
             socket.on('authenticated', function (data) {
-                $('#qrDiv').hide();
+                $('#divQRPage').hide();
                 $('#postman').show();
-            });
+            })
             socket.on("connect_error", (err) => {
                 $('.logs').prepend($('<li>').text("¡Error de conexión!"));
-                    waReady = false
-                    $("#btnMessage").attr("disabled", true)
+                waReady = false
+                $("#btnMessage").attr("disabled", true)
                 console.log(`connect_error due to ${err.message}`);
-            });
-            socket.on('incomming', function(){
-                if(waReady == false){
+            })
+            socket.on('incomming', function () {
+                if (waReady == false) {
                     $('.logs').prepend($('<li>').text('Whatsapp is ready!'));
                     console.log("incomming")
                     $("#btnMessage").attr("disabled", false)
                     waReady = true
                 }
             })
-            socket.on('connOk', function(){
+            socket.on('connOk', function () {
                 console.log("connOk")
                 if (waReady == false) {
                     $('.logs').prepend($('<li>').text('Whatsapp is ready!'));
@@ -138,10 +149,11 @@
                 }
             })
             $("#chkConn").on('click', async function () {
-                console.log("check Conn");
-                socket.emit('checkConn', 'check conn');
+                // console.log("check Conn");
+                // socket.emit('checkConn', 'check conn');
+                loadQR()
             })
-            function revisaConexion(){
+            function revisaConexion() {
                 var checkConnection = setInterval(function () {
                     if (waReady == false) {
                         socket.emit('checkConn', 'check conn');
@@ -153,34 +165,38 @@
                 }, 2000);
             }
             revisaConexion();
-        });
-        function startImer(){
-            clearInterval(IntervaloABorrar);
-            var timeleft = 60;
-            console.log(typeof downloadTimer)
-            var downloadTimer = setInterval(function () {
-                if (timeleft <= 0) {
+            function loadQR(){ 
+                $('#divQRPage').load("qr.html");
+                console.log("Load QR page!") 
+            }
+            function startImer() {
+                clearInterval(IntervaloABorrar);
+                var timeleft = 60;
+                console.log(typeof downloadTimer)
+                var downloadTimer = setInterval(function () {
+                    if (timeleft <= 0) {
+                        IntervaloABorrar = downloadTimer
+                        clearInterval(IntervaloABorrar);
+                        document.getElementById("countdown").innerHTML = "Finished";
+                        // startImer();
+                    } else {
+                        document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                    }
+                    console.log(typeof downloadTimer + "|" + downloadTimer)
                     IntervaloABorrar = downloadTimer
-                    clearInterval(IntervaloABorrar);
-                    document.getElementById("countdown").innerHTML = "Finished";
-                    // startImer();
-                } else {
-                    document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
-                }
-                console.log(typeof downloadTimer + "|" + downloadTimer)
-                IntervaloABorrar = downloadTimer
-                timeleft -= 1;
-            }, 1000);
-        }
-        $('#btnMessage').on('click', function(){
-            console.log("msg clicked")
-         $.post("http://localhost:3005/send-message/", { "number": $("#number").val(), "message": $("#message").val() })
-         .done(function (data) {
-                 console.log(data.status);
-                 if(data.status == true){alert("¡Mensaje enviado!")}
-             });
-        }
-        )
+                    timeleft -= 1;
+                }, 1000);
+            }
+            $('#btnMessage').on('click', function () {
+                console.log("msg clicked")
+                $.post("http://localhost:3005/send-message/", { "number": $("#number").val(), "message": $("#message").val() })
+                    .done(function (data) {
+                        console.log(data.status);
+                        if (data.status == true) { alert("¡Mensaje enviado!") }
+                    });
+            })
+        
+        });
 
     </script>
 </body>

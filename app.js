@@ -6,6 +6,7 @@ global.provider = process.env.PROVIDER || 'wwebjs';
 const fs = require('fs');
 global.siguientePaso = [{"numero":"1", "va":"XXX"}]; //MOD by CHV - Agregamos para pasar el VAMOSA a "index.js"
 global.pasoAnterior = [];
+global.socketioStatus = ""
 global.vars = []
 // const mysqlConnection = require('./config/mysql')
 if( provider == 'baileys' ){ const { initBot } = require(`./provider/baileys`) }
