@@ -32,7 +32,7 @@
     "socket.io": "^4.5.1",
     "stormdb": "^0.6.0",
     "util-tiempo": "^1.0.41",
-    "whatsapp-web.js": "^1.19.4",
+    "whatsapp-web.js": "github:cheveguerra/whatsapp-web.js#WaWJS2",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

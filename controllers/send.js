@@ -73,7 +73,7 @@ const sendMessage = async (client, number = null, text = null, regla) => { //MOD
     else{wwebjs.sendMessage(client, number, text, regla)}
     // client.sendMessage(number, message);
     // console.log(number, message, regla)
-    await readChat(number, message, regla) //MOD by CHV - Agregamos el parametro "regla"
+    await readChat(number, text, regla) //MOD by CHV - Agregamos el parametro "regla"
     console.log(`⚡⚡⚡ Enviando mensajes....`);
     // console.log("*********************  SEND MESSAGE  **************************************");
    },DELAY_TIME)
@@ -88,7 +88,7 @@ const sendMessageButton = async (client, number = null, text = null, actionButto
         if(provider === 'baileys'){baileys.sendMessageButton(client, number, text, actionButtons)}
         else{wwebjs.sendMessageButton(client, number, text, actionButtons)}
         // number = cleanNumber(number)
-        // const { title = null, message = null, footer = null, buttons = [] } = actionButtons;
+        const { title = null, message = null, footer = null, buttons = [] } = actionButtons;
         // let button = new Buttons(remplazos(message, client),[...buttons], remplazos(title, client), remplazos(footer, client));
         await readChat(number, message)
         // client.sendMessage(number, button);
@@ -111,7 +111,7 @@ const sendMessageList = async (client, number = null, text = null, actionList) =
         if(provider === 'baileys'){baileys.sendMessageList(client, number, text, actionList)}
         else{wwebjs.sendMessageList(client, number, text, actionList)}
         // client.sendMessage(number, aList);
-        await readChat(number, message)
+        await readChat(number, text)
         // console.log('⚡⚡⚡ Enviando lista a '+number+' ....');
     }, DELAY_TIME)
 }

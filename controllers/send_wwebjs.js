@@ -105,8 +105,8 @@ const sendMessageButton = async (client, number, text = null, actionButtons) => 
             [...buttons],
             remplazos(title, client),
             remplazos(footer, client));
-        console.log("sendMessageButton:", button)
-        console.log(buttons)
+        console.log("sendMessageButton wwebjs:", button)
+        console.log(button.buttons)
         client.sendMessage(number, button);
         await readChat(number, message)
     }, DELAY_TIME)

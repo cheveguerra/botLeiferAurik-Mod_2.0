@@ -47,6 +47,9 @@
             color: green;
             font-weight: bold;
         }
+        ::placeholder {
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -59,20 +62,84 @@
             <div id="divQRPage" style="display:none;"></div>
             <div id="countdown" style="margin-top:-25px"></div>
             <div id="postman" style="display:flex;justify-content:center;">
-                <table>
-                    <tr>
-                        <td>Número:</td>
-                        <td><input type="text" id="number" value="5215554192439"></td>
-                    </tr>
-                    <tr>
-                        <td>Mensaje:</td>
-                        <td><input type="text" id="message" value="test1"></td>
-                    </tr>
-                    <tr>
-                        <td> </td>
-                        <td align="center"><input type="button" id="btnMessage" value="Enviar Mensaje"></td>
-                    </tr>
-                </table>
+                <div>
+                    <select id="tipoMensaje">
+                        <option>Mensaje</option>
+                        <!-- <option>Imagen</option> -->
+                        <option>Botones</option>
+                    </select>
+                </div>
+                <div id="postMsg">
+                    <table>
+                        <tr>
+                            <td>Número:</td>
+                            <td><input type="text" id="number" value="5215554192439"></td>
+                        </tr>
+                        <tr>
+                            <td>Mensaje:</td>
+                            <td><input type="text" id="message" value="test1"></td>
+                        </tr>
+                        <tr>
+                            <td> </td>
+                            <td align="center"><input type="button" id="btnMessage" value="Enviar Mensaje"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="postBtn" style="display:none;">
+                    <table>
+                        <tr>
+                            <td>Número:</td>
+                            <td><input type="text" id="btnnumber" value="5215554192439"></td>
+                        </tr>
+                        <tr>
+                            <td>Titulo:</td>
+                            <td><input type="text" id="btntitle" placeholder="El título"></td>
+                        </tr>
+                        <tr>
+                            <td>Mensaje:</td>
+                            <td><input type="text" id="btnmsg" placeholder="El mensaje"></td>
+                        </tr>
+                        <tr>
+                            <td>Boton 1:</td>
+                            <td><input type="text" id="btn1" placeholder="Texto del botón 1"></td>
+                        </tr>
+                        <tr>
+                            <td>Boton 2:</td>
+                            <td><input type="text" id="btn2" placeholder="Texto del botón 1"></td>
+                        </tr>
+                        <tr>
+                            <td>Boton 3:</td>
+                            <td><input type="text" id="btn3" placeholder="Texto del botón 1"></td>
+                        </tr>                        <tr>
+                            <td>Footer:</td>
+                            <td><input type="text" id="btnfooter" placeholder="Texto del footer"></td>
+                        </tr>
+                        <tr>
+                            <td> </td>
+                            <td align="center"><input type="button" id="btnBtn" value="Enviar Botones"></td>
+                        </tr>
+                    </table>
+                </div>
+                <!-- <div id="postImg">
+                    <table>
+                        <tr>
+                            <td>Número:</td>
+                            <td><input type="text" id="number" value="5215554192439"></td>
+                        </tr>
+                        <tr>
+                            <td>Imagen:</td>
+                            <td><input type="text" id="image" value="test1"></td>
+                        </tr>
+                        <tr>
+                            <td>Texto:</td>
+                            <td><input type="text" id="caption" placeholder="El texto aquí"></td>
+                        </tr>
+                        <tr>
+                            <td> </td>
+                            <td align="center"><input type="button" id="btnImg" value="Enviar Mensaje"></td>
+                        </tr>
+                    </table>
+                </div> -->
             </div>
         </div>
         <!-- <input type="button" id="chkConn" value="QR"> -->
@@ -80,7 +147,7 @@
         <h3>Logs:</h3>
         <ul class="logs"></ul>
     </div>
-
+    <div id="div_wa_msg" style="display: none;"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" crossorigin="anonymous"></script>
     <script src="/socket.io/socket.io.js" crossorigin="anonymous"></script>
     <script>
@@ -89,21 +156,32 @@
         let waReady = false
         let IOSTATUS = "NONE"
         $(document).ready( function(){
-            if (waReady == false && IOSTATUS == "wa_ready") { $("#btnMessage").attr("disabled", true) }
+            $("#postBtn").hide(); $("#postImg").hide();
+            if (waReady == false && IOSTATUS == "wa_ready") { $("#btnMessage").attr("disabled", true); $("#btnBtn").attr("disabled", true); }
             var socket = io();
             socket.on('ioStatus', function ( msg ){
                 IOSTATUS = msg;
                 console.log("IOSTATUS="+msg);
                 console.log("XXXXXXXXXXXXX   " + IOSTATUS)
+                if(msg == 'wa_msg') { IOSTATUS = "wa_ready" }
                 if (IOSTATUS == 'wa_ready') { $("#postman").show(); $("#divQRPage").hide() }
                 else if (IOSTATUS == 'wa_qr') { $("#divQRPage").show(); loadQR(); $("#postman").hide(); console.log("mostramos QRPage") }
                 else { $("#divQRPage").hide(); $("#postman").hide(); }
             })
+            socket.on('wa_msg', function( msg ){
+                $("#div_wa_msg").fadeIn()
+                $("#div_wa_msg").html(msg)
+                setTimeout(() => {
+                    $("#div_wa_msg").fadeOut("slow")
+                }, 1500);
+            })
             socket.on('message', function (msg) {
                 $('.logs').prepend($('<li>').text(msg));
                 console.log("|" + msg + "|");
-                if (msg == 'Connecting...' && IOSTATUS == "wa_ready") { $('#divQRPage').hide(); $('#postman').show(); waReady = false, $("#btnMessage").attr("disabled", true) }
-                if (msg == 'Whatsapp is ready!') { $("#btnMessage").attr("disabled", false) }
+                console.log("MENSAJES = " + $(".logs li").length)
+                if($(".logs li").length >= 15){ $('.logs li').last().remove(); }
+                if (msg == 'Conectando...' && IOSTATUS == "wa_ready") { $('#divQRPage').hide(); $('#postman').show(); waReady = false, $("#btnMessage").attr("disabled", true); $("#btnBtn").attr("disabled", true); }
+                if (msg == 'Whatsapp esta listo!') { $("#btnMessage").attr("disabled", false); $("#btnBtn").attr("disabled", false); }
             })
             socket.on('qr', function (src) {
                 var extra = Date.now();
@@ -113,7 +191,8 @@
                 $('#postman').hide();
                 $('#divQRPage').show();
                 waReady = false;
-                $("#btnMessage").attr("disabled", true)
+                $("#btnMessage").attr("disabled", true);
+                 $("#btnBtn").attr("disabled", true);
                 startImer()
             })
             socket.on('ready', function (data) {
@@ -126,25 +205,34 @@
                 $('#postman').show();
             })
             socket.on("connect_error", (err) => {
+                $("#btnMessage").attr("disabled", true);
+                $("#btnBtn").attr("disabled", true);
                 $('.logs').prepend($('<li>').text("¡Error de conexión!"));
+                if ($(".logs li").length >= 15) { $('.logs li').last().remove(); }
+                console.log("MENSAJES = " + $(".logs li").length)
                 waReady = false
-                $("#btnMessage").attr("disabled", true)
                 console.log(`connect_error due to ${err.message}`);
             })
             socket.on('incomming', function () {
                 if (waReady == false) {
-                    $('.logs').prepend($('<li>').text('Whatsapp is ready!'));
+                    $('.logs').prepend($('<li>').text('Whatsapp está listo!'));
+                    if ($(".logs li").length >= 15) { $('.logs li').last().remove(); }
+                    console.log("MENSAJES = " + $(".logs li").length)
                     console.log("incomming")
-                    $("#btnMessage").attr("disabled", false)
+                    $("#btnMessage").attr("disabled", false);
+                    $("#btnBtn").attr("disabled", false);
                     waReady = true
                 }
             })
             socket.on('connOk', function () {
                 console.log("connOk")
-                if (waReady == false) {
-                    $('.logs').prepend($('<li>').text('Whatsapp is ready!'));
+                if (waReady == false && IOSTATUS == "wa_ready") {
+                    $('.logs').prepend($('<li>').text('Whatsapp está listo!'));
+                    if ($(".logs li").length >= 15) { $('.logs li').last().remove(); }
+                    console.log("MENSAJES = " + $(".logs li").length)
                     console.log("incomming")
-                    $("#btnMessage").attr("disabled", false)
+                    $("#btnMessage").attr("disabled", false);
+                    $("#btnBtn").attr("disabled", false);
                     waReady = true
                 }
             })
@@ -195,7 +283,32 @@
                         if (data.status == true) { alert("¡Mensaje enviado!") }
                     });
             })
-        
+            $('#btnBtn').on('click', function () {
+                console.log("btn clicked")
+                if($("#btnnumber").val() != "" && $("#btnmsg").val() != "" && $("#btn1").val() != ""){
+                    let data = {}
+                    data.number = $("#btnnumber").val()
+                    data.title = $("#btntitle").val()
+                    data.btnmsg = $("#btnmsg").val()
+                    if($("#btn1").val() != "") {data.btn1 = $("#btn1").val()}
+                    if ($("#btn2").val() != "") {data.btn2 = $("#btn2").val()}
+                    if ($("#btn3").val() != "") {data.btn3 = $("#btn3").val()}
+                    if ($("#btnfooter").val() != "") {data.footer = $("#btnfooter").val()}
+                    $.post("http://localhost:3005/send-buttons/", data)
+                        .done(function (data) {
+                            console.log(data.status);
+                            if (data.status == true) { alert("¡Mensaje enviado!") }
+                        });
+                }
+                else{alert("Es necesario llenar por lo menos el número, mensaje y boton1.")}
+            })
+            $("#tipoMensaje").change(function () {
+                let sel = $("select option:selected").val()
+                console.log(sel)
+                if(sel == 'Mensaje'){ $("#postMsg").show(); $("#postBtn").hide(); $("#postImg").hide(); }
+                else if(sel == 'Imagen') { $("#postMsg").hide(); $("#postBtn").hide(); $("#postImg").show(); }
+                else if (sel == 'Botones') { $("#postMsg").hide(); $("#postBtn").show(); $("#postImg").hide(); }
+            })
         });
 
     </script>
