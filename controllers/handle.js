@@ -83,7 +83,7 @@ const createClient =  () => {
 const isValidNumber = (rawNumber) => {
     const regexGroup = /\@g.us\b/gm;
     const exist = rawNumber.match(regexGroup);
-    console.log("IsValidWawebJS", rawNumber, exist, !exist)
+    // console.log("IsValidWawebJS", rawNumber, exist, !exist)
     return !exist
 }
 

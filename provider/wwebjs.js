@@ -63,19 +63,19 @@ initBot = async () => {
     let waReady = false
     // Socket IO
      io.on('connection', async function (socket) {
-        console.log("Conectando ...")
+        // console.log("Conectando ...")
         socket.emit('ioStatus', socketioStatus);
         socks = socket
         await socket.emit('message', 'Conectando...');
         socket.on('checkConn', async function () { // Si recibe mensaje, regresa "connOk"
-            console.log("checking conn")
+            // console.log("checking conn")
             await socket.emit('connOk', 'Connected');
         })
 
         try {
             client.on('message', msg => {
                 // console.log(msg)
-                console.log(waReady)
+                // console.log(waReady)
                 socketioStatus = "wa_msg"; socket.emit('ioStatus', socketioStatus); socket.emit('wa_msg', msg.body);
                 socket.emit('incomming', 'Message In')
                 waReady = true
@@ -145,7 +145,7 @@ initBot = async () => {
         body('number').notEmpty(),
         body('message').notEmpty(),
     ], async (req, res) => {
-        console.log("REQUEST=", req.body)
+        // console.log("REQUEST=", req.body)
         socks.emit('incomming', 'Message In')
         const errors = validationResult(req).formatWith(({
             msg
@@ -181,7 +181,7 @@ initBot = async () => {
     });
     // Send buttons
     app.post('/send-buttons', async (req, res) => {
-        console.log("REQUEST=", req.body)
+        // console.log("REQUEST=", req.body)
         socks.emit('incomming', 'Button In')
 
         if (client.theMsg === undefined) {
@@ -224,7 +224,7 @@ initBot = async () => {
     });
     // Send image
     app.post('/send-image', async (req, res) => {
-        console.log("REQUEST=", req.body)
+        // console.log("REQUEST=", req.body)
         socks.emit('incomming', 'Image In')
         const number = phoneNumberFormatter(req.body.number);
         // const filename = req.body.image || null;
