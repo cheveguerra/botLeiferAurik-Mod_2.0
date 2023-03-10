@@ -33,7 +33,7 @@ Este proyecto es un clon de la **version 1** (legacy) de [Leifer Mendez](https:/
         "pasoRequerido":"menu"
     }
     ```
- - Permite **expresiones regulares** en las palabras predefinidas en el **initial.json**.
+ - Permite **expresiones regulares** en las palabras predefinidas en el ~~**initial.json**~~ **response.json**.
     - Si queremos usar RegExp, en los "keywords" de **inital.json**, en lugar de un arreglo, debemos usar un string ( quitamos los [] )
       y en él usamos "*" para significar cualquier texto y "|" para significar "OR", esto nos permite ser mas flexibles
       con los "keywords", por ejemplo, si queremos que el mensaje pueda decir:
