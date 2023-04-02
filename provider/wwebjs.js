@@ -1,6 +1,7 @@
 const { MessageMedia, Client, LocalAuth, Buttons, List } = require('whatsapp-web.js');
 const { sendMedia, sendMessage, sendMessageButton, sendMessageList, readChat } = require(`../controllers/send`);
 const mime = require('mime-types')
+// const mysqlConnection = require('./config/mysql')
 require('dotenv').config()
 const fs = require('fs');
 const express = require('express');
@@ -51,15 +52,22 @@ initBot = async () => {
     client.on('authenticated', () => {
         console.log('AUTHENTICATED'); 
     });
+
+    client.on('qr', qr => generateImage(qr, async () => {
+        qrcode.generate(qr, { small: true });
+        console.log(`Ver QR http://localhost:${port}/bot.qr.png`)
+    }))
+
+
     client.initialize();
 
     /**
     * Verificamos si tienes un gesto de db
     */
-
     if (process.env.DATABASE === 'mysql') {
     mysqlConnection.connect()
     }
+
     let waReady = false
     // Socket IO
      io.on('connection', async function (socket) {

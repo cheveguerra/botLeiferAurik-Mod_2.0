@@ -48,12 +48,28 @@ function listenMessage(client){
     else { client0 = client.ev; messageEV = 'messages.upsert' } // Usamos Baileys.
     client0.on(messageEV, async msg => {
         if(provider == 'wwebjs'){ msg.type = 'notify' }
-        const { from, body, name, hasMedia } = traeVariablesFromMsg(msg);
+        const { from, body, name, hasMedia, timestamp } = traeVariablesFromMsg(msg);
         if (vars[from] === undefined) vars[from] = []
         // Este bug lo reporto Lucas Aldeco Brescia para evitar que se publiquen estados.
         if (from === 'status@broadcast' || msg.type !== 'notify') { console.log("++++++  status@broadcast o tipo mensaje = ", msg.type); return }
+        if ((timestamp*1000) + (300000) < Date.now()) { console.log("Mensaje Viejo"); return }// Si el mensaje es mas viejo de 300 segundos no le hacemos caso!
         console.log("+++++++++++++++++++++++++++++++++++++  INICIO  +++++++++++++++++++++++++++++++++++++++");
-        console.log("HORA:"+new Date().toLocaleTimeString()+" FROM:"+from+", BODY:"+body+", HASMEDIA:"+hasMedia+", DEVICETYPE:"+client.theMsg?.deviceType);
+        console.log("HORA:" + new Date().toLocaleTimeString() + " FROM:" + from + ", BODY:" + body + ", HASMEDIA:" + hasMedia + ", DEVICETYPE:" + msg?.deviceType);
+        if(provider == 'baileys'){
+            console.log('---------------------------------------------------------------')
+            console.log(msg?.messages[0]?.message)
+            console.log('---------------------------------------------------------------')
+            console.log(msg?.messages[0]?.message?.extendedTextMessage?.text)
+        }
+        // console.log('---------------------------------------------------------------')
+        // if(provider == 'baileys') {verificado = await client.onWhatsApp('5215512345678@s.whatsapp.net')}
+        // else { verificado = await client.isRegisteredUser('5215512345678@c.us') }
+        // console.log('VERIFICADO1=', verificado)
+        // console.log('---------------------------------------------------------------')
+        // if(provider == 'baileys') {verificado = await client.onWhatsApp('5215554192439@s.whatsapp.net')}
+        // else { verificado = await client.isRegisteredUser('5215554192439@c.us') }
+        // console.log('VERIFICADO2=', verificado)
+        // console.log('---------------------------------------------------------------')
         // * Numero NO válido.
         if(!isValidNumber(from)){ console.log("Número invalido"); return }
         const number = soloNumero(from)

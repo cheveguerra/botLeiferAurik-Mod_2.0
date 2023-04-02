@@ -93,7 +93,7 @@ initBot = async () => {
             }
         });
         sock.ev.on('creds.update', async () => { await saveCreds() });
-    } 
+    }
     catch (e) {
         logger.log(e);
         console.log('auth_failure', [

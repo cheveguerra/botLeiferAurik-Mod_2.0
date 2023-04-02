@@ -215,15 +215,16 @@ function traeVariablesFromMsgBaileys(msg){
     let body = theBody
     let name = pushName
     let hasMedia = false
+    let timestamp = msg.messages[0].messageTimestamp
     // console.log("fromBody=", from, body, name)
-    return {"from":from, "body":body, "name":name, "hasMedia":hasMedia}
+    return {"from":from, "body":body, "name":name, "hasMedia":hasMedia, "timestamp":timestamp}
 }
 
 function traeVariablesFromMsgWWebJS(msg){
-    const { from, body, hasMedia } = msg;
+    const { from, body, hasMedia, timestamp } = msg;
     let name = msg?._data?.notifyName
     // console.log("fromBody=", msg?._data)
-    return {"from":from, "body":body, "name":name, "hasMedia":hasMedia}
+    return {"from":from, "body":body, "name":name, "hasMedia":hasMedia, "timestamp":timestamp}
 }
 
 /**
